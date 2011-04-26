@@ -20,12 +20,12 @@
   <parent>
     <groupId>com.cloudbees</groupId>
     <artifactId>cloudbees-api-client-parent</artifactId>
-    <version>0.8.0</version>
+    <version>0.8.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>cloudbees-api-client-nodeps</artifactId>
   <packaging>jar</packaging>
-  <version>0.8.0</version>
+  <version>0.8.1-SNAPSHOT</version>
 
   <name>cloudbees-api-client-nodeps</name>
   <description>The CloudBees API Client library for Java (Third party dependencies shaded)</description>
