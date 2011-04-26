@@ -121,7 +121,7 @@
                 <configuration>
                   <artifacts>
                     <artifact>
-                      <file>${project.build.directory}/cloudbees-api-client-${project.parent.version}.jar</file>
+                      <file>${project.build.directory}/cloudbees-api-client-${project.parent.version}-javadoc.jar</file>
                       <type>jar</type>
                       <classifier>javadoc</classifier>
                     </artifact>
