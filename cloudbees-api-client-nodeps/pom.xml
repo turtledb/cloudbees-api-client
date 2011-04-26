@@ -92,7 +92,7 @@
             <version>2.2</version>
             <executions>
               <execution>
-                <id>javadocs</id>
+                <id>javadoc</id>
                 <phase>package</phase>
                 <goals>
                   <goal>copy-dependencies</goal>
@@ -100,6 +100,20 @@
                 <configuration>
                   <failOnMissingClassifierArtifact>true</failOnMissingClassifierArtifact>
                   <classifier>javadoc</classifier>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                  <includeGroupIds>com.cloudbees</includeGroupIds>
+                  <includeArtifactIds>cloudbees-api-client</includeArtifactIds>
+                </configuration>
+              </execution>
+              <execution>
+                <id>sources</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>copy-dependencies</goal>
+                </goals>
+                <configuration>
+                  <failOnMissingClassifierArtifact>true</failOnMissingClassifierArtifact>
+                  <classifier>sources</classifier>
                   <outputDirectory>${project.build.directory}</outputDirectory>
                   <includeGroupIds>com.cloudbees</includeGroupIds>
                   <includeArtifactIds>cloudbees-api-client</includeArtifactIds>
@@ -124,6 +138,11 @@
                       <file>${project.build.directory}/cloudbees-api-client-${project.parent.version}-javadoc.jar</file>
                       <type>jar</type>
                       <classifier>javadoc</classifier>
+                    </artifact>
+                    <artifact>
+                      <file>${project.build.directory}/cloudbees-api-client-${project.parent.version}-sources.jar</file>
+                      <type>jar</type>
+                      <classifier>sources</classifier>
                     </artifact>
                   </artifacts>
                 </configuration>
