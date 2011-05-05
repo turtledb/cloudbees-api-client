@@ -3,6 +3,7 @@ package com.cloudbees.api;
 import com.cloudbees.upload.ArchiveUtils;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
+import com.thoughtworks.xstream.mapper.MapperWrapper;
 import org.codehaus.jettison.json.JSONObject;
 
 import java.io.File;
@@ -390,9 +391,27 @@ public class BeesClient extends BeesClientBase
     protected XStream getXStream() throws Exception {
         XStream xstream;
         if (format.equals("json")) {
-            xstream = new XStream(new JettisonMappedXmlDriver());
+            xstream = new XStream(new JettisonMappedXmlDriver()) {
+                protected MapperWrapper wrapMapper(MapperWrapper next) {
+                    return new MapperWrapper(next) {
+                        public boolean shouldSerializeMember(Class definedIn, String fieldName) {
+                            return definedIn != Object.class ? super.shouldSerializeMember(definedIn, fieldName) : false;
+                        }
+
+                    };
+                }
+            };
         } else if (format.equals("xml")) {
-            xstream = new XStream();
+            xstream = new XStream() {
+                protected MapperWrapper wrapMapper(MapperWrapper next) {
+                    return new MapperWrapper(next) {
+                        public boolean shouldSerializeMember(Class definedIn, String fieldName) {
+                            return definedIn != Object.class ? super.shouldSerializeMember(definedIn, fieldName) : false;
+                        }
+
+                    };
+                }
+            };
         } else {
             throw new Exception("Unknown format: " + format);
         }
