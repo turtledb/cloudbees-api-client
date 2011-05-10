@@ -18,6 +18,7 @@ package com.cloudbees.utils;
 
 import java.io.*;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class ZipHelper {
@@ -80,6 +81,21 @@ public class ZipHelper {
         }
     }
 
+    public static void unzipFile(InputStream fis, ZipEntryHandler zipHandler,
+            boolean closeStream) throws IOException {
+        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
+        ZipEntry entry;
+        while ((entry = zis.getNextEntry()) != null) {
+            zipHandler.unzip(entry, new NoCloseInputStream(zis));
+        }
+        if (closeStream)
+            zis.close();
+    }
+
+    public interface ZipEntryHandler {
+        public void unzip(ZipEntry entry, InputStream zis)
+                throws IOException;
+    }
 
     private static int BUFFER = 2048;
 
@@ -108,4 +124,50 @@ public class ZipHelper {
             return destFile;
         }
     }
+}
+
+class NoCloseInputStream extends InputStream
+{
+	private InputStream in;
+	NoCloseInputStream(InputStream in)
+	{
+		this.in = in;
+	}
+	public int available() throws IOException {
+		return in.available();
+	}
+	public void close() throws IOException {
+	}
+	public boolean equals(Object obj) {
+		return in.equals(obj);
+	}
+	public int hashCode() {
+		return in.hashCode();
+	}
+	public void mark(int arg0) {
+		in.mark(arg0);
+	}
+	public boolean markSupported() {
+		return in.markSupported();
+	}
+	public int read() throws IOException {
+		return in.read();
+	}
+	public int read(byte[] arg0, int arg1, int arg2) throws IOException {
+		return in.read(arg0, arg1, arg2);
+	}
+	public int read(byte[] arg0) throws IOException {
+		return in.read(arg0);
+	}
+	public void reset() throws IOException {
+		in.reset();
+	}
+	public long skip(long arg0) throws IOException {
+		return in.skip(arg0);
+	}
+	public String toString() {
+		return in.toString();
+	}
+
+
 }

@@ -1,21 +1,21 @@
 package com.cloudbees.api;
 
 import com.cloudbees.upload.ArchiveUtils;
+import com.cloudbees.utils.AppConfigHelper;
+import com.cloudbees.utils.ZipHelper;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
 import org.codehaus.jettison.json.JSONObject;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
 
 /**
  * @author Fabian Donze
@@ -353,6 +353,53 @@ public class BeesClient extends BeesClientBase
         AccountListResponse apiResponse =
             (AccountListResponse)readResponse(response);
         return apiResponse;
+    }
+
+    public ApplicationConfiguration getApplicationConfiguration(String warFilePath, String account, String[] environments) throws Exception {
+        ApplicationConfiguration appConfig;
+        File deployFile = new File(warFilePath);
+        if (deployFile.exists()) {
+            appConfig = getAppConfig(deployFile, environments, new String[] { "deploy" });
+        } else {
+            throw new IllegalArgumentException("File not found: " + warFilePath);
+        }
+
+        String appid = appConfig.getApplicationId();
+        if (appid == null || appid.equals(""))
+            throw new IllegalArgumentException("No application id specified");
+
+        String[] appIdParts = appid.split("/");
+        if (appIdParts.length < 2) {
+            if (account != null && !account.equals("")) {
+                appConfig.setApplicationId(account + "/" + appid);
+            } else {
+                throw new IllegalArgumentException("Application account not specified");
+            }
+        }
+        return appConfig;
+    }
+
+    protected static ApplicationConfiguration getAppConfig(File deployZip, final String[] environments,
+                                         final String[] implicitEnvironments) throws IOException {
+        final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
+
+        FileInputStream fin = new FileInputStream(deployZip);
+        try {
+            ZipHelper.unzipFile(fin, new ZipHelper.ZipEntryHandler() {
+                public void unzip(ZipEntry entry, InputStream zis)
+                        throws IOException {
+                    if (entry.getName().equals("META-INF/stax-application.xml")
+                            || entry.getName().equals("WEB-INF/stax-web.xml")
+                            || entry.getName().equals("WEB-INF/cloudbees-web.xml")) {
+                        AppConfigHelper.load(applicationConfiguration, zis, environments, implicitEnvironments);
+                    }
+                }
+            }, false);
+        } finally {
+            fin.close();
+        }
+
+        return applicationConfiguration;
     }
 
     private String createParameter(Map<String,String>parameters) {
