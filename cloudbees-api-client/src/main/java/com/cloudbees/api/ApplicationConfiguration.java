@@ -16,9 +16,12 @@
 
 package com.cloudbees.api;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@XStreamAlias("ApplicationConfiguration")
 public class ApplicationConfiguration {
 
 	private String applicationId;
