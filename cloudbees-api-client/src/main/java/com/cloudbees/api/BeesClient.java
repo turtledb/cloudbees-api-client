@@ -1,6 +1,23 @@
+/*
+ * Copyright 2010-2011, CloudBees Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.cloudbees.api;
 
 import com.cloudbees.upload.ArchiveUtils;
+import com.cloudbees.upload.JarUtils;
 import com.cloudbees.utils.AppConfigHelper;
 import com.cloudbees.utils.ZipHelper;
 import com.thoughtworks.xstream.XStream;
@@ -154,6 +171,22 @@ public class BeesClient extends BeesClientBase
         return apiResponse;
     }
 
+    public ApplicationJarHashesResponse applicationJarCrcs(String appId, Map<String, String> hashes) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("app_id", appId);
+        params.put("hashes", createParameter(hashes));
+
+        String url = getApiUrl("application.jarHashes").toString();
+        params.put("action", "application.jarHashes");
+        // use the upload method (POST) to handle the potentially large "hashes" parameter payload
+        trace("API call: " + url);
+        String response = executeUpload(url, params, new HashMap<String, File>(), null);
+        ApplicationJarHashesResponse apiResponse =
+            (ApplicationJarHashesResponse)readResponse(response);
+        return apiResponse;
+    }
+
     public ApplicationDeployArchiveResponse applicationDeployEar(
         String appId, String environment, String description, String earFile,
         String srcFile, UploadProgress progress) throws Exception
@@ -188,6 +221,12 @@ public class BeesClient extends BeesClientBase
             String appId, String environment, String description, String earFile,
             String srcFile, String archiveType, boolean deltaDeploy, UploadProgress progress) throws Exception
     {
+        return applicationDeployArchive(appId, environment, description, earFile, srcFile, archiveType, deltaDeploy, null, progress);
+    }
+    public ApplicationDeployArchiveResponse applicationDeployArchive(
+            String appId, String environment, String description, String earFile,
+            String srcFile, String archiveType, boolean deltaDeploy, Map<String, String> parameters, UploadProgress progress) throws Exception
+    {
         Map<String, String> params = new HashMap<String, String>();
         Map<String, File> fileParams = new HashMap<String, File>();
         params.put("app_id", appId);
@@ -196,6 +235,7 @@ public class BeesClient extends BeesClientBase
 
         // Currently only support WAR file for delta upload
         boolean deployDelta = false;
+        boolean deployJarDelta = false;
         // Create delta deploy File
         if (deltaDeploy && archiveType.equals("war")) {
             trace("Get existing checksums");
@@ -211,9 +251,28 @@ public class BeesClient extends BeesClientBase
                 trace("Creating Delta archive for: " + archiveFile);
                 archiveFile = ArchiveUtils.createDeltaWarFile(applicationCheckSumsResponse.getCheckSums(), archiveFile, archiveFile.getParent());
                 deployDelta = true;
-                trace("Uploading delta archive: " + archiveFile);
             }
         }
+
+        if (deltaDeploy && archiveType.equals("war")) {
+            trace("Get existing jar hashes");
+            ApplicationJarHashesResponse applicationJarHashesResponse = applicationJarCrcs(appId, JarUtils.getJarHashes(archiveFile));
+            if (applicationJarHashesResponse.getJarHash().size() == 0) {
+                trace("No existing jars");
+            } else {
+                trace("Creating Delta2 archive for: " + archiveFile);
+                File archiveFile2 = JarUtils.createDeltaWarFile(applicationJarHashesResponse.getJarHash(), archiveFile, archiveFile.getParent());
+                // Delete the old delta archive
+                if (deployDelta) {
+                    archiveFile.delete();
+                }
+                archiveFile = archiveFile2;
+                deployJarDelta = true;
+            }
+        }
+
+        if (deployDelta || deployJarDelta)
+            trace("Uploading delta archive: " + archiveFile);
 
         File archiveFileSrc = srcFile != null ? new File(srcFile) : null;
         long uploadSize = archiveFile.length();
@@ -231,6 +290,8 @@ public class BeesClient extends BeesClientBase
 
         if (archiveFileSrc != null)
             fileParams.put("src", archiveFileSrc);
+
+        params.put("parameters", createParameter(parameters));
 
         // extend the deploy invocation timeout to 4 hours
         long expireTime = System.currentTimeMillis() + 4 * 60 * 60 * 1000;
@@ -251,7 +312,7 @@ public class BeesClient extends BeesClientBase
             throw e;
         } finally {
             // Delete the delta archive file
-            if (deployDelta)
+            if (deployDelta || deployJarDelta)
                 archiveFile.delete();
         }
     }
@@ -485,6 +546,7 @@ public class BeesClient extends BeesClientBase
         xstream.processAnnotations(AccountKeysResponse.class);
         xstream.processAnnotations(AccountInfo.class);
         xstream.processAnnotations(AccountListResponse.class);
+        xstream.processAnnotations(ApplicationJarHashesResponse.class);
 
         // Hack to fix backward compatibility
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);

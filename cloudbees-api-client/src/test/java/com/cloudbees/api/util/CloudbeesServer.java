@@ -88,6 +88,11 @@ public class CloudbeesServer {
                     return;
                 }
             } else if (req.getMethod().equalsIgnoreCase("post") ) {
+                if (req.getRequestURI().endsWith("application.jarHashes")) {
+                    String response = XmlResponseGenerator.applicationJarHashesResponse();
+                    resp.getWriter().print(response);
+                    return;
+                }
                 boolean isMultipart = ServletFileUpload.isMultipartContent(req);
                 if (isMultipart) {
                     FileItemFactory factory = new DiskFileItemFactory();
