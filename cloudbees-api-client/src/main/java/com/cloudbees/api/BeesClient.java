@@ -171,7 +171,15 @@ public class BeesClient extends BeesClientBase
         return apiResponse;
     }
 
+    /**
+     * @deprecated
+     */
     public ApplicationJarHashesResponse applicationJarCrcs(String appId, Map<String, String> hashes) throws Exception
+    {
+        return applicationJarHashes(appId, hashes);
+    }
+
+    public ApplicationJarHashesResponse applicationJarHashes(String appId, Map<String, String> hashes) throws Exception
     {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
@@ -256,7 +264,7 @@ public class BeesClient extends BeesClientBase
 
         if (deltaDeploy && archiveType.equals("war")) {
             trace("Get existing jar hashes");
-            ApplicationJarHashesResponse applicationJarHashesResponse = applicationJarCrcs(appId, JarUtils.getJarHashes(archiveFile));
+            ApplicationJarHashesResponse applicationJarHashesResponse = applicationJarHashes(appId, JarUtils.getJarHashes(archiveFile));
             if (applicationJarHashesResponse.getJarHash().size() == 0) {
                 trace("No existing jars");
             } else {
