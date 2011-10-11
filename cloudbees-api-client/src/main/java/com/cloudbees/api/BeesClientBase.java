@@ -213,9 +213,13 @@ public class BeesClientBase {
     public String executeRequest(String url) throws Exception {
         HttpClient httpClient = HttpClientHelper.createClient(this.beesClientConfiguration);
         GetMethod getMethod = new GetMethod(url);
-        httpClient.executeMethod(getMethod);
+        int code = httpClient.executeMethod(getMethod);
+        String response = getResponseString(getMethod.getResponseBodyAsStream());
+        if (code >= 300) {
+            processError(response, code);
+        }
 
-        return getResponseString(getMethod.getResponseBodyAsStream());
+        return response;
     }
 
     private String getResponseString(InputStream ins) throws IOException {
@@ -239,9 +243,22 @@ public class BeesClientBase {
         HttpParams params = httpClient.getParams();
         params.setIntParameter(HttpConnectionParams.SO_TIMEOUT, 0);
         GetMethod getMethod = new GetMethod(url);
-        httpClient.executeMethod(getMethod);
+        int code = httpClient.executeMethod(getMethod);
+        if (code >= 300) {
+            processError(getResponseString(getMethod.getResponseBodyAsStream()), code);
+        }
         return getMethod.getResponseBodyAsStream();
-    }    
+    }
+
+    protected void processError(String response, int code) throws BeesClientException {
+        ErrorResponse er = new ErrorResponse();
+        er.errorCode = "" + code;
+        if (isVerbose())
+            er.message = response;
+        else
+            er.message = HttpStatus.getStatusText(code);
+        throw new BeesClientException(er);
+    }
 
     protected void trace(String message)
     {
@@ -297,6 +314,7 @@ public class BeesClientBase {
                 trace("upload complete, response=" + response);
             } else {
                 trace("upload failed, response=" + HttpStatus.getStatusText(status));
+                processError(response, status);
             }
             return response;
         } finally {
