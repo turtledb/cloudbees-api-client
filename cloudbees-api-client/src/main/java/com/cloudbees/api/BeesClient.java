@@ -399,6 +399,20 @@ public class BeesClient extends BeesClientBase
         return apiResponse;
     }
 
+    public DatabaseSetPasswordResponse databaseSetPassword(String dbId, String password) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbId);
+        params.put("database_password", password);
+        String url = getRequestURL("database.setPassword", params);
+        trace("API call: " + url);
+        String response = executeRequest(url);
+        traceResponse(response);
+        DatabaseSetPasswordResponse apiResponse =
+            (DatabaseSetPasswordResponse)readResponse(response);
+        return apiResponse;
+    }
+
     public AccountKeysResponse accountKeys(String domain, String user, String password) throws Exception
     {
         Map<String, String> params = new HashMap<String, String>();
