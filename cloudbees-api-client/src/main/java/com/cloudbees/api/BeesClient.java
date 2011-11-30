@@ -546,6 +546,7 @@ public class BeesClient extends BeesClientBase
         xstream.processAnnotations(ApplicationSetMetaResponse.class);
         xstream.processAnnotations(ApplicationCheckSumsResponse.class);
         xstream.processAnnotations(DatabaseCreateResponse.class);
+        xstream.processAnnotations(DatabaseSetPasswordResponse.class);
         xstream.processAnnotations(DatabaseDeleteResponse.class);
         xstream.processAnnotations(DatabaseInfo.class);
         xstream.processAnnotations(DatabaseInfoResponse.class);
