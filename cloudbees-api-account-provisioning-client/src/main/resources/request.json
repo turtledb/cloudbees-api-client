@@ -1,0 +1,9 @@
+{
+    "account":{
+    },
+    "user":{
+        "email":"kohsuke.kawaguchi@gmail.com",
+        "firstname":"Fake",
+        "lastname":"耕介"
+    }
+}
