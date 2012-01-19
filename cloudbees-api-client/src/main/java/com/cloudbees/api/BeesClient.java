@@ -131,9 +131,28 @@ public class BeesClient extends BeesClientBase
         return apiResponse;
     }
 
+    /**
+     * Returns all the applications in all the account sthat you belong to.
+     *
+     * Short-hand for {@code applicationList(null)}.
+     */
     public ApplicationListResponse applicationList() throws Exception
     {
+        return applicationList(null);
+    }
+
+    /**
+     * Returns all the applications in the specified account.
+     *
+     * @param account
+     *      if null, returns all the applications from all the accounts that you belong to.
+     * @since 1.1.3
+     */
+    public ApplicationListResponse applicationList(String account) throws Exception
+    {
         Map<String, String> params = new HashMap<String, String>();
+        if (account != null)
+            params.put("account", account);
         String url = getRequestURL("application.list", params);
         trace("API call: " + url);
         String response = executeRequest(url);
@@ -387,9 +406,28 @@ public class BeesClient extends BeesClientBase
         return apiResponse.getDatabaseInfo();
     }
 
+    /**
+     * Returns all the databases in all the account sthat you belong to.
+     *
+     * Short-hand for {@code databaseList(null)}.
+     */
     public DatabaseListResponse databaseList() throws Exception
     {
+        return databaseList(null);
+    }
+
+    /**
+     * Returns all the databases in the specified account.
+     *
+     * @param account
+     *      if null, returns all the databases from all the accounts that you belong to.
+     * @since 1.1.3
+     */
+    public DatabaseListResponse databaseList(String account) throws Exception
+    {
         Map<String, String> params = new HashMap<String, String>();
+        if (account != null)
+            params.put("account", account);
         String url = getRequestURL("database.list", params);
         trace("API call: " + url);
         String response = executeRequest(url);
