@@ -362,6 +362,18 @@ public class BeesClient extends BeesClientBase
         return apiResponse;
     }
 
+    public ApplicationScaleResponse applicationScale( String appId, int unit) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("unit", ""+unit);
+        params.put("app_id", appId);
+        String url = getRequestURL("application.scale", params);
+        String response = executeRequest(url);
+        ApplicationScaleResponse apiResponse =
+            (ApplicationScaleResponse)readResponse(response);
+        return apiResponse;
+    }
+
     public DatabaseCreateResponse databaseCreate(String domain, String dbId,
         String username, String password) throws Exception
     {
@@ -523,7 +535,7 @@ public class BeesClient extends BeesClientBase
         return applicationConfiguration;
     }
 
-    private String createParameter(Map<String,String>parameters) {
+    protected String createParameter(Map<String,String>parameters) {
         if (parameters == null)
             parameters = new HashMap<String, String>();
         JSONObject jsonObject = new JSONObject(parameters);
@@ -597,6 +609,7 @@ public class BeesClient extends BeesClientBase
         xstream.processAnnotations(ApplicationStatusResponse.class);
         xstream.processAnnotations(ApplicationSetMetaResponse.class);
         xstream.processAnnotations(ApplicationCheckSumsResponse.class);
+        xstream.processAnnotations(ApplicationScaleResponse.class);
         xstream.processAnnotations(DatabaseCreateResponse.class);
         xstream.processAnnotations(DatabaseSetPasswordResponse.class);
         xstream.processAnnotations(DatabaseDeleteResponse.class);

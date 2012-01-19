@@ -92,6 +92,10 @@ public class BeesClientBase {
         this(new BeesClientConfiguration( serverApiUrl, apiKey, secret, format, version ));
     }
 
+    public BeesClientConfiguration getBeesClientConfiguration() {
+        return beesClientConfiguration;
+    }
+
     public boolean isVerbose() {
         return verbose;
     }
@@ -222,7 +226,7 @@ public class BeesClientBase {
         return response;
     }
 
-    private String getResponseString(InputStream ins) throws IOException {
+    protected String getResponseString(InputStream ins) throws IOException {
         StringBuffer response = new StringBuffer();
         try {
             InputStreamReader isr = new InputStreamReader(ins);
