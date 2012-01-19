@@ -575,6 +575,12 @@ public class BeesClient extends BeesClientBase
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);
         xstream.alias("net.stax.api.ApplicationSetMetaResponse", ApplicationSetMetaResponse.class);
 
+        // BeesClient can be subtyped to offer more commands,
+        // yet those may live in separate classloader.
+        // use this.getClass().getClassLoader() to ensure
+        // that all the request/response classes resolve.
+        xstream.setClassLoader(getClass().getClassLoader());
+
         return xstream;
     }
 
