@@ -616,6 +616,10 @@ public class BeesClient extends BeesClientBase
         xstream.processAnnotations(DatabaseInfo.class);
         xstream.processAnnotations(DatabaseInfoResponse.class);
         xstream.processAnnotations(DatabaseListResponse.class);
+        xstream.processAnnotations(DatabaseSnapshotInfo.class);
+        xstream.processAnnotations(DatabaseSnapshotListResponse.class);
+        xstream.processAnnotations(DatabaseSnapshotDeployResponse.class);
+        xstream.processAnnotations(DatabaseSnapshotDeleteResponse.class);
         xstream.processAnnotations(ErrorResponse.class);
         xstream.processAnnotations(AccountKeysResponse.class);
         xstream.processAnnotations(AccountInfo.class);
