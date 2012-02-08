@@ -25,6 +25,11 @@ public class CBUser extends CBObject {
 
     public List<String> roles;
 
+    /**
+     * This field is set by the server when you {@linkplain BeesClient2#createUser(CBUser) create an user}
+     * with incomplete information, to indicate that the user was partially created and the rest of the registration
+     * needs to be completed by the user before the account becomes fully usable.
+     */
     public PartiallyCreatedUser partially_created;
     
     public List<CBAccount> accounts;
