@@ -7,8 +7,6 @@ import java.util.List;
  * @author Kohsuke Kawaguchi
  */
 public class CBUser extends CBObject {
-    /*package*/ transient BeesClient2 root;
-
     public String first_name;
     public String last_name;
     public String email;

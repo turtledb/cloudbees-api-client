@@ -1,5 +1,6 @@
 package com.cloudbees.api;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -9,6 +10,7 @@ import sun.misc.BASE64Encoder;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.codehaus.jackson.annotate.JsonAutoDetect.Visibility.*;
@@ -34,16 +36,25 @@ public class BeesClient2 extends BeesClient {
     }
 
     private void init() {
-        BASE64Encoder enc = new BASE64Encoder();
         BeesClientConfiguration conf = getBeesClientConfiguration();
+        try {
+            base = new URL(conf.getServerApiUrl());
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Invalid API URL:"+conf.getServerApiUrl(),e);
+        }
         if (conf.getApiKey()!=null || conf.getSecret()!=null) {
             String userpassword = conf.getApiKey()+':'+conf.getSecret();
-            encodedAccountAuthorization = enc.encode(userpassword.getBytes());
+            encodedAccountAuthorization = new String(Base64.encodeBase64(userpassword.getBytes()));
         } else
             encodedAccountAuthorization = null;
 
     }
 
+    /**
+     * Creates an user, including a partial user creation.
+     *
+     * @see <a href="https://sites.google.com/a/cloudbees.com/account-provisioning-api/home/user-api#TOC-Create-a-User">API spec</a>
+     */
     public CBUser createUser(CBUser user) throws IOException {
         return postAndRetrieve("/api/users",user,CBUser.class, "POST");
     }
@@ -53,7 +64,7 @@ public class BeesClient2 extends BeesClient {
     }
 
     public void deleteUser(String id) throws IOException {
-        postAndRetrieve("/api/users/"+id,null,null, "DELETE");
+        postAndRetrieve("/api/users/" + id, null, null, "DELETE");
     }
 
     public CBUser addUserToAccount(CBAccount account, CBUser user) throws IOException {
