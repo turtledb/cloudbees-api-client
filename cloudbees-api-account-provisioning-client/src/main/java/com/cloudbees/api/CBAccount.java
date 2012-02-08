@@ -23,4 +23,13 @@ public class CBAccount extends CBObject {
     public CBUser addUser(CBUser user) throws IOException {
         return root.addUserToAccount(this,user);
     }
+
+    /**
+     * Adds the new subscription to the user.
+     */
+    public CBSubscription addSubscription(String userId, CBSubscription sub) throws IOException {
+        // TODO: why do we need to specify the user here?
+        return root.postAndRetrieve("/api/users/"+userId+"/accounts/"+name+"/subscriptions",
+                sub, CBSubscription.class, "POST");
+    }
 }
