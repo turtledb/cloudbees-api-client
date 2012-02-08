@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.util.List;
 
 /**
+ * Represents an account in the CloudBees platform.m
+ *
+ * <p>
+ * An account is a unit of billing.
+ *
  * @author Kohsuke Kawaguchi
  */
 public class CBAccount extends CBObject {

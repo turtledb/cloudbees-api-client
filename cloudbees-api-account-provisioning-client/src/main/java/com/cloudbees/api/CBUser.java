@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.util.List;
 
 /**
+ * Represetns an user in the CloudBees platform.
+ *
+ * <p>
+ * A user typically represents a human that can login to the system. One user can belong
+ * to multiple accounts, and vice versa.
+ *
  * @author Kohsuke Kawaguchi
  */
 public class CBUser extends CBObject {
