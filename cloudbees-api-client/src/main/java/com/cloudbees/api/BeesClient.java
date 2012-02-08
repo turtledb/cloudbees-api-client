@@ -48,6 +48,7 @@ public class BeesClient extends BeesClientBase
     public BeesClient(String server, String apikey, String secret,
                       String format, String version)
     {
+        // TODO: this encodePassword is considered harmful as it creates assymetry between two constructors
         super(server, apikey, encodePassword(secret, version), format,
             version);
     }

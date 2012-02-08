@@ -92,6 +92,14 @@ public class BeesClientBase {
         this(new BeesClientConfiguration( serverApiUrl, apiKey, secret, format, version ));
     }
 
+    /**
+     * Exposed for subtypes. Treat the configuration as immutable object,
+     * since changes will not be reflected to the current running state.
+     */
+    protected BeesClientConfiguration getBeesClientConfiguration() {
+        return beesClientConfiguration;
+    }
+
     public boolean isVerbose() {
         return verbose;
     }
