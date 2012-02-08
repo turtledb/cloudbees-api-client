@@ -254,19 +254,28 @@ public class BeesClient extends BeesClientBase
             String appId, String environment, String description, String earFile,
             String srcFile, String archiveType, boolean deltaDeploy, Map<String, String> parameters, UploadProgress progress) throws Exception
     {
+        return applicationDeployArchive(new ApplicationDeployArgs.Builder(appId)
+                .environment(environment).description(description)
+                .deployPackage(earFile, archiveType).srcFile(srcFile)
+                .incrementalDeployment(deltaDeploy).withParams(parameters)
+                .withProgressFeedback(progress).build());
+    }
+        
+    public ApplicationDeployArchiveResponse applicationDeployArchive(ApplicationDeployArgs args) throws Exception
+    {
         Map<String, String> params = new HashMap<String, String>();
         Map<String, File> fileParams = new HashMap<String, File>();
-        params.put("app_id", appId);
+        params.put("app_id", args.appId);
 
-        File archiveFile = new File(earFile);
+        File archiveFile = new File(args.archiveFile);
 
         // Currently only support WAR file for delta upload
         boolean deployDelta = false;
         boolean deployJarDelta = false;
         // Create delta deploy File
-        if (deltaDeploy && archiveType.equals("war")) {
+        if (args.deltaDeploy && args.archiveType.equals("war")) {
             trace("Get existing checksums");
-            ApplicationCheckSumsResponse applicationCheckSumsResponse = applicationCheckSums(appId, false);
+            ApplicationCheckSumsResponse applicationCheckSumsResponse = applicationCheckSums(args.appId, false);
             if (logger.isLoggable(Level.FINER)) {
                 for (Map.Entry<String, Long> entry : applicationCheckSumsResponse.getCheckSums().entrySet()) {
                     logger.finer("Entry: " + entry.getKey() + " CRC: " + entry.getValue());
@@ -281,9 +290,9 @@ public class BeesClient extends BeesClientBase
             }
         }
 
-        if (deltaDeploy && archiveType.equals("war")) {
+        if (args.deltaDeploy && args.archiveType.equals("war")) {
             trace("Get existing jar hashes");
-            ApplicationJarHashesResponse applicationJarHashesResponse = applicationJarHashes(appId, JarUtils.getJarHashes(archiveFile));
+            ApplicationJarHashesResponse applicationJarHashesResponse = applicationJarHashes(args.appId, JarUtils.getJarHashes(archiveFile));
             if (applicationJarHashesResponse.getJarHash().size() == 0) {
                 trace("No existing jars");
             } else {
@@ -301,24 +310,26 @@ public class BeesClient extends BeesClientBase
         if (deployDelta || deployJarDelta)
             trace("Uploading delta archive: " + archiveFile);
 
-        File archiveFileSrc = srcFile != null ? new File(srcFile) : null;
+        File archiveFileSrc = args.srcFile != null ? new File(args.srcFile) : null;
         long uploadSize = archiveFile.length();
         if (archiveFileSrc != null)
             uploadSize += archiveFileSrc.length();
 
         fileParams.put("archive", archiveFile);
-        params.put("archive_type", archiveType);
+        params.put("archive_type", args.archiveType);
+        
+        params.put("create", new Boolean(args.create).toString());
 
-        if (environment != null)
-            params.put("environment", environment);
+        if (args.environment != null)
+            params.put("environment", args.environment);
 
-        if (description != null)
-            params.put("description", description);
+        if (args.description != null)
+            params.put("description", args.description);
 
         if (archiveFileSrc != null)
             fileParams.put("src", archiveFileSrc);
 
-        params.put("parameters", createParameter(parameters));
+        params.put("parameters", createParameter(args.parameters));
 
         // extend the deploy invocation timeout to 4 hours
         long expireTime = System.currentTimeMillis() + 4 * 60 * 60 * 1000;
@@ -327,14 +338,14 @@ public class BeesClient extends BeesClientBase
         String url = getApiUrl("application.deployArchive").toString();
         params.put("action", "application.deployArchive");
         trace("API call: " + url);
-        String response = executeUpload(url, params, fileParams, progress);
+        String response = executeUpload(url, params, fileParams, args.progress);
         try {
             ApplicationDeployArchiveResponse apiResponse =
                 (ApplicationDeployArchiveResponse)readResponse(response);
 
             return apiResponse;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Invalid application deployment response: " + appId, e);
+            logger.log(Level.SEVERE, "Invalid application deployment response: " + args.appId, e);
             logger.log(Level.FINE, "Deploy response trace: " + response);
             throw e;
         } finally {
