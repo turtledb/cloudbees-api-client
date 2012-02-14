@@ -100,6 +100,10 @@ public class BeesClient2 extends BeesClient {
         }
     }
 
+    public CBAccount getAccount(String name) throws IOException {
+        return postAndRetrieve("/api/accounts/"+name,null,CBAccount.class, "GET");
+    }
+
     /*package*/ static final ObjectMapper MAPPER = new ObjectMapper();
 
     static {

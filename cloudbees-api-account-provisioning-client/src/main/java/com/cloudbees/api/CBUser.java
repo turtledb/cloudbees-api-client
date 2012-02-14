@@ -41,7 +41,7 @@ public class CBUser extends CBObject {
     public List<CBAccount> accounts;
 
     /**
-     * Creates an user and an account.
+     * Creates an account and add this user to it.
      */
     public CBUser createAccount(String name) throws IOException {
         CBAccount acc = new CBAccount();

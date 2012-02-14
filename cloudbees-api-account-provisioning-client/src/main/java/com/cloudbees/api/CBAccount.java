@@ -1,6 +1,7 @@
 package com.cloudbees.api;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,9 +28,25 @@ public class CBAccount extends CBObject {
     /**
      * Adds the new subscription to the user.
      */
-    public CBSubscription addSubscription(String userId, CBSubscription sub) throws IOException {
-        // TODO: why do we need to specify the user here?
-        return root.postAndRetrieve("/api/users/"+userId+"/accounts/"+name+"/subscriptions",
+    // this is what I want
+    public CBSubscription addSubscription(CBSubscription sub) throws IOException {
+        return root.postAndRetrieve("/api/accounts/"+name+"/subscriptions",
                 sub, CBSubscription.class, "POST");
+    }
+
+    /**
+     * @deprecated
+     *      Use {@link #addSubscription(CBSubscription)} when it's ready
+     */
+    // this is what we have today
+    public CBSubscription addSubscription(String userid, CBSubscription sub) throws IOException {
+        // TODO: why do we need to specify the user here?
+        return root.postAndRetrieve("/api/users/"+userid+"/accounts/"+name+"/subscriptions",
+                sub, CBSubscription.class, "POST");
+    }
+
+    public List<CBSubscription> getSubscriptions() {
+        return Arrays.asList(root.postAndRetrieve("/api/accounts/" + name + "/subscriptions", null,
+                CBSubscription[].class, "GET"));
     }
 }
