@@ -16,9 +16,21 @@
 
 package com.cloudbees.api;
 
+import java.io.PrintStream;
+
 public class HashWriteProgress implements UploadProgress{
+    private final PrintStream out;
     boolean uploadComplete = false;
     long hashMarkCount = 0;
+
+    public HashWriteProgress() {
+        this(System.out);
+    }
+
+    public HashWriteProgress(PrintStream out) {
+        this.out = out;
+    }
+
     public void handleBytesWritten(long deltaCount,
             long totalWritten, long totalToSend) {                    
         if(uploadComplete)
@@ -31,18 +43,18 @@ public class HashWriteProgress implements UploadProgress{
             if(hashMarkCount % 25 == 0)
             {
                 if(hashMarkCount < 100)
-                    System.out.println(String.format("uploaded %d%%", hashMarkCount));
+                    out.println(String.format("uploaded %d%%", hashMarkCount));
                 else
                 {
                     //upload completed (or will very soon)
                     uploadComplete = true;
-                    System.out.println("upload completed");
-                    System.out.println("deploying application to server(s)...");
+                    out.println("upload completed");
+                    out.println("deploying application to server(s)...");
                 }
             }
             else
             {
-                System.out.print(".");
+                out.print(".");
             }
         }
     }
