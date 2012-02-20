@@ -330,6 +330,7 @@ public class BeesClient extends BeesClientBase
             fileParams.put("src", archiveFileSrc);
 
         params.put("parameters", createParameter(args.parameters));
+        params.put("variables", createParameter(args.variables));
 
         // extend the deploy invocation timeout to 4 hours
         long expireTime = System.currentTimeMillis() + 4 * 60 * 60 * 1000;

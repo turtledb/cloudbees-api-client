@@ -15,6 +15,7 @@ public class ApplicationDeployArgs {
     public final String archiveType;
     public final boolean deltaDeploy;
     public final Map<String, String> parameters;
+    public final Map<String, String> variables;
     public final UploadProgress progress;
 
     private ApplicationDeployArgs(Builder b) {
@@ -27,6 +28,7 @@ public class ApplicationDeployArgs {
         deltaDeploy = b.deltaDeploy;
         archiveType = b.archiveType;
         parameters = Collections.unmodifiableMap(b.parameters);
+        variables = Collections.unmodifiableMap(b.variables);
         progress = b.progress;
     }
 
@@ -40,6 +42,7 @@ public class ApplicationDeployArgs {
         String archiveType;
         boolean deltaDeploy = true;
         Map<String, String> parameters = new HashMap<String, String>();
+        Map<String, String> variables = new HashMap<String, String>();
         UploadProgress progress;
 
         public Builder(String appId) {
@@ -112,6 +115,17 @@ public class ApplicationDeployArgs {
         public Builder withParams(Map<String, String> params) {
             if (params != null)
                 parameters.putAll(params);
+            return this;
+        }
+
+        public Builder withVar(String name, String value) {
+            variables.put(name, value);
+            return this;
+        }
+
+        public Builder withVars(Map<String, String> vars) {
+            if (vars != null)
+                variables.putAll(vars);
             return this;
         }
 
