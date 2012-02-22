@@ -214,45 +214,136 @@ public class BeesClient extends BeesClientBase
         return apiResponse;
     }
 
+    /**
+     * @deprecated use {@link #applicationDeployEar(String,String,String,java.io.File,java.io.File,UploadProgress)}
+     */
+    @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployEar(
         String appId, String environment, String description, String earFile,
         String srcFile, UploadProgress progress) throws Exception
     {
+        return applicationDeployEar(appId, environment, description,
+                new File(earFile), new File(srcFile), progress);
+    }
+
+    /**
+     * @since 1.1.4
+     */
+    public ApplicationDeployArchiveResponse applicationDeployEar(
+        String appId, String environment, String description, File earFile,
+        File srcFile, UploadProgress progress) throws Exception
+    {
         String archiveType = "ear";
         return applicationDeployArchive(appId, environment, description,
-            earFile, srcFile, archiveType, false, progress);
+                earFile, srcFile, archiveType, false, progress);
     }
+
+    /**
+     * @deprecated use {@link #applicationDeployWar(String,String,String,File,File,UploadProgress)}
+     */
+    @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployWar(
         String appId, String environment, String description, String warFile,
         String srcFile, UploadProgress progress) throws Exception
     {
+        return applicationDeployWar(appId, environment, description, new File(warFile),
+                new File(srcFile), progress);
+    }
+
+    /**
+     * @since 1.1.4
+     */
+    public ApplicationDeployArchiveResponse applicationDeployWar(
+        String appId, String environment, String description, File warFile,
+        File srcFile, UploadProgress progress) throws Exception
+    {
         return applicationDeployWar(appId, environment, description, warFile,
                 srcFile, true, progress);
     }
+
+    /**
+     * @deprecated use {@link #applicationDeployWar(String,String,String,File,File,boolean,UploadProgress)}
+     */
+    @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployWar(
         String appId, String environment, String description, String warFile,
         String srcFile, boolean deltaDeploy, UploadProgress progress) throws Exception
     {
-        String archiveType = "war";
-        return applicationDeployArchive(appId, environment, description,
-            warFile, srcFile, archiveType, deltaDeploy, progress);
+        return applicationDeployWar(appId, environment, description,
+                new File(warFile), new File(srcFile), deltaDeploy, progress);
     }
 
+    /**
+     * @since 1.1.4
+     */
+    public ApplicationDeployArchiveResponse applicationDeployWar(
+        String appId, String environment, String description, File warFile,
+        File srcFile, boolean deltaDeploy, UploadProgress progress) throws Exception
+    {
+        String archiveType = "war";
+        return applicationDeployArchive(appId, environment, description,
+                warFile, srcFile, archiveType, deltaDeploy, progress);
+    }
+
+    /**
+     * @deprecated use {@link #applicationDeployArchive(String,String,String,File,File,String,UploadProgress)}
+     */
+    @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployArchive(
             String appId, String environment, String description, String earFile,
             String srcFile, String archiveType, UploadProgress progress) throws Exception
     {
+        return applicationDeployArchive(appId, environment, description, new File(earFile), new File(srcFile), archiveType, progress);
+    }
+
+    /**
+     * @since 1.1.4
+     */
+    public ApplicationDeployArchiveResponse applicationDeployArchive(
+            String appId, String environment, String description, File earFile,
+            File srcFile, String archiveType, UploadProgress progress) throws Exception
+    {
         return applicationDeployArchive(appId, environment, description, earFile, srcFile, archiveType, false, progress);
     }
+
+    /**
+     * @deprecated use {@link #applicationDeployArchive(String,String,String,File,File,String,boolean,UploadProgress)}
+     */
+    @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployArchive(
             String appId, String environment, String description, String earFile,
             String srcFile, String archiveType, boolean deltaDeploy, UploadProgress progress) throws Exception
     {
+        return applicationDeployArchive(appId, environment, description, new File(earFile), new File(srcFile), archiveType, deltaDeploy, progress);
+    }
+
+    /**
+     * @since 1.1.4
+     */
+    public ApplicationDeployArchiveResponse applicationDeployArchive(
+            String appId, String environment, String description, File earFile,
+            File srcFile, String archiveType, boolean deltaDeploy, UploadProgress progress) throws Exception
+    {
         return applicationDeployArchive(appId, environment, description, earFile, srcFile, archiveType, deltaDeploy, null, progress);
     }
+
+    /**
+     * @deprecated use {@link #applicationDeployArchive(String,String,String,File,File,String,boolean,Map,UploadProgress)}
+     */
+    @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployArchive(
             String appId, String environment, String description, String earFile,
             String srcFile, String archiveType, boolean deltaDeploy, Map<String, String> parameters, UploadProgress progress) throws Exception
+    {
+        return applicationDeployArchive(appId, environment, description, new File(earFile), new File(srcFile), archiveType, deltaDeploy, parameters, progress);
+    }
+        
+    /**
+     * @since 1.1.4
+     */
+    public ApplicationDeployArchiveResponse applicationDeployArchive(
+            String appId, String environment, String description, File earFile,
+            File srcFile, String archiveType, boolean deltaDeploy, Map<String, String> parameters, UploadProgress progress) throws Exception
     {
         return applicationDeployArchive(new ApplicationDeployArgs.Builder(appId)
                 .environment(environment).description(description)
@@ -260,14 +351,14 @@ public class BeesClient extends BeesClientBase
                 .incrementalDeployment(deltaDeploy).withParams(parameters)
                 .withProgressFeedback(progress).build());
     }
-        
+
     public ApplicationDeployArchiveResponse applicationDeployArchive(ApplicationDeployArgs args) throws Exception
     {
         Map<String, String> params = new HashMap<String, String>();
         Map<String, File> fileParams = new HashMap<String, File>();
         params.put("app_id", args.appId);
 
-        File archiveFile = new File(args.archiveFile);
+        File archiveFile = args.archiveFile;
 
         // Currently only support WAR file for delta upload
         boolean deployDelta = false;
@@ -310,7 +401,7 @@ public class BeesClient extends BeesClientBase
         if (deployDelta || deployJarDelta)
             trace("Uploading delta archive: " + archiveFile);
 
-        File archiveFileSrc = args.srcFile != null ? new File(args.srcFile) : null;
+        File archiveFileSrc = args.srcFile;
         long uploadSize = archiveFile.length();
         if (archiveFileSrc != null)
             uploadSize += archiveFileSrc.length();
@@ -318,7 +409,7 @@ public class BeesClient extends BeesClientBase
         fileParams.put("archive", archiveFile);
         params.put("archive_type", args.archiveType);
         
-        params.put("create", new Boolean(args.create).toString());
+        params.put("create", Boolean.valueOf(args.create).toString());
 
         if (args.environment != null)
             params.put("environment", args.environment);

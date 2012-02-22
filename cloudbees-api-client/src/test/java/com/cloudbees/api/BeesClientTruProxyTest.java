@@ -27,8 +27,12 @@ import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author <a href="mailto:Olivier.LAMY@accor.com">Olivier Lamy</a>
@@ -132,6 +136,9 @@ public class BeesClientTruProxyTest
         cloudbeesServer.startServer();
         File local = new File("src/test/translate-puzzle-webapp-1.0.0-SNAPSHOT.war");
         File uploaded = File.createTempFile("uploaded", "foo");
+        assertThat("We have the file to upload", local.isFile(), is(true));
+        assertThat("We have created the temp file to be uploaded", uploaded.isFile(), is(true));
+        assertThat("Precondition", local.length(), not(is(uploaded.length())));
         try
         {
             BeesClientConfiguration beesClientConfiguration =
@@ -140,7 +147,7 @@ public class BeesClientTruProxyTest
             beesClient.setVerbose(true);
             MockUploadProgress mockUploadProgress = new MockUploadProgress();
 
-            beesClient.applicationDeployWar("fooId","env","desc",local.getPath(), null, mockUploadProgress);
+            beesClient.applicationDeployWar("fooId","env","desc",local, null, mockUploadProgress);
             assertNotNull(cloudbeesServer.cloudbessServlet.items);
             int realFilesNumber = 0;
 
@@ -152,7 +159,7 @@ public class BeesClientTruProxyTest
                 }
             }
             assertEquals(1, realFilesNumber);
-            assertEquals("local and uploaded not the same size", local.length(), uploaded.length());
+            assertThat("Postcondition", local.length(), is(uploaded.length()));
         } catch (Exception e) {
             throw e;
         } finally {

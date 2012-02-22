@@ -1,5 +1,6 @@
 package com.cloudbees.api;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,9 +10,9 @@ public class ApplicationDeployArgs {
     public final boolean create;
     public final String environment;
     public final String description;
-    public final String archiveFile;
+    public final File archiveFile;
 
-    public final String srcFile;
+    public final File srcFile;
     public final String archiveType;
     public final boolean deltaDeploy;
     public final Map<String, String> parameters;
@@ -37,8 +38,8 @@ public class ApplicationDeployArgs {
         boolean create = false;
         String environment;
         String description;
-        String archiveFile;
-        String srcFile;
+        File archiveFile;
+        File srcFile;
         String archiveType;
         boolean deltaDeploy = true;
         Map<String, String> parameters = new HashMap<String, String>();
@@ -72,22 +73,66 @@ public class ApplicationDeployArgs {
             this.description = description;
             return this;
         }
-        
+
+        /**
+         * @deprecated use {@link #warFile(java.io.File)}
+         */
+        @Deprecated
         public Builder warFile(String file) {
+            return deployPackage(new File(file), "war");
+        }
+
+        /**
+         * @since 1.1.4
+         */
+        public Builder warFile(File file) {
             return deployPackage(file, "war");
         }
-        
+
+        /**
+         * @deprecated use {@link #earFile(java.io.File)}
+         */
+        @Deprecated
         public Builder earFile(String file) {
+            return deployPackage(new File(file), "ear");
+        }
+
+        /**
+         * @since 1.1.4
+         */
+        public Builder earFile(File file) {
             return deployPackage(file, "ear");
         }
 
+        /**
+         * @deprecated use {@link #deployPackage(java.io.File, String)}
+         */
+        @Deprecated
         public Builder deployPackage(String file, String type) {
+            return deployPackage(new File(file), type);
+        }
+
+        /**
+         * @since 1.1.4
+         */
+        public Builder deployPackage(File file, String type) {
             this.archiveType = type;
             this.archiveFile = file;
             return this;
         }
 
+        /**
+         * @deprecated use {@link #srcFile(java.io.File)}
+         */
+        @Deprecated
         public Builder srcFile(String srcFile) {
+            return srcFile(new File(srcFile));
+        }
+
+        /**
+         * @since 1.1.4
+         */
+        public Builder srcFile(File srcFile) {
             this.srcFile = srcFile;
             return this;
         }
