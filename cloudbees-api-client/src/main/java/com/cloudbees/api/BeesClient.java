@@ -566,6 +566,62 @@ public class BeesClient extends BeesClientBase
         return apiResponse;
     }
 
+    public DatabaseSnapshotListResponse databaseSnapshotList(String dbId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbId);
+        String url = getRequestURL("database.snapshot.list", params);
+        trace("API call: " + url);
+        String response = executeRequest(url);
+        traceResponse(response);
+        DatabaseSnapshotListResponse apiResponse =
+            (DatabaseSnapshotListResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public DatabaseSnapshotDeleteResponse databaseSnapshotDelete(String dbId, String snapshotId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbId);
+        params.put("snapshot_id", snapshotId);
+        String url = getRequestURL("database.snapshot.delete", params);
+        trace("API call: " + url);
+        String response = executeRequest(url);
+        traceResponse(response);
+        DatabaseSnapshotDeleteResponse apiResponse =
+            (DatabaseSnapshotDeleteResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public DatabaseSnapshotDeployResponse databaseSnapshotDeploy(String dbId, String snapshotId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbId);
+        params.put("snapshot_id", snapshotId);
+        String url = getRequestURL("database.snapshot.deploy", params);
+        trace("API call: " + url);
+        String response = executeRequest(url);
+        traceResponse(response);
+        DatabaseSnapshotDeployResponse apiResponse =
+            (DatabaseSnapshotDeployResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public DatabaseSnapshotInfo databaseSnapshotCreate(String dbId, String snapshotTitle) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbId);
+        if (snapshotTitle != null)
+            params.put("snapshot_title", snapshotTitle);
+        String url = getRequestURL("database.snapshot.create", params);
+        trace("API call: " + url);
+        String response = executeRequest(url);
+        traceResponse(response);
+        DatabaseSnapshotInfo apiResponse =
+            (DatabaseSnapshotInfo)readResponse(response);
+        return apiResponse;
+    }
+
     public AccountKeysResponse accountKeys(String domain, String user, String password) throws Exception
     {
         Map<String, String> params = new HashMap<String, String>();
