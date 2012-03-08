@@ -96,11 +96,16 @@ public class BeesClient2 extends BeesClient {
                 ((CBObject)ret).root = this;
             return ret;
         } catch (IOException e) {
+            String rsp = "";
             InputStream err = uc.getErrorStream();
-            String output="";
-            if (err!=null)
-                output = "\n"+IOUtils.toString(err);
-            throw (IOException)new IOException("Failed to POST to "+url+output).initCause(e);
+            if (err!=null) {
+                try {
+                    rsp = IOUtils.toString(err);
+                } catch (IOException _) {
+                    // ignore
+                }
+            }
+            throw (IOException)new IOException("Failed to POST to "+url+" : response="+rsp).initCause(e);
         }
     }
 
