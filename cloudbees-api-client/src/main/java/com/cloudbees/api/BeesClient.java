@@ -671,6 +671,48 @@ public class BeesClient extends BeesClientBase
         return appConfig;
     }
 
+    public ConfigurationParametersUpdateResponse configurationParametersUpdate(String resourceId, String configType, File resourceFile) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        Map<String, File> fileParams = new HashMap<String, File>();
+
+        params.put("resource_id", resourceId);
+        params.put("config_type", configType);
+        fileParams.put("resources", resourceFile);
+
+        String url = getApiUrl("configuration.parameters.update").toString();
+        params.put("action", "configuration.parameters.update");
+        // use the upload method (POST) to handle the potentially large resource list
+        String response = executeUpload(url, params, fileParams, null);
+        ConfigurationParametersUpdateResponse apiResponse =
+            (ConfigurationParametersUpdateResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ConfigurationParametersDeleteResponse configurationParametersDelete(String resourceId, String configType) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("resource_id", resourceId);
+        params.put("config_type", configType);
+        String url = getRequestURL("configuration.parameters.delete", params);
+        String response = executeRequest(url);
+        ConfigurationParametersDeleteResponse apiResponse =
+            (ConfigurationParametersDeleteResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ConfigurationParametersResponse configurationParameters(String resourceId, String configType) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("resource_id", resourceId);
+        params.put("config_type", configType);
+        String url = getRequestURL("configuration.parameters", params);
+        String response = executeRequest(url);
+        ConfigurationParametersResponse apiResponse =
+            (ConfigurationParametersResponse)readResponse(response);
+        return apiResponse;
+    }
+
     protected static ApplicationConfiguration getAppConfig(File deployZip, final String[] environments,
                                          final String[] implicitEnvironments) throws IOException {
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
@@ -784,6 +826,9 @@ public class BeesClient extends BeesClientBase
         xstream.processAnnotations(AccountInfo.class);
         xstream.processAnnotations(AccountListResponse.class);
         xstream.processAnnotations(ApplicationJarHashesResponse.class);
+        xstream.processAnnotations(ConfigurationParametersResponse.class);
+        xstream.processAnnotations(ConfigurationParametersUpdateResponse.class);
+        xstream.processAnnotations(ConfigurationParametersDeleteResponse.class);
 
         // Hack to fix backward compatibility
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);
