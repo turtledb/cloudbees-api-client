@@ -223,7 +223,7 @@ public class BeesClient extends BeesClientBase
         String srcFile, UploadProgress progress) throws Exception
     {
         return applicationDeployEar(appId, environment, description,
-                new File(earFile), new File(srcFile), progress);
+                asFile(earFile), asFile(srcFile), progress);
     }
 
     /**
@@ -246,8 +246,8 @@ public class BeesClient extends BeesClientBase
         String appId, String environment, String description, String warFile,
         String srcFile, UploadProgress progress) throws Exception
     {
-        return applicationDeployWar(appId, environment, description, new File(warFile),
-                new File(srcFile), progress);
+        return applicationDeployWar(appId, environment, description, asFile(warFile),
+                asFile(srcFile), progress);
     }
 
     /**
@@ -270,7 +270,7 @@ public class BeesClient extends BeesClientBase
         String srcFile, boolean deltaDeploy, UploadProgress progress) throws Exception
     {
         return applicationDeployWar(appId, environment, description,
-                new File(warFile), new File(srcFile), deltaDeploy, progress);
+                asFile(warFile), asFile(srcFile), deltaDeploy, progress);
     }
 
     /**
@@ -293,7 +293,7 @@ public class BeesClient extends BeesClientBase
             String appId, String environment, String description, String earFile,
             String srcFile, String archiveType, UploadProgress progress) throws Exception
     {
-        return applicationDeployArchive(appId, environment, description, new File(earFile), new File(srcFile), archiveType, progress);
+        return applicationDeployArchive(appId, environment, description, asFile(earFile), asFile(srcFile), archiveType, progress);
     }
 
     /**
@@ -314,7 +314,7 @@ public class BeesClient extends BeesClientBase
             String appId, String environment, String description, String earFile,
             String srcFile, String archiveType, boolean deltaDeploy, UploadProgress progress) throws Exception
     {
-        return applicationDeployArchive(appId, environment, description, new File(earFile), new File(srcFile), archiveType, deltaDeploy, progress);
+        return applicationDeployArchive(appId, environment, description, asFile(earFile), asFile(srcFile), archiveType, deltaDeploy, progress);
     }
 
     /**
@@ -335,9 +335,9 @@ public class BeesClient extends BeesClientBase
             String appId, String environment, String description, String earFile,
             String srcFile, String archiveType, boolean deltaDeploy, Map<String, String> parameters, UploadProgress progress) throws Exception
     {
-        return applicationDeployArchive(appId, environment, description, new File(earFile), new File(srcFile), archiveType, deltaDeploy, parameters, progress);
+        return applicationDeployArchive(appId, environment, description, asFile(earFile), asFile(srcFile), archiveType, deltaDeploy, parameters, progress);
     }
-        
+
     /**
      * @since 1.1.4
      */
@@ -649,7 +649,7 @@ public class BeesClient extends BeesClientBase
 
     public ApplicationConfiguration getApplicationConfiguration(String warFilePath, String account, String[] environments) throws Exception {
         ApplicationConfiguration appConfig;
-        File deployFile = new File(warFilePath);
+        File deployFile = asFile(warFilePath);
         if (deployFile.exists()) {
             appConfig = getAppConfig(deployFile, environments, new String[] { "deploy" });
         } else {
@@ -937,6 +937,10 @@ public class BeesClient extends BeesClientBase
             return options.get(optionName);
         else
             throw new BeesClient.UsageError("Missing required flag: --" + optionName);
+    }
+
+    private static File asFile(String filePath) {
+        return filePath == null ? null : new File(filePath);
     }
 
     public static class UsageError extends Exception
