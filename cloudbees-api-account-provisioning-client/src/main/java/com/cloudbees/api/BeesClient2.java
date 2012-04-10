@@ -5,9 +5,9 @@ import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.introspect.VisibilityChecker.Std;
-import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -96,8 +96,11 @@ public class BeesClient2 extends BeesClient {
                 ((CBObject)ret).root = this;
             return ret;
         } catch (IOException e) {
-            String output = IOUtils.toString(uc.getErrorStream());
-            throw (IOException)new IOException("Failed to POST to "+url+"\n"+output).initCause(e);
+            InputStream err = uc.getErrorStream();
+            String output="";
+            if (err!=null)
+                output = "\n"+IOUtils.toString(err);
+            throw (IOException)new IOException("Failed to POST to "+url+output).initCause(e);
         }
     }
 
