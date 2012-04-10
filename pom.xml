@@ -19,8 +19,8 @@
 
   <parent>
     <groupId>com.cloudbees</groupId>
-    <artifactId>cloudbees-oss-parent</artifactId>
-    <version>1</version>
+    <artifactId>cloudbees-internal-parent</artifactId>
+    <version>3</version>
   </parent>
 
   <artifactId>cloudbees-api-client-parent</artifactId>
@@ -137,5 +137,12 @@
       </plugins>
     </pluginManagement>
   </build>
+
+  <repositories>
+    <repository>
+      <id>cloudbees-internal</id>
+      <url>https://repo-internal.cloudbees.com</url>
+    </repository>
+  </repositories>
 
 </project>
