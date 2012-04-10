@@ -56,19 +56,19 @@ public class BeesClient2 extends BeesClient {
      * @see <a href="https://sites.google.com/a/cloudbees.com/account-provisioning-api/home/user-api#TOC-Create-a-User">API spec</a>
      */
     public CBUser createUser(CBUser user) throws IOException {
-        return postAndRetrieve("/api/users",user,CBUser.class, "POST");
+        return postAndRetrieve("/v2/users",user,CBUser.class, "POST");
     }
 
     public CBUser updateUser(String id, CBUser user) throws IOException {
-        return postAndRetrieve("/api/users/"+id,user,CBUser.class, "PATCH");
+        return postAndRetrieve("/v2/users/"+id,user,CBUser.class, "PATCH");
     }
 
     public void deleteUser(String id) throws IOException {
-        postAndRetrieve("/api/users/" + id, null, null, "DELETE");
+        postAndRetrieve("/v2/users/" + id, null, null, "DELETE");
     }
 
     public CBUser addUserToAccount(CBAccount account, CBUser user) throws IOException {
-        return postAndRetrieve("/api/users/"+user.id+"/accounts/"+account.name+"/users",user,CBUser.class, "POST");
+        return postAndRetrieve("/v2/users/"+user.id+"/accounts/"+account.name+"/users",user,CBUser.class, "POST");
     }
 
     /*package*/ <T> T postAndRetrieve(String apiTail, Object request, Class<T> type, String method) throws IOException {
@@ -96,12 +96,13 @@ public class BeesClient2 extends BeesClient {
                 ((CBObject)ret).root = this;
             return ret;
         } catch (IOException e) {
-            throw (IOException)new IOException("Failed to POST to "+url).initCause(e);
+            String output = IOUtils.toString(uc.getErrorStream());
+            throw (IOException)new IOException("Failed to POST to "+url+"\n"+output).initCause(e);
         }
     }
 
     public CBAccount getAccount(String name) throws IOException {
-        return postAndRetrieve("/api/accounts/"+name,null,CBAccount.class, "GET");
+        return postAndRetrieve("/v2/accounts/"+name,null,CBAccount.class, "GET");
     }
 
     /*package*/ static final ObjectMapper MAPPER = new ObjectMapper();
