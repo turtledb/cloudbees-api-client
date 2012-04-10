@@ -108,6 +108,10 @@ public class BeesClient2 extends BeesClient {
         return postAndRetrieve("/v2/accounts/"+name,null,CBAccount.class, "GET");
     }
 
+    public CBUser getUser(String id) throws IOException {
+        return postAndRetrieve("/v2/users/"+id,null,CBUser.class, "GET");
+    }
+
     /*package*/ static final ObjectMapper MAPPER = new ObjectMapper();
 
     static {
