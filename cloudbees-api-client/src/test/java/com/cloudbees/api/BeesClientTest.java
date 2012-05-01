@@ -108,6 +108,17 @@ public class BeesClientTest
     }
     
     @Test
+    public void testApplicationDeployArgs() throws Exception {
+        ApplicationDeployArgs deployArgs = new ApplicationDeployArgs.Builder(getAppId())
+                .environment("prod").description("api deployment")
+                .deployPackage("C:\\demo\\simple\\dist\\stax-deploy.zip", "ear").build();
+        ApplicationDeployArchiveResponse response = client.applicationDeployArchive(deployArgs);
+        System.out.println(response);
+        assertEquals(getAppId(), response.getId());
+        assertEquals(getAppUrl(), response.getUrl());
+    }
+    
+    @Test
     public void testApplicationDeployWar() throws Exception
     {
         ApplicationDeployArchiveResponse response = client.applicationDeployWar(getAppId(), "prod", "api deployment", get("bees.app.war"),

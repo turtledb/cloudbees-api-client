@@ -22,10 +22,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -96,7 +98,7 @@ public class BeesClientBase {
      * Exposed for subtypes. Treat the configuration as immutable object,
      * since changes will not be reflected to the current running state.
      */
-    protected BeesClientConfiguration getBeesClientConfiguration() {
+    public BeesClientConfiguration getBeesClientConfiguration() {
         return beesClientConfiguration;
     }
 
@@ -188,8 +190,7 @@ public class BeesClientBase {
         urlParams.put("format", format);
         urlParams.put("v", version);
         urlParams.put("api_key", api_key);
-        urlParams.put("timestamp", new Long(System.currentTimeMillis() / 1000)
-                .toString());
+        urlParams.put("timestamp", Long.toString(System.currentTimeMillis() / 1000));
         urlParams.put("sig_version", sigVersion);
         return urlParams;
     }
@@ -203,19 +204,22 @@ public class BeesClientBase {
 
     public static String md5(String message) {
         try {
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
-            byte[] md5Bytes = md5.digest(message.getBytes("CP1252"));
-            StringBuffer hex = new StringBuffer();
-            for (int i = 0; i < md5Bytes.length; ++i) {
-                hex.append(Integer.toHexString((md5Bytes[i] & 0xFF) | 0x100)
-                        .substring(1, 3));
+            MessageDigest instance = MessageDigest.getInstance("MD5");
+            byte[] digest = instance.digest(message.getBytes("CP1252"));
+            String result = new BigInteger(1, digest).toString(16);
+            if (result.length() < 32) {
+                char[] padded = new char[32];
+                char[] raw = result.toCharArray();
+                Arrays.fill(padded, 0, 32 - raw.length, '0');
+                System.arraycopy(raw, 0, padded, 32 - raw.length, raw.length);
+                result = new String(padded);
             }
-
-            return hex.toString();
+            return result;
         } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("JVM is supposed to have the MD5 digest algorithm", e);
         } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("JVM is supposed to have the CP1252 charset", e);
         }
-        return null;
     }
 
     public String executeRequest(String url) throws Exception {
@@ -230,7 +234,7 @@ public class BeesClientBase {
         return response;
     }
 
-    private String getResponseString(InputStream ins) throws IOException {
+    protected String getResponseString(InputStream ins) throws IOException {
         StringBuffer response = new StringBuffer();
         try {
             InputStreamReader isr = new InputStreamReader(ins);

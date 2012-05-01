@@ -132,9 +132,28 @@ public class BeesClient extends BeesClientBase
         return apiResponse;
     }
 
+    /**
+     * Returns all the applications in all the account sthat you belong to.
+     *
+     * Short-hand for {@code applicationList(null)}.
+     */
     public ApplicationListResponse applicationList() throws Exception
     {
+        return applicationList(null);
+    }
+
+    /**
+     * Returns all the applications in the specified account.
+     *
+     * @param account
+     *      if null, returns all the applications from all the accounts that you belong to.
+     * @since 1.1.3
+     */
+    public ApplicationListResponse applicationList(String account) throws Exception
+    {
         Map<String, String> params = new HashMap<String, String>();
+        if (account != null)
+            params.put("account", account);
         String url = getRequestURL("application.list", params);
         trace("API call: " + url);
         String response = executeRequest(url);
@@ -196,59 +215,159 @@ public class BeesClient extends BeesClientBase
         return apiResponse;
     }
 
+    /**
+     * @deprecated use {@link #applicationDeployEar(String,String,String,java.io.File,java.io.File,UploadProgress)}
+     */
+    @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployEar(
         String appId, String environment, String description, String earFile,
         String srcFile, UploadProgress progress) throws Exception
     {
+        return applicationDeployEar(appId, environment, description,
+                asFile(earFile), asFile(srcFile), progress);
+    }
+
+    /**
+     * @since 1.1.4
+     */
+    public ApplicationDeployArchiveResponse applicationDeployEar(
+        String appId, String environment, String description, File earFile,
+        File srcFile, UploadProgress progress) throws Exception
+    {
         String archiveType = "ear";
         return applicationDeployArchive(appId, environment, description,
-            earFile, srcFile, archiveType, false, progress);
+                earFile, srcFile, archiveType, false, progress);
     }
+
+    /**
+     * @deprecated use {@link #applicationDeployWar(String,String,String,File,File,UploadProgress)}
+     */
+    @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployWar(
         String appId, String environment, String description, String warFile,
         String srcFile, UploadProgress progress) throws Exception
     {
+        return applicationDeployWar(appId, environment, description, asFile(warFile),
+                asFile(srcFile), progress);
+    }
+
+    /**
+     * @since 1.1.4
+     */
+    public ApplicationDeployArchiveResponse applicationDeployWar(
+        String appId, String environment, String description, File warFile,
+        File srcFile, UploadProgress progress) throws Exception
+    {
         return applicationDeployWar(appId, environment, description, warFile,
                 srcFile, true, progress);
     }
+
+    /**
+     * @deprecated use {@link #applicationDeployWar(String,String,String,File,File,boolean,UploadProgress)}
+     */
+    @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployWar(
         String appId, String environment, String description, String warFile,
         String srcFile, boolean deltaDeploy, UploadProgress progress) throws Exception
     {
-        String archiveType = "war";
-        return applicationDeployArchive(appId, environment, description,
-            warFile, srcFile, archiveType, deltaDeploy, progress);
+        return applicationDeployWar(appId, environment, description,
+                asFile(warFile), asFile(srcFile), deltaDeploy, progress);
     }
 
+    /**
+     * @since 1.1.4
+     */
+    public ApplicationDeployArchiveResponse applicationDeployWar(
+        String appId, String environment, String description, File warFile,
+        File srcFile, boolean deltaDeploy, UploadProgress progress) throws Exception
+    {
+        String archiveType = "war";
+        return applicationDeployArchive(appId, environment, description,
+                warFile, srcFile, archiveType, deltaDeploy, progress);
+    }
+
+    /**
+     * @deprecated use {@link #applicationDeployArchive(String,String,String,File,File,String,UploadProgress)}
+     */
+    @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployArchive(
             String appId, String environment, String description, String earFile,
             String srcFile, String archiveType, UploadProgress progress) throws Exception
     {
+        return applicationDeployArchive(appId, environment, description, asFile(earFile), asFile(srcFile), archiveType, progress);
+    }
+
+    /**
+     * @since 1.1.4
+     */
+    public ApplicationDeployArchiveResponse applicationDeployArchive(
+            String appId, String environment, String description, File earFile,
+            File srcFile, String archiveType, UploadProgress progress) throws Exception
+    {
         return applicationDeployArchive(appId, environment, description, earFile, srcFile, archiveType, false, progress);
     }
+
+    /**
+     * @deprecated use {@link #applicationDeployArchive(String,String,String,File,File,String,boolean,UploadProgress)}
+     */
+    @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployArchive(
             String appId, String environment, String description, String earFile,
             String srcFile, String archiveType, boolean deltaDeploy, UploadProgress progress) throws Exception
     {
+        return applicationDeployArchive(appId, environment, description, asFile(earFile), asFile(srcFile), archiveType, deltaDeploy, progress);
+    }
+
+    /**
+     * @since 1.1.4
+     */
+    public ApplicationDeployArchiveResponse applicationDeployArchive(
+            String appId, String environment, String description, File earFile,
+            File srcFile, String archiveType, boolean deltaDeploy, UploadProgress progress) throws Exception
+    {
         return applicationDeployArchive(appId, environment, description, earFile, srcFile, archiveType, deltaDeploy, null, progress);
     }
+
+    /**
+     * @deprecated use {@link #applicationDeployArchive(String,String,String,File,File,String,boolean,Map,UploadProgress)}
+     */
+    @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployArchive(
             String appId, String environment, String description, String earFile,
             String srcFile, String archiveType, boolean deltaDeploy, Map<String, String> parameters, UploadProgress progress) throws Exception
     {
+        return applicationDeployArchive(appId, environment, description, asFile(earFile), asFile(srcFile), archiveType, deltaDeploy, parameters, progress);
+    }
+
+    /**
+     * @since 1.1.4
+     */
+    public ApplicationDeployArchiveResponse applicationDeployArchive(
+            String appId, String environment, String description, File earFile,
+            File srcFile, String archiveType, boolean deltaDeploy, Map<String, String> parameters, UploadProgress progress) throws Exception
+    {
+        return applicationDeployArchive(new ApplicationDeployArgs.Builder(appId)
+                .environment(environment).description(description)
+                .deployPackage(earFile, archiveType).srcFile(srcFile)
+                .incrementalDeployment(deltaDeploy).withParams(parameters)
+                .withProgressFeedback(progress).build());
+    }
+
+    public ApplicationDeployArchiveResponse applicationDeployArchive(ApplicationDeployArgs args) throws Exception
+    {
         Map<String, String> params = new HashMap<String, String>();
         Map<String, File> fileParams = new HashMap<String, File>();
-        params.put("app_id", appId);
+        params.put("app_id", args.appId);
 
-        File archiveFile = new File(earFile);
+        File archiveFile = args.archiveFile;
 
         // Currently only support WAR file for delta upload
         boolean deployDelta = false;
         boolean deployJarDelta = false;
         // Create delta deploy File
-        if (deltaDeploy && archiveType.equals("war")) {
+        if (args.deltaDeploy && args.archiveType.equals("war")) {
             trace("Get existing checksums");
-            ApplicationCheckSumsResponse applicationCheckSumsResponse = applicationCheckSums(appId, false);
+            ApplicationCheckSumsResponse applicationCheckSumsResponse = applicationCheckSums(args.appId, false);
             if (logger.isLoggable(Level.FINER)) {
                 for (Map.Entry<String, Long> entry : applicationCheckSumsResponse.getCheckSums().entrySet()) {
                     logger.finer("Entry: " + entry.getKey() + " CRC: " + entry.getValue());
@@ -263,9 +382,9 @@ public class BeesClient extends BeesClientBase
             }
         }
 
-        if (deltaDeploy && archiveType.equals("war")) {
+        if (args.deltaDeploy && args.archiveType.equals("war")) {
             trace("Get existing jar hashes");
-            ApplicationJarHashesResponse applicationJarHashesResponse = applicationJarHashes(appId, JarUtils.getJarHashes(archiveFile));
+            ApplicationJarHashesResponse applicationJarHashesResponse = applicationJarHashes(args.appId, JarUtils.getJarHashes(archiveFile));
             if (applicationJarHashesResponse.getJarHash().size() == 0) {
                 trace("No existing jars");
             } else {
@@ -283,24 +402,27 @@ public class BeesClient extends BeesClientBase
         if (deployDelta || deployJarDelta)
             trace("Uploading delta archive: " + archiveFile);
 
-        File archiveFileSrc = srcFile != null ? new File(srcFile) : null;
+        File archiveFileSrc = args.srcFile;
         long uploadSize = archiveFile.length();
         if (archiveFileSrc != null)
             uploadSize += archiveFileSrc.length();
 
         fileParams.put("archive", archiveFile);
-        params.put("archive_type", archiveType);
+        params.put("archive_type", args.archiveType);
+        
+        params.put("create", Boolean.valueOf(args.create).toString());
 
-        if (environment != null)
-            params.put("environment", environment);
+        if (args.environment != null)
+            params.put("environment", args.environment);
 
-        if (description != null)
-            params.put("description", description);
+        if (args.description != null)
+            params.put("description", args.description);
 
         if (archiveFileSrc != null)
             fileParams.put("src", archiveFileSrc);
 
-        params.put("parameters", createParameter(parameters));
+        params.put("parameters", createParameter(args.parameters));
+        params.put("variables", createParameter(args.variables));
 
         // extend the deploy invocation timeout to 4 hours
         long expireTime = System.currentTimeMillis() + 4 * 60 * 60 * 1000;
@@ -309,14 +431,14 @@ public class BeesClient extends BeesClientBase
         String url = getApiUrl("application.deployArchive").toString();
         params.put("action", "application.deployArchive");
         trace("API call: " + url);
-        String response = executeUpload(url, params, fileParams, progress);
+        String response = executeUpload(url, params, fileParams, args.progress);
         try {
             ApplicationDeployArchiveResponse apiResponse =
                 (ApplicationDeployArchiveResponse)readResponse(response);
 
             return apiResponse;
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Invalid application deployment response: " + appId, e);
+            logger.log(Level.SEVERE, "Invalid application deployment response: " + args.appId, e);
             logger.log(Level.FINE, "Deploy response trace: " + response);
             throw e;
         } finally {
@@ -341,6 +463,18 @@ public class BeesClient extends BeesClientBase
             traceResponse(response);
         ApplicationCheckSumsResponse apiResponse =
             (ApplicationCheckSumsResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ApplicationScaleResponse applicationScale( String appId, int unit) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("unit", ""+unit);
+        params.put("app_id", appId);
+        String url = getRequestURL("application.scale", params);
+        String response = executeRequest(url);
+        ApplicationScaleResponse apiResponse =
+            (ApplicationScaleResponse)readResponse(response);
         return apiResponse;
     }
 
@@ -388,9 +522,28 @@ public class BeesClient extends BeesClientBase
         return apiResponse.getDatabaseInfo();
     }
 
+    /**
+     * Returns all the databases in all the account sthat you belong to.
+     *
+     * Short-hand for {@code databaseList(null)}.
+     */
     public DatabaseListResponse databaseList() throws Exception
     {
+        return databaseList(null);
+    }
+
+    /**
+     * Returns all the databases in the specified account.
+     *
+     * @param account
+     *      if null, returns all the databases from all the accounts that you belong to.
+     * @since 1.1.3
+     */
+    public DatabaseListResponse databaseList(String account) throws Exception
+    {
         Map<String, String> params = new HashMap<String, String>();
+        if (account != null)
+            params.put("account", account);
         String url = getRequestURL("database.list", params);
         trace("API call: " + url);
         String response = executeRequest(url);
@@ -411,6 +564,62 @@ public class BeesClient extends BeesClientBase
         traceResponse(response);
         DatabaseSetPasswordResponse apiResponse =
             (DatabaseSetPasswordResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public DatabaseSnapshotListResponse databaseSnapshotList(String dbId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbId);
+        String url = getRequestURL("database.snapshot.list", params);
+        trace("API call: " + url);
+        String response = executeRequest(url);
+        traceResponse(response);
+        DatabaseSnapshotListResponse apiResponse =
+            (DatabaseSnapshotListResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public DatabaseSnapshotDeleteResponse databaseSnapshotDelete(String dbId, String snapshotId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbId);
+        params.put("snapshot_id", snapshotId);
+        String url = getRequestURL("database.snapshot.delete", params);
+        trace("API call: " + url);
+        String response = executeRequest(url);
+        traceResponse(response);
+        DatabaseSnapshotDeleteResponse apiResponse =
+            (DatabaseSnapshotDeleteResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public DatabaseSnapshotDeployResponse databaseSnapshotDeploy(String dbId, String snapshotId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbId);
+        params.put("snapshot_id", snapshotId);
+        String url = getRequestURL("database.snapshot.deploy", params);
+        trace("API call: " + url);
+        String response = executeRequest(url);
+        traceResponse(response);
+        DatabaseSnapshotDeployResponse apiResponse =
+            (DatabaseSnapshotDeployResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public DatabaseSnapshotInfo databaseSnapshotCreate(String dbId, String snapshotTitle) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbId);
+        if (snapshotTitle != null)
+            params.put("snapshot_title", snapshotTitle);
+        String url = getRequestURL("database.snapshot.create", params);
+        trace("API call: " + url);
+        String response = executeRequest(url);
+        traceResponse(response);
+        DatabaseSnapshotInfo apiResponse =
+            (DatabaseSnapshotInfo)readResponse(response);
         return apiResponse;
     }
 
@@ -441,7 +650,7 @@ public class BeesClient extends BeesClientBase
 
     public ApplicationConfiguration getApplicationConfiguration(String warFilePath, String account, String[] environments) throws Exception {
         ApplicationConfiguration appConfig;
-        File deployFile = new File(warFilePath);
+        File deployFile = asFile(warFilePath);
         if (deployFile.exists()) {
             appConfig = getAppConfig(deployFile, environments, new String[] { "deploy" });
         } else {
@@ -461,6 +670,48 @@ public class BeesClient extends BeesClientBase
             }
         }
         return appConfig;
+    }
+
+    public ConfigurationParametersUpdateResponse configurationParametersUpdate(String resourceId, String configType, File resourceFile) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        Map<String, File> fileParams = new HashMap<String, File>();
+
+        params.put("resource_id", resourceId);
+        params.put("config_type", configType);
+        fileParams.put("resources", resourceFile);
+
+        String url = getApiUrl("configuration.parameters.update").toString();
+        params.put("action", "configuration.parameters.update");
+        // use the upload method (POST) to handle the potentially large resource list
+        String response = executeUpload(url, params, fileParams, null);
+        ConfigurationParametersUpdateResponse apiResponse =
+            (ConfigurationParametersUpdateResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ConfigurationParametersDeleteResponse configurationParametersDelete(String resourceId, String configType) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("resource_id", resourceId);
+        params.put("config_type", configType);
+        String url = getRequestURL("configuration.parameters.delete", params);
+        String response = executeRequest(url);
+        ConfigurationParametersDeleteResponse apiResponse =
+            (ConfigurationParametersDeleteResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ConfigurationParametersResponse configurationParameters(String resourceId, String configType) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("resource_id", resourceId);
+        params.put("config_type", configType);
+        String url = getRequestURL("configuration.parameters", params);
+        String response = executeRequest(url);
+        ConfigurationParametersResponse apiResponse =
+            (ConfigurationParametersResponse)readResponse(response);
+        return apiResponse;
     }
 
     protected static ApplicationConfiguration getAppConfig(File deployZip, final String[] environments,
@@ -486,7 +737,7 @@ public class BeesClient extends BeesClientBase
         return applicationConfiguration;
     }
 
-    private String createParameter(Map<String,String>parameters) {
+    protected String createParameter(Map<String,String>parameters) {
         if (parameters == null)
             parameters = new HashMap<String, String>();
         JSONObject jsonObject = new JSONObject(parameters);
@@ -560,21 +811,35 @@ public class BeesClient extends BeesClientBase
         xstream.processAnnotations(ApplicationStatusResponse.class);
         xstream.processAnnotations(ApplicationSetMetaResponse.class);
         xstream.processAnnotations(ApplicationCheckSumsResponse.class);
+        xstream.processAnnotations(ApplicationScaleResponse.class);
         xstream.processAnnotations(DatabaseCreateResponse.class);
         xstream.processAnnotations(DatabaseSetPasswordResponse.class);
         xstream.processAnnotations(DatabaseDeleteResponse.class);
         xstream.processAnnotations(DatabaseInfo.class);
         xstream.processAnnotations(DatabaseInfoResponse.class);
         xstream.processAnnotations(DatabaseListResponse.class);
+        xstream.processAnnotations(DatabaseSnapshotInfo.class);
+        xstream.processAnnotations(DatabaseSnapshotListResponse.class);
+        xstream.processAnnotations(DatabaseSnapshotDeployResponse.class);
+        xstream.processAnnotations(DatabaseSnapshotDeleteResponse.class);
         xstream.processAnnotations(ErrorResponse.class);
         xstream.processAnnotations(AccountKeysResponse.class);
         xstream.processAnnotations(AccountInfo.class);
         xstream.processAnnotations(AccountListResponse.class);
         xstream.processAnnotations(ApplicationJarHashesResponse.class);
+        xstream.processAnnotations(ConfigurationParametersResponse.class);
+        xstream.processAnnotations(ConfigurationParametersUpdateResponse.class);
+        xstream.processAnnotations(ConfigurationParametersDeleteResponse.class);
 
         // Hack to fix backward compatibility
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);
         xstream.alias("net.stax.api.ApplicationSetMetaResponse", ApplicationSetMetaResponse.class);
+
+        // BeesClient can be subtyped to offer more commands,
+        // yet those may live in separate classloader.
+        // use this.getClass().getClassLoader() to ensure
+        // that all the request/response classes resolve.
+        xstream.setClassLoader(getClass().getClassLoader());
 
         return xstream;
     }
@@ -673,6 +938,10 @@ public class BeesClient extends BeesClientBase
             return options.get(optionName);
         else
             throw new BeesClient.UsageError("Missing required flag: --" + optionName);
+    }
+
+    private static File asFile(String filePath) {
+        return filePath == null ? null : new File(filePath);
     }
 
     public static class UsageError extends Exception
