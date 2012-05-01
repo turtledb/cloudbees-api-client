@@ -76,14 +76,15 @@ public class BeesClient2 extends BeesClient {
         HttpURLConnection uc = (HttpURLConnection) url.openConnection();
         uc.setRequestProperty("Authorization", "Basic " + encodedAccountAuthorization);
 
-        uc.setDoOutput(true);
         uc.setRequestProperty("Content-type", "application/json");
         uc.setRequestProperty("Accept","application/json");
         uc.setRequestMethod(method);
-
-        if (request!=null)
+        if (request!=null) {
+            uc.setDoOutput(true);
             MAPPER.writeValue(uc.getOutputStream(), request);
-        uc.getOutputStream().close();
+            uc.getOutputStream().close();
+        }
+        uc.connect();
 
         try {
             InputStreamReader r = new InputStreamReader(uc.getInputStream(), "UTF-8");
@@ -115,6 +116,16 @@ public class BeesClient2 extends BeesClient {
 
     public CBUser getUser(String id) throws IOException {
         return postAndRetrieve("/v2/users/"+id,null,CBUser.class, "GET");
+    }
+
+    /**
+     * Looks up the user by the public key fingerprint
+     *
+     * @param sshPublicKeyFingerprint
+     *      Fingerprint formatted as "12:34:56:..:aa:bb:cc" (case insensitive)
+     */
+    public CBUser getUserByFingerprint(String sshPublicKeyFingerprint) throws IOException {
+        return postAndRetrieve("/api/v2/users/fingerprint/"+sshPublicKeyFingerprint,null,CBUser.class,"GET");
     }
 
     /*package*/ static final ObjectMapper MAPPER = new ObjectMapper();

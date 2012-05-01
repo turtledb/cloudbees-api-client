@@ -40,6 +40,8 @@ public class CBUser extends CBObject {
     
     public List<CBAccount> accounts;
 
+    public List<CBSshKey> ssh_keys;
+
     /**
      * Creates an account and add this user to it.
      */
