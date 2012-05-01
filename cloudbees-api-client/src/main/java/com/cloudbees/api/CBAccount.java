@@ -30,7 +30,7 @@ public class CBAccount extends CBObject {
      */
     // this is what I want
     public CBSubscription addSubscription(CBSubscription sub) throws IOException {
-        return root.postAndRetrieve("/api/accounts/"+name+"/subscriptions",
+        return root.postAndRetrieve("v2/accounts/"+name+"/subscriptions",
                 sub, CBSubscription.class, "POST");
     }
 
@@ -41,12 +41,12 @@ public class CBAccount extends CBObject {
     // this is what we have today
     public CBSubscription addSubscription(String userid, CBSubscription sub) throws IOException {
         // TODO: why do we need to specify the user here?
-        return root.postAndRetrieve("/api/users/" + userid + "/accounts/" + name + "/subscriptions",
+        return root.postAndRetrieve("v2/users/" + userid + "/accounts/" + name + "/subscriptions",
                 sub, CBSubscription.class, "POST");
     }
 
     public List<CBSubscription> getSubscriptions() throws IOException {
-        return Arrays.asList(root.postAndRetrieve("/api/accounts/" + name + "/subscriptions", null,
+        return Arrays.asList(root.postAndRetrieve("v2/accounts/" + name + "/subscriptions", null,
                 CBSubscription[].class, "GET"));
     }
 }

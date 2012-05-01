@@ -28,7 +28,6 @@
   <version>1.2.1-SNAPSHOT</version>
   <modules>
     <module>cloudbees-api-client</module>
-    <module>cloudbees-api-account-provisioning-client</module>
     <module>cloudbees-api-client-nodeps</module>
   </modules>
 

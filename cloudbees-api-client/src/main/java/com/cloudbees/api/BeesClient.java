@@ -23,9 +23,17 @@ import com.cloudbees.utils.ZipHelper;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
+import org.codehaus.jackson.map.DeserializationConfig.Feature;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.introspect.VisibilityChecker.Std;
 import org.codehaus.jettison.json.JSONObject;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -34,23 +42,177 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 
+import static org.codehaus.jackson.annotate.JsonAutoDetect.Visibility.*;
+
 /**
  * @author Fabian Donze
+ * @author Kohsuke Kawaguchi
  */
 public class BeesClient extends BeesClientBase
 {
+    /**
+     * The encoded value we send in as the BASIC Auth header.
+     */
+    private String encodedAccountAuthorization;
+
+    /**
+     * The API endpoint, such as "https://api.cloudbees.com/"
+     */
+    private URL base;
+
     static Logger logger = Logger.getLogger(BeesClient.class.getSimpleName());
+
+    /**
+     * Used for mapping JSON to Java objects.
+     */
+    /*package*/ static final ObjectMapper MAPPER = new ObjectMapper();
+
+    static {
+        MAPPER.setVisibilityChecker(new Std(NONE, NONE, NONE, NONE, ANY));
+        MAPPER.getDeserializationConfig().set(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
 
 
     public BeesClient(BeesClientConfiguration beesClientConfiguration) {
         super(beesClientConfiguration);
+        init();
     }
+
     public BeesClient(String server, String apikey, String secret,
                       String format, String version)
     {
         // TODO: this encodePassword is considered harmful as it creates assymetry between two constructors
         super(server, apikey, encodePassword(secret, version), format,
             version);
+        init();
+    }
+
+    /**
+     * Common initialization code in this class.
+     */
+    private void init() {
+        BeesClientConfiguration conf = getBeesClientConfiguration();
+        try {
+            base = new URL(conf.getServerApiUrl());
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Invalid API URL:"+conf.getServerApiUrl(),e);
+        }
+        if (conf.getApiKey()!=null || conf.getSecret()!=null) {
+            String userpassword = conf.getApiKey()+':'+conf.getSecret();
+            encodedAccountAuthorization = new String(Base64.encodeBase64(userpassword.getBytes()));
+        } else
+            encodedAccountAuthorization = null;
+
+    }
+
+    /**
+     * Creates an user, including a partial user creation.
+     *
+     * @see <a href="https://sites.google.com/a/cloudbees.com/account-provisioning-api/home/user-api#TOC-Create-a-User">API spec</a>
+     */
+    public CBUser createUser(CBUser user) throws IOException {
+        return postAndRetrieve("v2/users",user,CBUser.class, "POST");
+    }
+
+    /**
+     * Updates the user record.
+     *
+     * @param id
+     *      The ID of the user to update. Corresponds to {@link CBUser#id}.
+     * @param user
+     *      You should only set fields that you want to update, and leave everything else to null, to indicate
+     *      those values should remain untouched.
+     */
+    public CBUser updateUser(String id, CBUser user) throws IOException {
+        return postAndRetrieve("v2/users/"+id,user,CBUser.class, "PATCH");
+    }
+
+    /**
+     * Deletes an user.
+     */
+    public void deleteUser(String id) throws IOException {
+        postAndRetrieve("v2/users/" + id, null, null, "DELETE");
+    }
+
+    public CBUser addUserToAccount(CBAccount account, CBUser user) throws IOException {
+        return postAndRetrieve("v2/users/"+user.id+"/accounts/"+account.name+"/users",user,CBUser.class, "POST");
+    }
+
+    /**
+     * The actual engine behind the REST API call.
+     *
+     * It sends a request in JSON and expects a JSON response back.
+     * Note that for historical reasons, there's the other half of the API that uses query parameters + digital signing.
+     *
+     * @param apiTail
+     *      The end point to hit. Appended to {@link #base}. Shouldn't start with '/'
+     * @param request
+     *      JSON-bound POJO object that represents the request payload, or null if none.
+     * @param type
+     *      JSON-bound POJO class to unmarshal the response into.
+     * @param method
+     *      HTTP method name like GET or POST.
+     * @throws IOException
+     *      If the communication fails.
+     */
+    /*package*/ <T> T postAndRetrieve(String apiTail, Object request, Class<T> type, String method) throws IOException {
+        URL url = new URL(base,apiTail);
+        HttpURLConnection uc = (HttpURLConnection) url.openConnection();
+        uc.setRequestProperty("Authorization", "Basic " + encodedAccountAuthorization);
+
+        uc.setRequestProperty("Content-type", "application/json");
+        uc.setRequestProperty("Accept","application/json");
+        uc.setRequestMethod(method);
+        if (request!=null) {
+            uc.setDoOutput(true);
+            MAPPER.writeValue(uc.getOutputStream(), request);
+            uc.getOutputStream().close();
+        }
+        uc.connect();
+
+        try {
+            InputStreamReader r = new InputStreamReader(uc.getInputStream(), "UTF-8");
+            String data = IOUtils.toString(r);  // read it upfront to make debugging easier
+            if (type==null) {
+                return null;
+            }
+            T ret = MAPPER.readValue(data, type);
+            if (ret instanceof CBObject)    // TODO: nested objects?
+                ((CBObject)ret).root = this;
+            return ret;
+        } catch (IOException e) {
+            String rsp = "";
+            InputStream err = uc.getErrorStream();
+            if (err!=null) {
+                try {
+                    rsp = IOUtils.toString(err);
+                } catch (IOException _) {
+                    // ignore
+                }
+            }
+            throw (IOException)new IOException("Failed to POST to "+url+" : code="+uc.getResponseCode()+" response="+rsp).initCause(e);
+        }
+    }
+
+    public CBAccount getAccount(String name) throws IOException {
+        return postAndRetrieve("v2/accounts/"+name,null,CBAccount.class, "GET");
+    }
+
+    /**
+     * Looks up the user by ID.
+     */
+    public CBUser getUser(String id) throws IOException {
+        return postAndRetrieve("v2/users/"+id,null,CBUser.class, "GET");
+    }
+
+    /**
+     * Looks up the user by the public key fingerprint
+     *
+     * @param sshPublicKeyFingerprint
+     *      Fingerprint formatted as "12:34:56:..:aa:bb:cc" (case insensitive)
+     */
+    public CBUser getUserByFingerprint(String sshPublicKeyFingerprint) throws IOException {
+        return postAndRetrieve("v2/users/fingerprint/"+sshPublicKeyFingerprint,null,CBUser.class,"GET");
     }
 
     public SayHelloResponse sayHello(String message) throws Exception
