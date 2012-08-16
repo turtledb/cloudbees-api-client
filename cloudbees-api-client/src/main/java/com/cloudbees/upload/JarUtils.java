@@ -44,7 +44,7 @@ public class JarUtils {
         while (e.hasMoreElements()) {
             ZipEntry entry = e.nextElement();
             String name = entry.getName();
-            if ((name.startsWith("WEB-INF/lib/") || name.startsWith("META-INF/syslib/")) && name.endsWith(".jar"))
+            if (name.endsWith(".jar"))
                 hashes.put(name, sha256(zipFile.getInputStream(entry)));
         }
 
