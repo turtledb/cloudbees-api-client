@@ -523,11 +523,11 @@ public class BeesClient extends BeesClientBase
 
         File archiveFile = args.archiveFile;
 
-        // Currently only support WAR file for delta upload
+        // Currently do not support ear file for delta upload
         boolean deployDelta = false;
         boolean deployJarDelta = false;
         // Create delta deploy File
-        if (args.deltaDeploy && args.archiveType.equals("war")) {
+        if (args.deltaDeploy && !args.archiveType.equals("ear")) {
             trace("Get existing checksums");
             ApplicationCheckSumsResponse applicationCheckSumsResponse = applicationCheckSums(args.appId, false);
             if (logger.isLoggable(Level.FINER)) {
@@ -544,7 +544,7 @@ public class BeesClient extends BeesClientBase
             }
         }
 
-        if (args.deltaDeploy && args.archiveType.equals("war")) {
+        if (args.deltaDeploy && !args.archiveType.equals("ear")) {
             trace("Get existing jar hashes");
             ApplicationJarHashesResponse applicationJarHashesResponse = applicationJarHashes(args.appId, JarUtils.getJarHashes(archiveFile));
             if (applicationJarHashesResponse.getJarHash().size() == 0) {
