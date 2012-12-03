@@ -171,8 +171,7 @@ public class BeesClientBase {
         }
 
         // append the signature
-        String signature = getSignature(sigData.toString(), secret);
-        return signature;
+        return getSignature(sigData.toString(), secret);
     }
 
     protected StringBuilder getApiUrl(String method) {
@@ -197,9 +196,7 @@ public class BeesClientBase {
 
     public static String getSignature(String data, String secret)
             throws Exception {
-        String s = data + secret;
-        String sig = md5(s);
-        return sig;
+        return md5(data + secret);
     }
 
     public static String md5(String message) {
@@ -235,7 +232,7 @@ public class BeesClientBase {
     }
 
     protected String getResponseString(InputStream ins) throws IOException {
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
         try {
             InputStreamReader isr = new InputStreamReader(ins);
             char[] chars = new char[1024];
