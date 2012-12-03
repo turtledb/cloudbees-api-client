@@ -46,21 +46,18 @@ public class CloudbeesServer {
 
 
     public void startServer()
-        throws Exception
-    {
-        this.server = new Server( 0 );
-        Context context = new Context( this.server, "/", 0 );
-        context.addServlet( new ServletHolder(cloudbessServlet), "/*" );
+            throws Exception {
+        this.server = new Server(0);
+        Context context = new Context(this.server, "/", 0);
+        context.addServlet(new ServletHolder(cloudbessServlet), "/*");
         this.server.start();
         Connector connector = this.server.getConnectors()[0];
         this.port = connector.getLocalPort();
     }
 
     public void stopServer()
-        throws Exception
-    {
-        if ( this.server != null && this.server.isRunning() )
-        {
+            throws Exception {
+        if (this.server != null && this.server.isRunning()) {
             this.server.stop();
         }
     }
@@ -71,12 +68,12 @@ public class CloudbeesServer {
 
     public static class CloudbessServlet extends HttpServlet {
 
-        public List <FileItem> items;
+        public List<FileItem> items;
 
         @Override
         protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             //TODO take care of &format=xml/json
-            if (req.getMethod().equalsIgnoreCase("get") ) {
+            if (req.getMethod().equalsIgnoreCase("get")) {
                 String action = req.getParameter("action");
                 if (action.equals("application.list")) {
                     String response = XmlResponseGenerator.applicationListResponse();
@@ -88,7 +85,7 @@ public class CloudbeesServer {
                     resp.getWriter().print(response);
                     return;
                 }
-            } else if (req.getMethod().equalsIgnoreCase("post") ) {
+            } else if (req.getMethod().equalsIgnoreCase("post")) {
                 if (req.getRequestURI().endsWith("application.jarHashes")) {
                     String response = XmlResponseGenerator.applicationJarHashesResponse();
                     resp.getWriter().print(response);
@@ -101,10 +98,10 @@ public class CloudbeesServer {
                     try {
                         items = upload.parseRequest(req);
                     } catch (FileUploadException e) {
-                        throw  new ServletException(e.getMessage(),e);
+                        throw new ServletException(e.getMessage(), e);
                     }
-                String response = XmlResponseGenerator.applicationDeployArchiveResponse();
-                resp.getWriter().print(response);
+                    String response = XmlResponseGenerator.applicationDeployArchiveResponse();
+                    resp.getWriter().print(response);
                 }
                 return;
             }
