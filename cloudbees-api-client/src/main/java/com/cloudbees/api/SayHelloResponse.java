@@ -6,12 +6,10 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * @author Fabian Donze
  */
 @XStreamAlias("SayHelloResponse")
-public class SayHelloResponse
-{
+public class SayHelloResponse {
     private String message;
 
-    public String getMessage()
-    {
+    public String getMessage() {
         return message;
     }
 }

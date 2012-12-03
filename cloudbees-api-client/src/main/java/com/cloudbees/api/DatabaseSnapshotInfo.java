@@ -33,16 +33,19 @@ public class DatabaseSnapshotInfo {
         this.title = title;
         this.created = DateHelper.toW3CDateString(created);
     }
-    
+
     public String getId() {
         return id;
     }
+
     public String getTitle() {
         return title;
     }
+
     public Date getCreated() {
-        if(created == null)
+        if (created == null) {
             return null;
+        }
         try {
             return DateHelper.parseW3CDate(created);
         } catch (ParseException e) {

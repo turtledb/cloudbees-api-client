@@ -6,8 +6,8 @@ import java.util.List;
 
 /**
  * Represents an account in the CloudBees platform.m
- *
- * <p>
+ * <p/>
+ * <p/>
  * An account is a unit of billing.
  *
  * @author Kohsuke Kawaguchi
@@ -22,7 +22,7 @@ public class CBAccount extends CBObject {
     public List<CBSubscription> subscriptions;
 
     public CBUser addUser(CBUser user) throws IOException {
-        return root.addUserToAccount(this,user);
+        return root.addUserToAccount(this, user);
     }
 
     /**
@@ -30,13 +30,12 @@ public class CBAccount extends CBObject {
      */
     // this is what I want
     public CBSubscription addSubscription(CBSubscription sub) throws IOException {
-        return root.postAndRetrieve("v2/accounts/"+name+"/subscriptions",
+        return root.postAndRetrieve("v2/accounts/" + name + "/subscriptions",
                 sub, CBSubscription.class, "POST");
     }
 
     /**
-     * @deprecated
-     *      Use {@link #addSubscription(CBSubscription)} when it's ready
+     * @deprecated Use {@link #addSubscription(CBSubscription)} when it's ready
      */
     // this is what we have today
     public CBSubscription addSubscription(String userid, CBSubscription sub) throws IOException {

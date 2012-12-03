@@ -22,24 +22,24 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 
 public class HttpClientHelper {
-    public static HttpClient createClient(BeesClientConfiguration beesClientConfiguration)
-    {
+    public static HttpClient createClient(BeesClientConfiguration beesClientConfiguration) {
         HttpClient client = new HttpClient();
         String proxyHost = beesClientConfiguration.getProxyHost();
-        if(proxyHost != null)
-        {
+        if (proxyHost != null) {
             int proxyPort = beesClientConfiguration.getProxyPort();
 
-            client.getHostConfiguration().setProxy(proxyHost,proxyPort);
-            
+            client.getHostConfiguration().setProxy(proxyHost, proxyPort);
+
             //if there are proxy credentials available, set those too
             Credentials proxyCredentials = null;
             String proxyUser = beesClientConfiguration.getProxyUser();
             String proxyPassword = beesClientConfiguration.getProxyPassword();
-            if(proxyUser != null || proxyPassword != null)
+            if (proxyUser != null || proxyPassword != null) {
                 proxyCredentials = new UsernamePasswordCredentials(proxyUser, proxyPassword);
-            if(proxyCredentials != null)
+            }
+            if (proxyCredentials != null) {
                 client.getState().setProxyCredentials(AuthScope.ANY, proxyCredentials);
+            }
         }
 
         return client;

@@ -16,7 +16,7 @@
 
 package com.cloudbees.api;
 
-public class BeesClientException extends Exception{
+public class BeesClientException extends Exception {
     private ErrorResponse error;
 
     public BeesClientException(ErrorResponse error) {

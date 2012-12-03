@@ -16,10 +16,10 @@
 
 package com.cloudbees.api;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 import java.text.ParseException;
 import java.util.Date;
-
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("DatabaseInfo")
 public class DatabaseInfo {
@@ -32,9 +32,9 @@ public class DatabaseInfo {
     private String master;
     private String[] slaves;
     private int port;
-            
+
     public DatabaseInfo(String name, String owner, String username, String password,
-            Date created, String status, String master, String[] slaves, int port) {
+                        Date created, String status, String master, String[] slaves, int port) {
         super();
         this.name = name;
         this.owner = owner;
@@ -46,36 +46,43 @@ public class DatabaseInfo {
         this.slaves = slaves;
         this.port = port;
     }
-    
+
     public String getName() {
         return name;
     }
+
     public String getOwner() {
         return owner;
     }
+
     public String getUsername() {
         return username;
     }
+
     public String getPassword() {
         return password;
     }
+
     public Date getCreated() {
-        if(created == null)
+        if (created == null) {
             return null;
+        }
         try {
             return DateHelper.parseW3CDate(created);
         } catch (ParseException e) {
             return null;
         }
     }
+
     public String getStatus() {
         return status;
     }
+
     public String getMaster() {
         return master;
     }
-    public String[] getSlaves()
-    {
+
+    public String[] getSlaves() {
         return slaves;
     }
 

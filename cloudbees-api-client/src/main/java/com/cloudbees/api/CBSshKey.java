@@ -16,7 +16,7 @@ public class CBSshKey {
 
     /**
      * Human-readable name that identifies this key among other keys.
-     *
+     * <p/>
      * The third token in ~/.ssh/authorized_keys
      */
     public String name;

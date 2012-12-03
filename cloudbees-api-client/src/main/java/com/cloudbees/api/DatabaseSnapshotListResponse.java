@@ -29,8 +29,9 @@ public class DatabaseSnapshotListResponse {
     }
 
     public List<DatabaseSnapshotInfo> getSnapshots() {
-        if(snapshots == null)
+        if (snapshots == null) {
             snapshots = new ArrayList<DatabaseSnapshotInfo>();
+        }
         return snapshots;
     }
 

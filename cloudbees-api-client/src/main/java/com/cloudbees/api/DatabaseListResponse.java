@@ -16,10 +16,10 @@
 
 package com.cloudbees.api;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("DatabaseListResponse")
 public class DatabaseListResponse {
@@ -29,8 +29,9 @@ public class DatabaseListResponse {
     }
 
     public List<DatabaseInfo> getDatabases() {
-        if(databases == null)
+        if (databases == null) {
             databases = new ArrayList<DatabaseInfo>();
+        }
         return databases;
     }
 

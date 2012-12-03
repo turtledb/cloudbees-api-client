@@ -21,7 +21,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("ApplicationInfoResponse")
 public class ApplicationInfoResponse {
     private ApplicationInfo application;
-    
+
     public ApplicationInfoResponse(ApplicationInfo application) {
         this.application = application;
     }

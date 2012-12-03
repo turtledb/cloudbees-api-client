@@ -16,10 +16,10 @@
 
 package com.cloudbees.api;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("ApplicationListResponse")
 public class ApplicationListResponse {
@@ -27,14 +27,15 @@ public class ApplicationListResponse {
 
     public ApplicationListResponse() {
     }
-    
+
     public ApplicationListResponse(List<ApplicationInfo> applications) {
         this.applications = applications;
     }
 
     public List<ApplicationInfo> getApplications() {
-        if(applications == null)
+        if (applications == null) {
             applications = new ArrayList<ApplicationInfo>();
+        }
         return applications;
     }
 }

@@ -26,7 +26,7 @@ public class AccountListResponse {
     private List<AccountInfo> accounts;
 
     public AccountListResponse() {
-         accounts = new ArrayList<AccountInfo>();
+        accounts = new ArrayList<AccountInfo>();
     }
 
     public List<AccountInfo> getAccounts() {

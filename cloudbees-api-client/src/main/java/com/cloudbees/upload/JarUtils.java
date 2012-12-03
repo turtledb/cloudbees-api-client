@@ -19,7 +19,11 @@ package com.cloudbees.upload;
 import com.cloudbees.utils.ZipHelper;
 import com.thoughtworks.xstream.XStream;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
@@ -44,15 +48,17 @@ public class JarUtils {
         while (e.hasMoreElements()) {
             ZipEntry entry = e.nextElement();
             String name = entry.getName();
-            if (name.endsWith(".jar"))
+            if (name.endsWith(".jar")) {
                 hashes.put(name, sha256(zipFile.getInputStream(entry)));
+            }
         }
 
         zipFile.close();
         return hashes;
     }
 
-    public static File createDeltaWarFile(Map<String, String> existingArchiveJars, File warFile, String tmp) throws IOException {
+    public static File createDeltaWarFile(Map<String, String> existingArchiveJars, File warFile, String tmp)
+            throws IOException {
         Map<String, String> hashes = new HashMap<String, String>();
 
         String tmpDir = makeTmpDir(warFile, tmp);
@@ -83,7 +89,7 @@ public class JarUtils {
         fos.close();
 
         // Archive the deltas
-        String deltaDir = warFile.getParent() == null ? "." :  warFile.getParent();
+        String deltaDir = warFile.getParent() == null ? "." : warFile.getParent();
         String deltaArchiveFile = deltaDir + "/JAR-" + warFile.getName();
         archiveDirectory(tmpDir, deltaArchiveFile);
 
@@ -92,10 +98,12 @@ public class JarUtils {
         return new File(deltaArchiveFile);
     }
 
-    private static void unArchiveZipEntry(String destinationDirectory, ZipFile zipfile, ZipEntry entry) throws IOException {
+    private static void unArchiveZipEntry(String destinationDirectory, ZipFile zipfile, ZipEntry entry)
+            throws IOException {
         File file = ZipHelper.unzipEntryToFolder(entry, zipfile.getInputStream(entry), new File(destinationDirectory));
-        if (entry.getTime() > -1)
+        if (entry.getTime() > -1) {
             file.setLastModified(entry.getTime());
+        }
     }
 
 
@@ -109,15 +117,17 @@ public class JarUtils {
     }
 
     private static String makeTmpDir(File file, String tmp) {
-        if (tmp == null)
+        if (tmp == null) {
             tmp = ".";
+        }
         String fileName = file.getName();
         int idx = fileName.lastIndexOf('.');
         if (idx > -1) {
-            fileName = fileName.substring(0,idx);
+            fileName = fileName.substring(0, idx);
         }
-        if (!tmp.endsWith(File.separator))
+        if (!tmp.endsWith(File.separator)) {
             tmp += File.separator;
+        }
 
         tmp = tmp + "tmp" + fileName + File.separator;
         File dir = new File(tmp);
@@ -126,18 +136,17 @@ public class JarUtils {
         return tmp;
     }
 
-    private static void deleteAll(File dir)
-    {
+    private static void deleteAll(File dir) {
         if (dir.exists()) {
             if (dir.isDirectory()) {
                 File[] files = dir.listFiles();
                 if (files != null) {
-                    for(File f : files)
-                    {
-                        if(f.isDirectory())
+                    for (File f : files) {
+                        if (f.isDirectory()) {
                             deleteAll(f);
-                        else
+                        } else {
                             f.delete();
+                        }
                     }
                 }
             }
@@ -169,11 +178,10 @@ public class JarUtils {
     }
 
     private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
-    private static String asHex(byte[] buf)
-    {
+
+    private static String asHex(byte[] buf) {
         char[] chars = new char[2 * buf.length];
-        for (int i = 0; i < buf.length; ++i)
-        {
+        for (int i = 0; i < buf.length; ++i) {
             chars[2 * i] = HEX_CHARS[(buf[i] & 0xF0) >>> 4];
             chars[2 * i + 1] = HEX_CHARS[buf[i] & 0x0F];
         }

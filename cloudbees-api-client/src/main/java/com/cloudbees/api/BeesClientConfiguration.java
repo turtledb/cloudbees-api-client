@@ -39,93 +39,75 @@ public class BeesClientConfiguration {
         this.version = version;
     }
 
-    public String getServerApiUrl()
-    {
+    public String getServerApiUrl() {
         return serverApiUrl;
     }
 
-    public void setServerApiUrl( String serverApiUrl )
-    {
+    public void setServerApiUrl(String serverApiUrl) {
         this.serverApiUrl = serverApiUrl;
     }
 
-    public String getProxyHost()
-    {
+    public String getProxyHost() {
         return proxyHost;
     }
 
-    public void setProxyHost( String proxyHost )
-    {
+    public void setProxyHost(String proxyHost) {
         this.proxyHost = proxyHost;
     }
 
-    public int getProxyPort()
-    {
+    public int getProxyPort() {
         return proxyPort;
     }
 
-    public void setProxyPort( int proxyPort )
-    {
+    public void setProxyPort(int proxyPort) {
         this.proxyPort = proxyPort;
     }
 
-    public String getProxyUser()
-    {
+    public String getProxyUser() {
         return proxyUser;
     }
 
-    public void setProxyUser( String proxyUser )
-    {
+    public void setProxyUser(String proxyUser) {
         this.proxyUser = proxyUser;
     }
 
-    public String getProxyPassword()
-    {
+    public String getProxyPassword() {
         return proxyPassword;
     }
 
-    public void setProxyPassword( String proxyPassword )
-    {
+    public void setProxyPassword(String proxyPassword) {
         this.proxyPassword = proxyPassword;
     }
 
-    public String getApiKey()
-    {
+    public String getApiKey() {
         return apiKey;
     }
 
-    public void setApiKey(String apiKey)
-    {
+    public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
     }
 
-    public String getSecret()
-    {
+    public String getSecret() {
         return secret;
     }
 
-    public void setSecret( String secret )
-    {
+    public void setSecret(String secret) {
         this.secret = secret;
     }
 
-    public String getFormat()
-    {
+    public String getFormat() {
         return format;
     }
 
-    public void setFormat( String format )
-    {
+    public void setFormat(String format) {
         this.format = format;
     }
 
-    public String getVersion()
-    {
+    public String getVersion() {
         return version;
     }
 
-    public void setVersion( String version )
-    {
+    public void setVersion(String version) {
         this.version = version;
     }
 
