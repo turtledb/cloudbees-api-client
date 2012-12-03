@@ -31,11 +31,13 @@ import org.codehaus.jackson.map.introspect.VisibilityChecker.Std;
 import org.codehaus.jettison.json.JSONObject;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -223,9 +225,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        SayHelloResponse helloResponse =
-            (SayHelloResponse)readResponse(response);
-        return helloResponse;
+        return (SayHelloResponse)readResponse(response);
     }
 
     public ApplicationGetSourceUrlResponse applicationGetSourceUrl(
@@ -237,9 +237,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationGetSourceUrlResponse apiResponse =
-            (ApplicationGetSourceUrlResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationGetSourceUrlResponse)readResponse(response);
     }
 
     public ApplicationDeleteResponse applicationDelete(String appId) throws Exception
@@ -250,9 +248,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationDeleteResponse apiResponse =
-            (ApplicationDeleteResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationDeleteResponse)readResponse(response);
     }
 
     public ApplicationRestartResponse applicationRestart(String appId) throws Exception
@@ -263,9 +259,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationRestartResponse apiResponse =
-            (ApplicationRestartResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationRestartResponse)readResponse(response);
     }
 
     public ApplicationStatusResponse applicationStart(String appId) throws Exception
@@ -276,9 +270,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationStatusResponse apiResponse =
-            (ApplicationStatusResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationStatusResponse)readResponse(response);
     }
 
     public ApplicationStatusResponse applicationStop(String appId) throws Exception
@@ -289,9 +281,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationStatusResponse apiResponse =
-            (ApplicationStatusResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationStatusResponse)readResponse(response);
     }
 
     /**
@@ -320,9 +310,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationListResponse apiResponse =
-            (ApplicationListResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationListResponse)readResponse(response);
     }
 
     public ApplicationInfo applicationInfo(String appId) throws Exception
@@ -348,9 +336,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationSetMetaResponse apiResponse =
-            (ApplicationSetMetaResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationSetMetaResponse)readResponse(response);
     }
 
     /**
@@ -372,9 +358,7 @@ public class BeesClient extends BeesClientBase
         // use the upload method (POST) to handle the potentially large "hashes" parameter payload
         trace("API call: " + url);
         String response = executeUpload(url, params, new HashMap<String, File>(), null);
-        ApplicationJarHashesResponse apiResponse =
-            (ApplicationJarHashesResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationJarHashesResponse)readResponse(response);
     }
 
     /**
@@ -588,17 +572,14 @@ public class BeesClient extends BeesClientBase
 
         // extend the deploy invocation timeout to 4 hours
         long expireTime = System.currentTimeMillis() + 4 * 60 * 60 * 1000;
-        params.put("expires", new Long(expireTime / 1000).toString());
+        params.put("expires", Long.toString(expireTime / 1000));
 
         String url = getApiUrl("application.deployArchive").toString();
         params.put("action", "application.deployArchive");
         trace("API call: " + url);
         String response = executeUpload(url, params, fileParams, args.progress);
         try {
-            ApplicationDeployArchiveResponse apiResponse =
-                (ApplicationDeployArchiveResponse)readResponse(response);
-
-            return apiResponse;
+            return (ApplicationDeployArchiveResponse)readResponse(response);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Invalid application deployment response: " + args.appId, e);
             logger.log(Level.FINE, "Deploy response trace: " + response);
@@ -623,9 +604,7 @@ public class BeesClient extends BeesClientBase
         String response = executeRequest(url);
         if (traceResponse)
             traceResponse(response);
-        ApplicationCheckSumsResponse apiResponse =
-            (ApplicationCheckSumsResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationCheckSumsResponse)readResponse(response);
     }
 
     public ApplicationScaleResponse applicationScale( String appId, int unit) throws Exception
@@ -635,9 +614,7 @@ public class BeesClient extends BeesClientBase
         params.put("app_id", appId);
         String url = getRequestURL("application.scale", params);
         String response = executeRequest(url);
-        ApplicationScaleResponse apiResponse =
-            (ApplicationScaleResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationScaleResponse)readResponse(response);
     }
 
     public DatabaseCreateResponse databaseCreate(String domain, String dbId,
@@ -652,9 +629,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseCreateResponse apiResponse =
-            (DatabaseCreateResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseCreateResponse)readResponse(response);
     }
 
     public DatabaseDeleteResponse databaseDelete(String dbId) throws Exception
@@ -665,9 +640,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseDeleteResponse apiResponse =
-            (DatabaseDeleteResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseDeleteResponse)readResponse(response);
     }
 
     public DatabaseInfo databaseInfo(String dbId, boolean fetchPassword) throws Exception
@@ -710,9 +683,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseListResponse apiResponse =
-            (DatabaseListResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseListResponse)readResponse(response);
     }
 
     public DatabaseSetPasswordResponse databaseSetPassword(String dbId, String password) throws Exception
@@ -724,9 +695,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseSetPasswordResponse apiResponse =
-            (DatabaseSetPasswordResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseSetPasswordResponse)readResponse(response);
     }
 
     public DatabaseSnapshotListResponse databaseSnapshotList(String dbId) throws Exception
@@ -737,9 +706,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseSnapshotListResponse apiResponse =
-            (DatabaseSnapshotListResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseSnapshotListResponse)readResponse(response);
     }
 
     public DatabaseSnapshotDeleteResponse databaseSnapshotDelete(String dbId, String snapshotId) throws Exception
@@ -751,9 +718,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseSnapshotDeleteResponse apiResponse =
-            (DatabaseSnapshotDeleteResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseSnapshotDeleteResponse)readResponse(response);
     }
 
     public DatabaseSnapshotDeployResponse databaseSnapshotDeploy(String dbId, String snapshotId) throws Exception
@@ -765,9 +730,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseSnapshotDeployResponse apiResponse =
-            (DatabaseSnapshotDeployResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseSnapshotDeployResponse)readResponse(response);
     }
 
     public DatabaseSnapshotInfo databaseSnapshotCreate(String dbId, String snapshotTitle) throws Exception
@@ -780,9 +743,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseSnapshotInfo apiResponse =
-            (DatabaseSnapshotInfo)readResponse(response);
-        return apiResponse;
+        return (DatabaseSnapshotInfo)readResponse(response);
     }
 
     public AccountKeysResponse accountKeys(String domain, String user, String password) throws Exception
@@ -793,9 +754,7 @@ public class BeesClient extends BeesClientBase
         if (domain != null) params.put("domain", domain);
         String url = getRequestURL("account.keys", params);
         String response = executeRequest(url);
-        AccountKeysResponse apiResponse =
-            (AccountKeysResponse)readResponse(response);
-        return apiResponse;
+        return (AccountKeysResponse)readResponse(response);
     }
 
     public AccountListResponse accountList() throws Exception
@@ -805,9 +764,7 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        AccountListResponse apiResponse =
-            (AccountListResponse)readResponse(response);
-        return apiResponse;
+        return (AccountListResponse)readResponse(response);
     }
 
     public ApplicationConfiguration getApplicationConfiguration(String warFilePath, String account, String[] environments) throws Exception {
@@ -847,9 +804,7 @@ public class BeesClient extends BeesClientBase
         params.put("action", "configuration.parameters.update");
         // use the upload method (POST) to handle the potentially large resource list
         String response = executeUpload(url, params, fileParams, null);
-        ConfigurationParametersUpdateResponse apiResponse =
-            (ConfigurationParametersUpdateResponse)readResponse(response);
-        return apiResponse;
+        return (ConfigurationParametersUpdateResponse)readResponse(response);
     }
 
     public ConfigurationParametersDeleteResponse configurationParametersDelete(String resourceId, String configType) throws Exception
@@ -859,9 +814,7 @@ public class BeesClient extends BeesClientBase
         params.put("config_type", configType);
         String url = getRequestURL("configuration.parameters.delete", params);
         String response = executeRequest(url);
-        ConfigurationParametersDeleteResponse apiResponse =
-            (ConfigurationParametersDeleteResponse)readResponse(response);
-        return apiResponse;
+        return (ConfigurationParametersDeleteResponse)readResponse(response);
     }
 
     public ConfigurationParametersResponse configurationParameters(String resourceId, String configType) throws Exception
@@ -871,9 +824,7 @@ public class BeesClient extends BeesClientBase
         params.put("config_type", configType);
         String url = getRequestURL("configuration.parameters", params);
         String response = executeRequest(url);
-        ConfigurationParametersResponse apiResponse =
-            (ConfigurationParametersResponse)readResponse(response);
-        return apiResponse;
+        return (ConfigurationParametersResponse)readResponse(response);
     }
 
     protected static ApplicationConfiguration getAppConfig(File deployZip, final String[] environments,
@@ -939,7 +890,7 @@ public class BeesClient extends BeesClientBase
                 protected MapperWrapper wrapMapper(MapperWrapper next) {
                     return new MapperWrapper(next) {
                         public boolean shouldSerializeMember(Class definedIn, String fieldName) {
-                            return definedIn != Object.class ? super.shouldSerializeMember(definedIn, fieldName) : false;
+                            return definedIn != Object.class && super.shouldSerializeMember(definedIn, fieldName);
                         }
 
                     };
@@ -950,7 +901,7 @@ public class BeesClient extends BeesClientBase
                 protected MapperWrapper wrapMapper(MapperWrapper next) {
                     return new MapperWrapper(next) {
                         public boolean shouldSerializeMember(Class definedIn, String fieldName) {
-                            return definedIn != Object.class ? super.shouldSerializeMember(definedIn, fieldName) : false;
+                            return definedIn != Object.class && super.shouldSerializeMember(definedIn, fieldName);
                         }
 
                     };
@@ -1020,18 +971,21 @@ public class BeesClient extends BeesClientBase
         if (version.equals("0.1")) {
             try {
                 MessageDigest sha = MessageDigest.getInstance("SHA");
-                byte[] shaBytes = sha.digest(password.getBytes("UTF8"));
-                StringBuffer hex = new StringBuffer();
-                for (int i = 0; i < shaBytes.length; ++i) {
-                    hex.append(Integer.toHexString(
-                        (shaBytes[i] & 0xFF) | 0x100).substring(1, 3));
+                byte[] passwordDigest = sha.digest(password.getBytes("UTF8"));
+                String result = new BigInteger(1, passwordDigest).toString(16);
+                if (result.length() < 32) {
+                    char[] padded = new char[32];
+                    char[] raw = result.toCharArray();
+                    Arrays.fill(padded, 0, 32 - raw.length, '0');
+                    System.arraycopy(raw, 0, padded, 32 - raw.length, raw.length);
+                    result = new String(padded);
                 }
-
-                return hex.toString();
+                return result;
             } catch (NoSuchAlgorithmException e) {
+                throw new IllegalStateException("JVM is supposed to provide SHA instance of MessageDigest", e);
             } catch (UnsupportedEncodingException e) {
+                throw new IllegalStateException("JVM is supposed to provide UTF-8 character encoding", e);
             }
-            return null;
         } else
             return password;
     }
@@ -1046,7 +1000,7 @@ public class BeesClient extends BeesClientBase
                 String arg = args[argIndex];
                 String[] pair = arg.split("=", 2);
                 if (pair.length < 2)
-                    throw new BeesClient.UsageError("Marlformed call parameter pair: " +
+                    throw new BeesClient.UsageError("Malformed call parameter pair: " +
                         arg);
                 params.put(pair[0], pair[1]);
             }
