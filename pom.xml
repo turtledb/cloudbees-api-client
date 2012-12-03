@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2010-2011, CloudBees Inc.
+  ~ Copyright 2010-2012, CloudBees Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -136,12 +136,5 @@
       </plugins>
     </pluginManagement>
   </build>
-
-  <repositories>
-    <repository>
-      <id>cloudbees-internal</id>
-      <url>https://repo-internal.cloudbees.com</url>
-    </repository>
-  </repositories>
 
 </project>
