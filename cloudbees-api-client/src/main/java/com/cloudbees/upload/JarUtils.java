@@ -36,9 +36,14 @@ import java.util.zip.ZipOutputStream;
 /**
  * @author Fabian Donze
  */
-public class JarUtils {
+public final class JarUtils {
+
     private static final String META_INF = "META-INF";
     private static final String JAR_FILE = "CB-JAR.xml";
+
+    private JarUtils() {
+        throw new IllegalAccessError("Utility class");
+    }
 
     public static Map<String, String> getJarHashes(File warFile) throws IOException {
         Map<String, String> hashes = new HashMap<String, String>();

@@ -117,7 +117,7 @@ public class BeesClient extends BeesClientBase {
      * Creates an user, including a partial user creation.
      *
      * @see <a href="https://sites.google.com/a/cloudbees
-     * .com/account-provisioning-api/home/user-api#TOC-Create-a-User">API spec</a>
+     *      .com/account-provisioning-api/home/user-api#TOC-Create-a-User">API spec</a>
      */
     public CBUser createUser(CBUser user) throws IOException {
         return postAndRetrieve("v2/users", user, CBUser.class, "POST");
@@ -441,7 +441,7 @@ public class BeesClient extends BeesClientBase {
 
     /**
      * @deprecated use {@link #applicationDeployArchive(String, String, String, File, File, String, boolean,
-     * UploadProgress)}
+     *             UploadProgress)}
      */
     @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployArchive(
@@ -463,7 +463,7 @@ public class BeesClient extends BeesClientBase {
 
     /**
      * @deprecated use {@link #applicationDeployArchive(String, String, String, File, File, String, boolean, Map,
-     * UploadProgress)}
+     *             UploadProgress)}
      */
     @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployArchive(
@@ -814,6 +814,69 @@ public class BeesClient extends BeesClientBase {
         String url = getRequestURL("configuration.parameters", params);
         String response = executeRequest(url);
         return (ConfigurationParametersResponse) readResponse(response);
+    }
+
+    public ServiceListResponse serviceList(String account) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("account", account);
+        String url = getRequestURL("service.list", params);
+        String response = executeRequest(url);
+        return (ServiceListResponse) readResponse(response);
+    }
+
+    public ServiceSubscriptionInfo serviceSubscribe(String service, String plan, String account,
+                                                    Map<String, String> settings) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("account", account);
+        params.put("service", service);
+        if (plan != null) {
+            params.put("plan", plan);
+        }
+        params.put("settings", createParameter(settings));
+        String url = getRequestURL("service.subscribe", params);
+        String response = executeRequest(url);
+        return ((ServiceSubscriptionResponse) readResponse(response)).getSubscription();
+    }
+
+    public ServiceSubscriptionDeleteResponse serviceUnSubscribe(String service, String subscriptionId)
+            throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("subscription_id", subscriptionId);
+        params.put("service", service);
+        String url = getRequestURL("service.unsubscribe", params);
+        String response = executeRequest(url);
+        return (ServiceSubscriptionDeleteResponse) readResponse(response);
+    }
+
+    public ServiceSubscriptionInfo serviceSubscriptionUpdate(String service, String plan, String subscriptionId,
+                                                             Map<String, String> settings) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("subscription_id", subscriptionId);
+        params.put("service", service);
+        if (plan != null) {
+            params.put("plan", plan);
+        }
+        params.put("settings", createParameter(settings));
+        String url = getRequestURL("service.subscription.update", params);
+        String response = executeRequest(url);
+        return ((ServiceSubscriptionResponse) readResponse(response)).getSubscription();
+    }
+
+    public ServiceSubscriptionInfo serviceSubscriptionInfo(String service, String subscriptionId) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("subscription_id", subscriptionId);
+        params.put("service", service);
+        String url = getRequestURL("service.subscription.info", params);
+        String response = executeRequest(url);
+        return ((ServiceSubscriptionResponse) readResponse(response)).getSubscription();
+    }
+
+    public ServiceSubscriptionListResponse serviceSubscriptionList(String account) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("account", account);
+        String url = getRequestURL("service.subscription.list", params);
+        String response = executeRequest(url);
+        return (ServiceSubscriptionListResponse) readResponse(response);
     }
 
     protected static ApplicationConfiguration getAppConfig(File deployZip, final String[] environments,

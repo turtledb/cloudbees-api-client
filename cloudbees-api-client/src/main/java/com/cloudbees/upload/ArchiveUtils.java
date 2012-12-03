@@ -33,13 +33,17 @@ import java.util.zip.ZipOutputStream;
 
 /**
  */
-public class ArchiveUtils {
+public final class ArchiveUtils {
 
     public static int ENTRY_DELETED = 1;
     public static int ENTRY_UPDATED = 2;
     public static int ENTRY_ADDED = 3;
     private static final String META_INF = "META-INF";
     private static final String DELTA_FILE = "CB-DELTA.xml";
+
+    private ArchiveUtils() {
+        throw new IllegalAccessError("Utility class");
+    }
 
     public static File createDeltaWarFile(Map<String, Long> existingArchiveCheckSums, File warFile, String tmp)
             throws IOException {

@@ -28,7 +28,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class AppConfigHelper {
+public final class AppConfigHelper {
+    private AppConfigHelper() {
+        throw new IllegalAccessError("Utility class");
+    }
+
     public static void load(ApplicationConfiguration applicationConfiguration, InputStream in, String[] environments,
                             String[] implicitEnvironments) {
         InputSource input = new InputSource(in);

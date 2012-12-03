@@ -21,7 +21,11 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 
-public class HttpClientHelper {
+public final class HttpClientHelper {
+    private HttpClientHelper() {
+        throw new IllegalAccessError("Utility class");
+    }
+
     public static HttpClient createClient(BeesClientConfiguration beesClientConfiguration) {
         HttpClient client = new HttpClient();
         String proxyHost = beesClientConfiguration.getProxyHost();

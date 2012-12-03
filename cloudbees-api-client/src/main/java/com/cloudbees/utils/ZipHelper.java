@@ -27,7 +27,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-public class ZipHelper {
+public final class ZipHelper {
+
+    private ZipHelper() {
+        throw new IllegalAccessError("Utility class");
+    }
 
     /**
      * Recursively inserts all files in a directory into a zipstream.
@@ -41,7 +45,7 @@ public class ZipHelper {
      * @param zos       the zip stream to add the files to.
      * @throws java.io.IOException
      */
-    public static final void addDirectoryToZip(File directory, File base,
+    public static void addDirectoryToZip(File directory, File base,
                                                String dirPrefix, ZipOutputStream zos) throws IOException {
         if (base == null) {
             base = directory;
@@ -65,16 +69,16 @@ public class ZipHelper {
         File[] files = directory.listFiles();
         byte[] buffer = new byte[8192];
         int read = 0;
-        for (int i = 0, n = files.length; i < n; i++) {
+        for (File file : files) {
             // if (!files[i].isHidden()) {
-            if (files[i].isDirectory()) {
-                addDirectoryToZip(files[i], base, dirPrefix, zos);
+            if (file.isDirectory()) {
+                addDirectoryToZip(file, base, dirPrefix, zos);
             } else {
-                FileInputStream in = new FileInputStream(files[i]);
+                FileInputStream in = new FileInputStream(file);
                 ZipEntry entry = new ZipEntry(dirPrefix
-                        + files[i].getPath().substring(
+                        + file.getPath().substring(
                         base.getPath().length() + 1).replace('\\', '/'));
-                entry.setTime(files[i].lastModified());
+                entry.setTime(file.lastModified());
                 zos.putNextEntry(entry);
                 while (-1 != (read = in.read(buffer))) {
                     zos.write(buffer, 0, read);
