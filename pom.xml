@@ -27,6 +27,7 @@
   <packaging>pom</packaging>
   <version>1.2.2-SNAPSHOT</version>
   <modules>
+    <module>cloudbees-api-core</module>
     <module>cloudbees-api-client</module>
     <module>cloudbees-api-client-nodeps</module>
   </modules>
