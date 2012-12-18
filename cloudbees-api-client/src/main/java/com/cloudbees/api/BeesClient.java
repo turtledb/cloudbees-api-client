@@ -879,6 +879,28 @@ public class BeesClient extends BeesClientBase {
         return (ServiceSubscriptionListResponse) readResponse(response);
     }
 
+    public ServiceResourceInfo serviceResourceInfo(String service, String resourceId) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("service", service);
+        params.put("resource_id", resourceId);
+        String url = getRequestURL("service.resource.info", params);
+        String response = executeRequest(url);
+        return ((ServiceResourceResponse) readResponse(response)).getResource();
+    }
+
+    public ServiceResourceListResponse serviceResourceList(String service, String account, String resourceType)
+            throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("account", account);
+        params.put("service", service);
+        if (resourceType != null) {
+            params.put("resource_type", resourceType);
+        }
+        String url = getRequestURL("service.resource.list", params);
+        String response = executeRequest(url);
+        return (ServiceResourceListResponse) readResponse(response);
+    }
+
     protected static ApplicationConfiguration getAppConfig(File deployZip, final String[] environments,
                                                            final String[] implicitEnvironments) throws IOException {
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
@@ -994,6 +1016,12 @@ public class BeesClient extends BeesClientBase {
         xstream.processAnnotations(ConfigurationParametersResponse.class);
         xstream.processAnnotations(ConfigurationParametersUpdateResponse.class);
         xstream.processAnnotations(ConfigurationParametersDeleteResponse.class);
+        xstream.processAnnotations(ServiceSubscriptionResponse.class);
+        xstream.processAnnotations(ServiceSubscriptionListResponse.class);
+        xstream.processAnnotations(ServiceSubscriptionDeleteResponse.class);
+        xstream.processAnnotations(ServiceResourceInfo.class);
+        xstream.processAnnotations(ServiceResourceResponse.class);
+        xstream.processAnnotations(ServiceResourceListResponse.class);
 
         // Hack to fix backward compatibility
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);
