@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011, CloudBees Inc.
+ * Copyright 2010-2012, CloudBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("ApplicationInfoResponse")
 public class ApplicationInfoResponse {
     private ApplicationInfo application;
-    
+
     public ApplicationInfoResponse(ApplicationInfo application) {
         this.application = application;
     }

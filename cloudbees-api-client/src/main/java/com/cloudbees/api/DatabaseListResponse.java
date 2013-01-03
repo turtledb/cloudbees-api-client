@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011, CloudBees Inc.
+ * Copyright 2010-2012, CloudBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package com.cloudbees.api;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("DatabaseListResponse")
 public class DatabaseListResponse {
@@ -29,8 +29,9 @@ public class DatabaseListResponse {
     }
 
     public List<DatabaseInfo> getDatabases() {
-        if(databases == null)
+        if (databases == null) {
             databases = new ArrayList<DatabaseInfo>();
+        }
         return databases;
     }
 

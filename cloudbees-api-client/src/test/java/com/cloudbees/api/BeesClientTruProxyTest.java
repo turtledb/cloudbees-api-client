@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011, CloudBees Inc.
+ * Copyright 2010-2012, CloudBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,32 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.cloudbees.api;
 
 import com.cloudbees.api.util.CloudbeesServer;
 import com.cloudbees.api.util.ProxyServer;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.log4j.Logger;
-import org.junit.Test;
-import org.mortbay.util.StringUtil;
+import org.junit.*;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 
 /**
  * @author <a href="mailto:Olivier.LAMY@accor.com">Olivier Lamy</a>
  */
-public class BeesClientTruProxyTest
-{
+public class BeesClientTruProxyTest {
 
     private Logger log = Logger.getLogger(getClass());
 
@@ -50,7 +44,8 @@ public class BeesClientTruProxyTest
 
         try {
             BeesClientConfiguration beesClientConfiguration =
-                new BeesClientConfiguration( "http://localhost:" + cloudbeesServer.getPort() + "/", "foo", "bar", "xml", "1.0" );
+                    new BeesClientConfiguration("http://localhost:" + cloudbeesServer.getPort() + "/", "foo", "bar",
+                            "xml", "1.0");
             BeesClient beesClient = new BeesClient(beesClientConfiguration);
             ApplicationListResponse response = beesClient.applicationList();
             assertNotNull(response);
@@ -63,19 +58,18 @@ public class BeesClientTruProxyTest
 
     @Test
     public void requestTruProxy()
-        throws Exception
-    {
+            throws Exception {
         ProxyServer.AuthAsyncProxyServlet authAsyncProxyServlet = new ProxyServer.AuthAsyncProxyServlet();
-        ProxyServer proxyServer = new ProxyServer( authAsyncProxyServlet );
+        ProxyServer proxyServer = new ProxyServer(authAsyncProxyServlet);
 
         CloudbeesServer cloudbeesServer = new CloudbeesServer();
         cloudbeesServer.startServer();
 
-        try
-        {
+        try {
             proxyServer.start();
             BeesClientConfiguration beesClientConfiguration =
-                new BeesClientConfiguration( "http://localhost:" + cloudbeesServer.getPort() + "/", "foo", "bar", "xml", "1.0" );
+                    new BeesClientConfiguration("http://localhost:" + cloudbeesServer.getPort() + "/", "foo", "bar",
+                            "xml", "1.0");
             beesClientConfiguration.setProxyHost("localhost");
             beesClientConfiguration.setProxyPort(proxyServer.getPort());
             BeesClient beesClient = new BeesClient(beesClientConfiguration);
@@ -84,9 +78,7 @@ public class BeesClientTruProxyTest
             assertNotNull(response);
             assertEquals(2, response.getApplications().size());
             assertEquals(1, authAsyncProxyServlet.requestsReceived);
-        }
-        finally
-        {
+        } finally {
             cloudbeesServer.stopServer();
             proxyServer.stop();
         }
@@ -95,21 +87,20 @@ public class BeesClientTruProxyTest
 
     @Test
     public void requestTruProxyWithAutz()
-        throws Exception
-    {
-        Map<String, String> autzs = new HashMap<String,String>();
-        autzs.put("olamy","yoyoyoyo");
+            throws Exception {
+        Map<String, String> autzs = new HashMap<String, String>();
+        autzs.put("olamy", "yoyoyoyo");
         ProxyServer.AuthAsyncProxyServlet authAsyncProxyServlet = new ProxyServer.AuthAsyncProxyServlet(autzs);
-        ProxyServer proxyServer = new ProxyServer( authAsyncProxyServlet );
+        ProxyServer proxyServer = new ProxyServer(authAsyncProxyServlet);
 
         CloudbeesServer cloudbeesServer = new CloudbeesServer();
         cloudbeesServer.startServer();
 
-        try
-        {
+        try {
             proxyServer.start();
             BeesClientConfiguration beesClientConfiguration =
-                new BeesClientConfiguration( "http://localhost:" + cloudbeesServer.getPort() + "/", "foo", "bar", "xml", "1.0" );
+                    new BeesClientConfiguration("http://localhost:" + cloudbeesServer.getPort() + "/", "foo", "bar",
+                            "xml", "1.0");
             beesClientConfiguration.setProxyHost("localhost");
             beesClientConfiguration.setProxyPort(proxyServer.getPort());
             beesClientConfiguration.setProxyUser("olamy");
@@ -121,9 +112,7 @@ public class BeesClientTruProxyTest
             assertEquals(2, response.getApplications().size());
             // one for authz + one for the request
             assertEquals(2, authAsyncProxyServlet.requestsReceived);
-        }
-        finally
-        {
+        } finally {
             cloudbeesServer.stopServer();
             proxyServer.stop();
         }
@@ -139,21 +128,21 @@ public class BeesClientTruProxyTest
         assertThat("We have the file to upload", local.isFile(), is(true));
         assertThat("We have created the temp file to be uploaded", uploaded.isFile(), is(true));
         assertThat("Precondition", local.length(), not(is(uploaded.length())));
-        try
-        {
+        try {
             BeesClientConfiguration beesClientConfiguration =
-                new BeesClientConfiguration( "http://localhost:" + cloudbeesServer.getPort() + "/", "foo", "bar", "xml", "1.0" );
+                    new BeesClientConfiguration("http://localhost:" + cloudbeesServer.getPort() + "/", "foo", "bar",
+                            "xml", "1.0");
             BeesClient beesClient = new BeesClient(beesClientConfiguration);
             beesClient.setVerbose(true);
             MockUploadProgress mockUploadProgress = new MockUploadProgress();
 
-            beesClient.applicationDeployWar("fooId","env","desc",local, null, mockUploadProgress);
+            beesClient.applicationDeployWar("fooId", "env", "desc", local, null, mockUploadProgress);
             assertNotNull(cloudbeesServer.cloudbessServlet.items);
             int realFilesNumber = 0;
 
             for (FileItem fileItem : cloudbeesServer.cloudbessServlet.items) {
                 log.info("fileItem " + fileItem.getName() + ", size " + fileItem.getSize());
-                if (fileItem.getName() != null ) {
+                if (fileItem.getName() != null) {
                     realFilesNumber++;
                     fileItem.write(uploaded);
                 }

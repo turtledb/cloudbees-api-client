@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011, CloudBees Inc.
+ * Copyright 2010-2012, CloudBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,18 @@ package com.cloudbees.api;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
-@XStreamAlias("error")
-public class ErrorResponse {
-    public String errorCode;
-    public String message;
-    public String getErrorCode() {
-        return errorCode;
+@XStreamAlias("ServiceSubscriptionDeleteResponse")
+public class ServiceSubscriptionDeleteResponse {
+    private boolean deleted;
+
+    public ServiceSubscriptionDeleteResponse() {
     }
-    public String getMessage() {
-        return message;
+
+    public ServiceSubscriptionDeleteResponse(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
     }
 }

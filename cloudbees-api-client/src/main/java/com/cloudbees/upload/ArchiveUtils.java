@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011, CloudBees Inc.
+ * Copyright 2010-2012, CloudBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,13 @@ package com.cloudbees.upload;
 import com.cloudbees.utils.ZipHelper;
 import com.thoughtworks.xstream.XStream;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -28,7 +33,7 @@ import java.util.zip.ZipOutputStream;
 
 /**
  */
-public class ArchiveUtils {
+public final class ArchiveUtils {
 
     public static int ENTRY_DELETED = 1;
     public static int ENTRY_UPDATED = 2;
@@ -36,7 +41,12 @@ public class ArchiveUtils {
     private static final String META_INF = "META-INF";
     private static final String DELTA_FILE = "CB-DELTA.xml";
 
-    public static File createDeltaWarFile(Map<String, Long> existingArchiveCheckSums, File warFile, String tmp) throws IOException {
+    private ArchiveUtils() {
+        throw new IllegalAccessError("Utility class");
+    }
+
+    public static File createDeltaWarFile(Map<String, Long> existingArchiveCheckSums, File warFile, String tmp)
+            throws IOException {
         Map<String, Integer> deltas = getDeltas(warFile.getAbsolutePath(), existingArchiveCheckSums);
 
         String tmpDir = makeTmpDir(warFile, tmp);
@@ -62,7 +72,7 @@ public class ArchiveUtils {
         fos.close();
 
         // Archive the deltas
-        String deltaDir = warFile.getParent() == null ? "." :  warFile.getParent();
+        String deltaDir = warFile.getParent() == null ? "." : warFile.getParent();
         String deltaArchiveFile = deltaDir + "/DELTA-" + warFile.getName();
         archiveDirectory(tmpDir, deltaArchiveFile);
 
@@ -72,8 +82,9 @@ public class ArchiveUtils {
     }
 
 
-    public static Map<String, Integer> getDeltas(String archiveFile, Map<String, Long> oldCheckSums) throws IOException {
-        Map<String, Integer> deltas =  new HashMap<String, Integer>();
+    public static Map<String, Integer> getDeltas(String archiveFile, Map<String, Long> oldCheckSums)
+            throws IOException {
+        Map<String, Integer> deltas = new HashMap<String, Integer>();
 
         Map<String, Long> newCheckSums = getCheckSums(archiveFile);
 
@@ -109,10 +120,12 @@ public class ArchiveUtils {
         return checkSums;
     }
 
-    private static void unArchiveZipEntry(String destinationDirectory, ZipFile zipfile, ZipEntry entry) throws IOException {
+    private static void unArchiveZipEntry(String destinationDirectory, ZipFile zipfile, ZipEntry entry)
+            throws IOException {
         File file = ZipHelper.unzipEntryToFolder(entry, zipfile.getInputStream(entry), new File(destinationDirectory));
-        if (entry.getTime() > -1)
+        if (entry.getTime() > -1) {
             file.setLastModified(entry.getTime());
+        }
     }
 
 
@@ -126,15 +139,17 @@ public class ArchiveUtils {
     }
 
     private static String makeTmpDir(File file, String tmp) {
-        if (tmp == null)
+        if (tmp == null) {
             tmp = ".";
+        }
         String fileName = file.getName();
         int idx = fileName.lastIndexOf('.');
         if (idx > -1) {
-            fileName = fileName.substring(0,idx);
+            fileName = fileName.substring(0, idx);
         }
-        if (!tmp.endsWith(File.separator))
+        if (!tmp.endsWith(File.separator)) {
             tmp += File.separator;
+        }
 
         tmp = tmp + "tmp" + fileName + File.separator;
         File dir = new File(tmp);
@@ -143,18 +158,17 @@ public class ArchiveUtils {
         return tmp;
     }
 
-    private static void deleteAll(File dir)
-    {
+    private static void deleteAll(File dir) {
         if (dir.exists()) {
             if (dir.isDirectory()) {
                 File[] files = dir.listFiles();
                 if (files != null) {
-                    for(File f : files)
-                    {
-                        if(f.isDirectory())
+                    for (File f : files) {
+                        if (f.isDirectory()) {
                             deleteAll(f);
-                        else
+                        } else {
                             f.delete();
+                        }
                     }
                 }
             }

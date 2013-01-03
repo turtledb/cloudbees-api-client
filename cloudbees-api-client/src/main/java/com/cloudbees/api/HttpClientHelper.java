@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011, CloudBees Inc.
+ * Copyright 2010-2012, CloudBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,25 +21,29 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 
-public class HttpClientHelper {
-    public static HttpClient createClient(BeesClientConfiguration beesClientConfiguration)
-    {
+public final class HttpClientHelper {
+    private HttpClientHelper() {
+        throw new IllegalAccessError("Utility class");
+    }
+
+    public static HttpClient createClient(BeesClientConfiguration beesClientConfiguration) {
         HttpClient client = new HttpClient();
         String proxyHost = beesClientConfiguration.getProxyHost();
-        if(proxyHost != null)
-        {
+        if (proxyHost != null) {
             int proxyPort = beesClientConfiguration.getProxyPort();
 
-            client.getHostConfiguration().setProxy(proxyHost,proxyPort);
-            
+            client.getHostConfiguration().setProxy(proxyHost, proxyPort);
+
             //if there are proxy credentials available, set those too
             Credentials proxyCredentials = null;
             String proxyUser = beesClientConfiguration.getProxyUser();
             String proxyPassword = beesClientConfiguration.getProxyPassword();
-            if(proxyUser != null || proxyPassword != null)
+            if (proxyUser != null || proxyPassword != null) {
                 proxyCredentials = new UsernamePasswordCredentials(proxyUser, proxyPassword);
-            if(proxyCredentials != null)
+            }
+            if (proxyCredentials != null) {
                 client.getState().setProxyCredentials(AuthScope.ANY, proxyCredentials);
+            }
         }
 
         return client;

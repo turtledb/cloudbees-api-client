@@ -5,8 +5,8 @@ import java.util.List;
 
 /**
  * Represetns an user in the CloudBees platform.
- *
- * <p>
+ * <p/>
+ * <p/>
  * A user typically represents a human that can login to the system. One user can belong
  * to multiple accounts, and vice versa.
  *
@@ -24,7 +24,7 @@ public class CBUser extends CBObject {
 
     /**
      * Unique identifier of the user. To be used for most of user management. Once created it can not be modified.
-     *
+     * <p/>
      * (This is not to be set in the request, but available in the response.)
      */
     public String id;
@@ -37,7 +37,7 @@ public class CBUser extends CBObject {
      * needs to be completed by the user before the account becomes fully usable.
      */
     public PartiallyCreatedUser partially_created;
-    
+
     public List<CBAccount> accounts;
 
     public List<CBSshKey> ssh_keys;
@@ -48,7 +48,7 @@ public class CBUser extends CBObject {
     public CBUser createAccount(String name) throws IOException {
         CBAccount acc = new CBAccount();
         acc.name = name;
-        return root.postAndRetrieve("v2/users/"+id+"/accounts",acc,CBUser.class,"POST");
+        return root.postAndRetrieve("v2/users/" + id + "/accounts", acc, CBUser.class, "POST");
     }
 
     public void delete() throws IOException {
@@ -56,6 +56,6 @@ public class CBUser extends CBObject {
     }
 
     public CBUser update() throws IOException {
-        return root.updateUser(id,this);
+        return root.updateUser(id, this);
     }
 }

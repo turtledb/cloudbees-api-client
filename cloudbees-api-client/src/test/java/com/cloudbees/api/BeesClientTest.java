@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011, CloudBees Inc.
+ * Copyright 2010-2012, CloudBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package com.cloudbees.api;
 
+import org.junit.*;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,17 +28,11 @@ import java.util.Properties;
 
 import static org.junit.Assert.*;
 
-import com.cloudbees.api.*;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
 /**
  * Unit test for simple App.
  */
 @Ignore
-public class BeesClientTest
-{
+public class BeesClientTest {
     BeesClient client;
     Properties properties;
 
@@ -44,14 +40,14 @@ public class BeesClientTest
     @Before
     public void setUp() throws Exception {
         properties = getConfigProperties(null, new File(System.getProperty("user.home"), ".bees/bees.config"));
-        properties = getConfigProperties(properties, new File("src/test/resource","test.data"));
+        properties = getConfigProperties(properties, new File("src/test/resource", "test.data"));
         client = new BeesClient(get("bees.api.url"), get("bees.api.key"), get("bees.api.secret"), "xml", "1.0");
     }
 
-    private Properties getConfigProperties(Properties properties, File propertiesFile)
-    {
-        if (properties == null)
+    private Properties getConfigProperties(Properties properties, File propertiesFile) {
+        if (properties == null) {
             properties = new Properties();
+        }
         if (propertiesFile.exists()) {
             FileInputStream fis = null;
             try {
@@ -64,7 +60,8 @@ public class BeesClientTest
                 if (fis != null) {
                     try {
                         fis.close();
-                    } catch (IOException ignored) {}
+                    } catch (IOException ignored) {
+                    }
                 }
             }
         }
@@ -76,37 +73,35 @@ public class BeesClientTest
     }
 
     private String getAppUrl() {
-        return "http://" + get("bees.project.app.id") + "." + get("bees.project.app.domain") + "." + get("bees.domain.url");
+        return "http://" + get("bees.project.app.id") + "." + get("bees.project.app.domain") + "." + get(
+                "bees.domain.url");
     }
 
-    private String get(String name)
-    {
+    private String get(String name) {
         return properties.getProperty(name);
     }
 
-    
-    public void _testTail() throws Exception
-    {
+
+    public void _testTail() throws Exception {
         client.tailLog(getAppId(), "server", System.out);
     }
-    
+
     @Test
-    public void testHello() throws Exception
-    {
+    public void testHello() throws Exception {
         SayHelloResponse response = client.sayHello("Hello World");
-        
+
         assertEquals("Hello World", response.getMessage());
     }
-    
-    public void _testApplicationDeployEar() throws Exception
-    {
-        ApplicationDeployArchiveResponse response = client.applicationDeployEar(getAppId(), "prod", "api deployment", "C:\\demo\\simple\\dist\\stax-deploy.zip",
+
+    public void _testApplicationDeployEar() throws Exception {
+        ApplicationDeployArchiveResponse response = client.applicationDeployEar(getAppId(), "prod", "api deployment",
+                "C:\\demo\\simple\\dist\\stax-deploy.zip",
                 "C:\\demo\\simple\\dist\\stax-src.zip", null);
         System.out.println(response);
         assertEquals(getAppId(), response.getId());
         assertEquals(getAppUrl(), response.getUrl());
     }
-    
+
     @Test
     public void testApplicationDeployArgs() throws Exception {
         ApplicationDeployArgs deployArgs = new ApplicationDeployArgs.Builder(getAppId())
@@ -117,12 +112,12 @@ public class BeesClientTest
         assertEquals(getAppId(), response.getId());
         assertEquals(getAppUrl(), response.getUrl());
     }
-    
+
     @Test
-    public void testApplicationDeployWar() throws Exception
-    {
-        ApplicationDeployArchiveResponse response = client.applicationDeployWar(getAppId(), "prod", "api deployment", get("bees.app.war"),
-                null, null);
+    public void testApplicationDeployWar() throws Exception {
+        ApplicationDeployArchiveResponse response =
+                client.applicationDeployWar(getAppId(), "prod", "api deployment", get("bees.app.war"),
+                        null, null);
         System.out.println(response);
         assertEquals(getAppId(), response.getId());
         assertEquals(getAppUrl(), response.getUrl());
@@ -138,32 +133,28 @@ public class BeesClientTest
 */
 
     @Test
-    public void testApplicationRestart() throws Exception
-    {
+    public void testApplicationRestart() throws Exception {
         ApplicationRestartResponse response = client.applicationRestart(getAppId());
         System.out.println(response);
         assertEquals(true, response.isRestarted());
     }
 
     @Test
-    public void testApplicationStop() throws Exception
-    {
+    public void testApplicationStop() throws Exception {
         ApplicationStatusResponse response = client.applicationStop(getAppId());
         System.out.println(response);
         assertEquals("stopped", response.getStatus());
     }
 
     @Test
-    public void testApplicationStart() throws Exception
-    {
+    public void testApplicationStart() throws Exception {
         ApplicationStatusResponse response = client.applicationStart(getAppId());
         System.out.println(response);
         assertEquals("active", response.getStatus());
     }
 
     @Test
-    public void testApplicationList() throws Exception
-    {
+    public void testApplicationList() throws Exception {
         ApplicationListResponse response = client.applicationList();
         System.out.println(response);
         assertEquals(1, response.getApplications().size());
@@ -172,8 +163,7 @@ public class BeesClientTest
     }
 
     @Test
-    public void testApplicationInfo() throws Exception
-    {
+    public void testApplicationInfo() throws Exception {
         ApplicationInfo response = client.applicationInfo(getAppId());
         System.out.println(response);
         assertEquals(getAppId(), response.getId());
@@ -181,8 +171,7 @@ public class BeesClientTest
         assertEquals(url.getHost(), response.getUrls()[0]);
     }
 
-    private void applicationSetTitle(String title) throws Exception
-    {
+    private void applicationSetTitle(String title) throws Exception {
         Map<String, String> attrs = new HashMap<String, String>();
         attrs.put("title", title);
         ApplicationSetMetaResponse response = client.applicationSetMeta(getAppId(), attrs);
@@ -194,23 +183,20 @@ public class BeesClientTest
     }
 
     @Test
-    public void testApplicationSetMeta() throws Exception
-    {
+    public void testApplicationSetMeta() throws Exception {
         applicationSetTitle("something else");
         applicationSetTitle("Test Hello");
     }
 
     @Test
-    public void testApplicationDelete() throws Exception
-    {
+    public void testApplicationDelete() throws Exception {
         ApplicationDeleteResponse response = client.applicationDelete(getAppId());
         System.out.println(response);
         assertTrue(response.isDeleted());
     }
-    
+
     @Test
-    public void testDatabaseCreate() throws Exception
-    {
+    public void testDatabaseCreate() throws Exception {
         DatabaseCreateResponse response = client.databaseCreate(get("bees.project.app.domain"),
                 get("bees.db.name"), get("bees.db.user"), get("bees.db.password"));
         System.out.println(response);
@@ -228,16 +214,15 @@ public class BeesClientTest
         msg = "";
         try {
             response = client.databaseCreate(get("bees.project.app.domain"),
-                    get("bees.db.name")+"more", get("bees.db.user"), get("bees.db.password"));
+                    get("bees.db.name") + "more", get("bees.db.user"), get("bees.db.password"));
         } catch (Exception e) {
             msg = e.getMessage();
         }
         assertTrue(msg.indexOf("Database username already exists") > -1);
     }
-    
+
     @Test
-    public void testDatabaseInfo() throws Exception
-    {
+    public void testDatabaseInfo() throws Exception {
         DatabaseInfo response = client.databaseInfo(get("bees.db.name"), true);
         System.out.println(response);
         assertEquals(get("bees.db.name"), response.getName());
@@ -246,8 +231,7 @@ public class BeesClientTest
     }
 
     @Test
-    public void testDatabaseList() throws Exception
-    {
+    public void testDatabaseList() throws Exception {
         DatabaseListResponse response = client.databaseList();
         System.out.println(response);
         assertEquals(1, response.getDatabases().size());
@@ -257,11 +241,10 @@ public class BeesClientTest
     }
 
     @Test
-    public void testDatabaseDelete() throws Exception
-    {
+    public void testDatabaseDelete() throws Exception {
         DatabaseDeleteResponse response = client.databaseDelete(get("bees.db.name"));
         System.out.println(response);
-        assertEquals(true, response.isDeleted());        
+        assertEquals(true, response.isDeleted());
 
         DatabaseListResponse response2 = client.databaseList();
         System.out.println(response2);

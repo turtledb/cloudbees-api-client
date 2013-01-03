@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011, CloudBees Inc.
+ * Copyright 2010-2012, CloudBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.cloudbees.api;
 
 import java.io.PrintStream;
 
-public class HashWriteProgress implements UploadProgress{
+public class HashWriteProgress implements UploadProgress {
     private final PrintStream out;
     boolean uploadComplete = false;
     long hashMarkCount = 0;
@@ -32,28 +32,24 @@ public class HashWriteProgress implements UploadProgress{
     }
 
     public void handleBytesWritten(long deltaCount,
-            long totalWritten, long totalToSend) {                    
-        if(uploadComplete)
+                                   long totalWritten, long totalToSend) {
+        if (uploadComplete) {
             return;
-        
-        int totalMarks = (int)(totalWritten/(totalToSend/100f));
-        while(hashMarkCount < totalMarks)
-        {
+        }
+
+        int totalMarks = (int) (totalWritten / (totalToSend / 100f));
+        while (hashMarkCount < totalMarks) {
             hashMarkCount++;
-            if(hashMarkCount % 25 == 0)
-            {
-                if(hashMarkCount < 100)
+            if (hashMarkCount % 25 == 0) {
+                if (hashMarkCount < 100) {
                     out.println(String.format("uploaded %d%%", hashMarkCount));
-                else
-                {
+                } else {
                     //upload completed (or will very soon)
                     uploadComplete = true;
                     out.println("upload completed");
                     out.println("deploying application to server(s)...");
                 }
-            }
-            else
-            {
+            } else {
                 out.print(".");
             }
         }

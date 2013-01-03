@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011, CloudBees Inc.
+ * Copyright 2010-2012, CloudBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,42 +16,50 @@
 
 package com.cloudbees.utils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-public class ZipHelper {
+public final class ZipHelper {
+
+    private ZipHelper() {
+        throw new IllegalAccessError("Utility class");
+    }
 
     /**
      * Recursively inserts all files in a directory into a zipstream.
      *
-     * @param directory
-     *            the source directory
-     * @param base
-     *            optional parent directory that should serve as the entry root.
-     *            Only path info after this base will be included as part of the
-     *            entry name. By default, the directory parameter serves as
-     *            root.
-     * @param dirPrefix
-     *            optional directory prefix to prepend onto each entry name.
-     * @param zos
-     *            the zip stream to add the files to.
+     * @param directory the source directory
+     * @param base      optional parent directory that should serve as the entry root.
+     *                  Only path info after this base will be included as part of the
+     *                  entry name. By default, the directory parameter serves as
+     *                  root.
+     * @param dirPrefix optional directory prefix to prepend onto each entry name.
+     * @param zos       the zip stream to add the files to.
      * @throws java.io.IOException
      */
-    public static final void addDirectoryToZip(File directory, File base,
-            String dirPrefix, ZipOutputStream zos) throws IOException {
-        if (base == null)
+    public static void addDirectoryToZip(File directory, File base,
+                                               String dirPrefix, ZipOutputStream zos) throws IOException {
+        if (base == null) {
             base = directory;
-        if (dirPrefix == null)
+        }
+        if (dirPrefix == null) {
             dirPrefix = "";
+        }
 
         // add an entry for the directory itself
         if (!base.equals(directory)) {
             String dirEntryPath = dirPrefix
                     + directory.getPath()
-                            .substring(base.getPath().length() + 1).replace(
-                                    '\\', '/');
+                    .substring(base.getPath().length() + 1).replace(
+                            '\\', '/');
             ZipEntry dirEntry = new ZipEntry(
                     dirEntryPath.endsWith("/") ? dirEntryPath : dirEntryPath
                             + "/");
@@ -61,16 +69,16 @@ public class ZipHelper {
         File[] files = directory.listFiles();
         byte[] buffer = new byte[8192];
         int read = 0;
-        for (int i = 0, n = files.length; i < n; i++) {
+        for (File file : files) {
             // if (!files[i].isHidden()) {
-            if (files[i].isDirectory()) {
-                addDirectoryToZip(files[i], base, dirPrefix, zos);
+            if (file.isDirectory()) {
+                addDirectoryToZip(file, base, dirPrefix, zos);
             } else {
-                FileInputStream in = new FileInputStream(files[i]);
+                FileInputStream in = new FileInputStream(file);
                 ZipEntry entry = new ZipEntry(dirPrefix
-                        + files[i].getPath().substring(
-                                base.getPath().length() + 1).replace('\\', '/'));
-                entry.setTime(files[i].lastModified());
+                        + file.getPath().substring(
+                        base.getPath().length() + 1).replace('\\', '/'));
+                entry.setTime(file.lastModified());
                 zos.putNextEntry(entry);
                 while (-1 != (read = in.read(buffer))) {
                     zos.write(buffer, 0, read);
@@ -82,14 +90,15 @@ public class ZipHelper {
     }
 
     public static void unzipFile(InputStream fis, ZipEntryHandler zipHandler,
-            boolean closeStream) throws IOException {
+                                 boolean closeStream) throws IOException {
         ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
             zipHandler.unzip(entry, new NoCloseInputStream(zis));
         }
-        if (closeStream)
+        if (closeStream) {
             zis.close();
+        }
     }
 
     public interface ZipEntryHandler {
@@ -111,8 +120,9 @@ public class ZipHelper {
             // write the files to the disk
             File destFile = new File(destFolder, entry.getName());
             File parentFolder = destFile.getParentFile();
-            if (!parentFolder.exists())
+            if (!parentFolder.exists()) {
                 parentFolder.mkdirs();
+            }
             FileOutputStream fos = new FileOutputStream(destFile);
             dest = new BufferedOutputStream(fos, BUFFER);
             while ((count = zis.read(data, 0, BUFFER)) != -1) {
@@ -126,48 +136,59 @@ public class ZipHelper {
     }
 }
 
-class NoCloseInputStream extends InputStream
-{
-	private InputStream in;
-	NoCloseInputStream(InputStream in)
-	{
-		this.in = in;
-	}
-	public int available() throws IOException {
-		return in.available();
-	}
-	public void close() throws IOException {
-	}
-	public boolean equals(Object obj) {
-		return in.equals(obj);
-	}
-	public int hashCode() {
-		return in.hashCode();
-	}
-	public void mark(int arg0) {
-		in.mark(arg0);
-	}
-	public boolean markSupported() {
-		return in.markSupported();
-	}
-	public int read() throws IOException {
-		return in.read();
-	}
-	public int read(byte[] arg0, int arg1, int arg2) throws IOException {
-		return in.read(arg0, arg1, arg2);
-	}
-	public int read(byte[] arg0) throws IOException {
-		return in.read(arg0);
-	}
-	public void reset() throws IOException {
-		in.reset();
-	}
-	public long skip(long arg0) throws IOException {
-		return in.skip(arg0);
-	}
-	public String toString() {
-		return in.toString();
-	}
+class NoCloseInputStream extends InputStream {
+    private InputStream in;
+
+    NoCloseInputStream(InputStream in) {
+        this.in = in;
+    }
+
+    public int available() throws IOException {
+        return in.available();
+    }
+
+    public void close() throws IOException {
+    }
+
+    public boolean equals(Object obj) {
+        return in.equals(obj);
+    }
+
+    public int hashCode() {
+        return in.hashCode();
+    }
+
+    public void mark(int arg0) {
+        in.mark(arg0);
+    }
+
+    public boolean markSupported() {
+        return in.markSupported();
+    }
+
+    public int read() throws IOException {
+        return in.read();
+    }
+
+    public int read(byte[] arg0, int arg1, int arg2) throws IOException {
+        return in.read(arg0, arg1, arg2);
+    }
+
+    public int read(byte[] arg0) throws IOException {
+        return in.read(arg0);
+    }
+
+    public void reset() throws IOException {
+        in.reset();
+    }
+
+    public long skip(long arg0) throws IOException {
+        return in.skip(arg0);
+    }
+
+    public String toString() {
+        return in.toString();
+    }
 
 
 }

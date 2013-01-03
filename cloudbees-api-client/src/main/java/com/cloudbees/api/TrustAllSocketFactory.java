@@ -22,25 +22,30 @@ public abstract class TrustAllSocketFactory extends SocketFactory {
     public static SSLSocketFactory create() {
         try {
             SSLContext context = SSLContext.getInstance("SSL");
-            context.init(null, new TrustManager[]{new X509TrustManager() {
-                public void checkClientTrusted(X509Certificate[] x509Certificates, String authType) throws CertificateException {
-                }
+            context.init(null, new TrustManager[]{
+                    new X509TrustManager() {
+                        public void checkClientTrusted(X509Certificate[] x509Certificates, String authType)
+                                throws CertificateException {
+                        }
 
-                public void checkServerTrusted(X509Certificate[] x509Certificates, String authType) throws CertificateException {
-                    if (LOGGER.isLoggable(FINE))
-                        LOGGER.fine("Got the certificate: "+ Arrays.asList(x509Certificates));
+                        public void checkServerTrusted(X509Certificate[] x509Certificates, String authType)
+                                throws CertificateException {
+                            if (LOGGER.isLoggable(FINE)) {
+                                LOGGER.fine("Got the certificate: " + Arrays.asList(x509Certificates));
+                            }
 // TODO: define a mechanism for users to accept a certificate from UI
 //                    try {
 //                        CertificateUtil.validatePath(Arrays.asList(x509Certificates));
 //                    } catch (GeneralSecurityException e) {
 //                        e.printStackTrace();
 //                    }
-                }
+                        }
 
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[0];
-                }
-            }}, new SecureRandom());
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[0];
+                        }
+                    }
+            }, new SecureRandom());
             return context.getSocketFactory();
         } catch (NoSuchAlgorithmException e) {
             throw new Error(e);

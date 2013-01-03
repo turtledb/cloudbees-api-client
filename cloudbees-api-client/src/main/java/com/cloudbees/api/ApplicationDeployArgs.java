@@ -158,8 +158,9 @@ public class ApplicationDeployArgs {
         }
 
         public Builder withParams(Map<String, String> params) {
-            if (params != null)
+            if (params != null) {
                 parameters.putAll(params);
+            }
             return this;
         }
 
@@ -169,8 +170,9 @@ public class ApplicationDeployArgs {
         }
 
         public Builder withVars(Map<String, String> vars) {
-            if (vars != null)
+            if (vars != null) {
                 variables.putAll(vars);
+            }
             return this;
         }
 
@@ -180,8 +182,9 @@ public class ApplicationDeployArgs {
         }
 
         public ApplicationDeployArgs build() {
-            if (archiveType == null || archiveFile == null)
+            if (archiveType == null || archiveFile == null) {
                 throw new IllegalStateException("no archive was provided");
+            }
             return new ApplicationDeployArgs(this);
         }
     }

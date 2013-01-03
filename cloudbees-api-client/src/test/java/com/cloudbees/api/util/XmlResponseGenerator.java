@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011, CloudBees Inc.
+ * Copyright 2010-2012, CloudBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.cloudbees.api.util;
 
-import com.cloudbees.api.*;
+import com.cloudbees.api.ApplicationCheckSumsResponse;
+import com.cloudbees.api.ApplicationDeployArchiveResponse;
+import com.cloudbees.api.ApplicationInfo;
+import com.cloudbees.api.ApplicationJarHashesResponse;
+import com.cloudbees.api.ApplicationListResponse;
 import com.thoughtworks.xstream.XStream;
 
 import java.util.Date;
@@ -27,6 +32,7 @@ import java.util.HashMap;
 public class XmlResponseGenerator {
 
     static XStream xStream = new XStream();
+
     static {
         xStream.processAnnotations(ApplicationListResponse.class);
         xStream.processAnnotations(ApplicationInfo.class);
@@ -37,20 +43,24 @@ public class XmlResponseGenerator {
 
     public static String applicationListResponse() {
         ApplicationListResponse applicationListResponse = new ApplicationListResponse();
-        applicationListResponse.getApplications().add(new ApplicationInfo("foo1", "nice application1", new Date(), "running", new String[]{"http://foo1.bar"}));
-        applicationListResponse.getApplications().add(new ApplicationInfo("foo2", "nice application2", new Date(), "sucks", new String[]{"http://foo2.bar"}));
+        applicationListResponse.getApplications()
+                .add(new ApplicationInfo("foo1", "nice application1", new Date(), "running",
+                        new String[]{"http://foo1.bar"}));
+        applicationListResponse.getApplications()
+                .add(new ApplicationInfo("foo2", "nice application2", new Date(), "sucks",
+                        new String[]{"http://foo2.bar"}));
         return xStream.toXML(applicationListResponse);
     }
 
     public static String applicationCheckSumsResponse() {
         ApplicationCheckSumsResponse applicationCheckSumsResponse = new ApplicationCheckSumsResponse();
-        applicationCheckSumsResponse.setCheckSums(new HashMap<String,Long>(0));
+        applicationCheckSumsResponse.setCheckSums(new HashMap<String, Long>(0));
         return xStream.toXML(applicationCheckSumsResponse);
     }
 
     public static String applicationJarHashesResponse() {
         ApplicationJarHashesResponse applicationJarHashesResponse = new ApplicationJarHashesResponse();
-        applicationJarHashesResponse.setJarHash(new HashMap<String,String>(0));
+        applicationJarHashesResponse.setJarHash(new HashMap<String, String>(0));
         return xStream.toXML(applicationJarHashesResponse);
     }
 

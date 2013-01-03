@@ -18,18 +18,20 @@ package com.cloudbees.api;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
-@XStreamAlias("ConfigurationParametersUpdateResponse")
-public class ConfigurationParametersUpdateResponse {
-    private String status;
+import java.util.List;
 
-    public ConfigurationParametersUpdateResponse() {
+@XStreamAlias("ServiceListResponse")
+public class ServiceListResponse {
+    private List<ServiceInfo> services;
+
+    public ServiceListResponse() {
     }
 
-    public ConfigurationParametersUpdateResponse(String status) {
-        this.status = status;
+    public List<ServiceInfo> getServices() {
+        return services;
     }
 
-    public String getStatus() {
-        return status;
+    public void setServices(List<ServiceInfo> services) {
+        this.services = services;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011, CloudBees Inc.
+ * Copyright 2010-2012, CloudBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,11 @@
 
 package com.cloudbees.api;
 
-public interface UploadProgress
-{
+public interface UploadProgress {
     /**
-     * 
-     * @param deltaCount the number of new bytes sent since last notification.
+     * @param deltaCount   the number of new bytes sent since last notification.
      * @param totalWritten the total number of bytes sent so far
-     * @param totalToSend the total bytes being sent
+     * @param totalToSend  the total bytes being sent
      * @return
      */
     public void handleBytesWritten(long deltaCount, long totalWritten, long totalToSend);

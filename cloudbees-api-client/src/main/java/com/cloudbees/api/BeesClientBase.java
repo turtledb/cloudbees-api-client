@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011, CloudBees Inc.
+ * Copyright 2010-2012, CloudBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,18 @@
  */
 
 package com.cloudbees.api;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.multipart.FilePart;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
+import org.apache.commons.httpclient.methods.multipart.StringPart;
+import org.apache.commons.httpclient.params.HttpConnectionParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.httpclient.params.HttpParams;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,19 +48,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
-import org.apache.commons.httpclient.params.HttpConnectionParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.apache.commons.httpclient.params.HttpParams;
-
 public class BeesClientBase {
     Logger logger = Logger.getLogger(getClass().getSimpleName());
     protected String format = "xml";
@@ -60,15 +59,15 @@ public class BeesClientBase {
     private String secret;
 
     private String version = "1.0";
-    
+
     private String sigVersion = "1";
 
     private boolean verbose = true;
 
     private BeesClientConfiguration beesClientConfiguration;
 
-    public BeesClientBase(BeesClientConfiguration beesClientConfiguration ) {
-        if (beesClientConfiguration==null) {
+    public BeesClientBase(BeesClientConfiguration beesClientConfiguration) {
+        if (beesClientConfiguration == null) {
             throw new IllegalArgumentException("BeesClientConfiguration cannot be null");
         }
         this.beesClientConfiguration = beesClientConfiguration;
@@ -91,7 +90,7 @@ public class BeesClientBase {
 
     public BeesClientBase(String serverApiUrl, String apiKey, String secret,
                           String format, String version) {
-        this(new BeesClientConfiguration( serverApiUrl, apiKey, secret, format, version ));
+        this(new BeesClientConfiguration(serverApiUrl, apiKey, secret, format, version));
     }
 
     /**
@@ -111,7 +110,7 @@ public class BeesClientBase {
     }
 
     public String getRequestURL(String method, Map<String, String> methodParams)
-    throws Exception {
+            throws Exception {
         return getRequestURL(method, methodParams, true);
     }
 
@@ -127,23 +126,25 @@ public class BeesClientBase {
             String value = entry.getValue();
             urlParams.put(key, value);
         }
-        
-        if(asActionParam)
-            urlParams.put("action", method);
 
-        String signature = calculateSignature(urlParams);        
+        if (asActionParam) {
+            urlParams.put("action", method);
+        }
+
+        String signature = calculateSignature(urlParams);
         Iterator<Map.Entry<String, String>> it = urlParams.entrySet().iterator();
-        for (int i=0; it.hasNext(); i++) {
+        for (int i = 0; it.hasNext(); i++) {
             Map.Entry<String, String> entry = it.next();
             String key = entry.getKey();
             String value = entry.getValue();
-            if (i > 0)
+            if (i > 0) {
                 requestURL.append("&");
+            }
             requestURL.append(URLEncoder.encode(key, "UTF-8"));
             requestURL.append("=");
             requestURL.append(URLEncoder.encode(value, "UTF-8"));
         }
-        
+
         requestURL.append("&");
         requestURL.append("sig");
         requestURL.append("=");
@@ -151,14 +152,14 @@ public class BeesClientBase {
 
         return requestURL.toString();
     }
-    
-    private String calculateSignature(Map<String, String> entries) throws Exception
-    {
+
+    private String calculateSignature(Map<String, String> entries) throws Exception {
         StringBuilder sigData = new StringBuilder();
-        ArrayList<Map.Entry<String, String>> sortedParams = new ArrayList<Map.Entry<String, String>>(entries.entrySet());
-        Collections.sort(sortedParams, new Comparator<Map.Entry<String, String>>(){
+        ArrayList<Map.Entry<String, String>> sortedParams =
+                new ArrayList<Map.Entry<String, String>>(entries.entrySet());
+        Collections.sort(sortedParams, new Comparator<Map.Entry<String, String>>() {
             public int compare(Entry<String, String> e1,
-                    Entry<String, String> e2) {
+                               Entry<String, String> e2) {
                 return e1.getKey().compareTo(e2.getKey());
             }
         });
@@ -170,15 +171,13 @@ public class BeesClientBase {
         }
 
         // append the signature
-        String signature = getSignature(sigData.toString(), secret);
-        return signature;
+        return getSignature(sigData.toString(), secret);
     }
 
     protected StringBuilder getApiUrl(String method) {
-        StringBuilder requestURL = new StringBuilder();        
+        StringBuilder requestURL = new StringBuilder();
         requestURL.append(serverApiUrl);
-        if(method != null)
-        {
+        if (method != null) {
             requestURL.append("/");
             requestURL.append(method);
         }
@@ -197,9 +196,7 @@ public class BeesClientBase {
 
     public static String getSignature(String data, String secret)
             throws Exception {
-        String s = data + secret;
-        String sig = md5(s);
-        return sig;
+        return md5(data + secret);
     }
 
     public static String md5(String message) {
@@ -235,7 +232,7 @@ public class BeesClientBase {
     }
 
     protected String getResponseString(InputStream ins) throws IOException {
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
         try {
             InputStreamReader isr = new InputStreamReader(ins);
             char[] chars = new char[1024];
@@ -265,27 +262,28 @@ public class BeesClientBase {
     protected void processError(String response, int code) throws BeesClientException {
         ErrorResponse er = new ErrorResponse();
         er.errorCode = "" + code;
-        if (isVerbose())
+        if (isVerbose()) {
             er.message = response;
-        else
+        } else {
             er.message = HttpStatus.getStatusText(code);
+        }
         throw new BeesClientException(er);
     }
 
-    protected void trace(String message)
-    {
+    protected void trace(String message) {
         if (verbose) {
             System.out.println(message);
         }
     }
 
-    protected void traceResponse(String message)
-    {
-        if (verbose) System.out.println("xml response: " + message);
+    protected void traceResponse(String message) {
+        if (verbose) {
+            System.out.println("xml response: " + message);
+        }
     }
 
     protected String executeUpload(String uploadURL, Map<String, String> params,
-            Map<String, File> files, UploadProgress writeListener)
+                                   Map<String, File> files, UploadProgress writeListener)
             throws Exception {
         HashMap<String, String> clientParams = getDefaultParameters();
         clientParams.putAll(params);
@@ -319,7 +317,7 @@ public class BeesClientBase {
             HttpClient client = HttpClientHelper.createClient(this.beesClientConfiguration);
             client.getHttpConnectionManager().getParams().setConnectionTimeout(
                     10000);
-            
+
             int status = client.executeMethod(filePost);
             String response = getResponseString(filePost.getResponseBodyAsStream());
             if (status == HttpStatus.SC_OK) {
@@ -339,7 +337,7 @@ public class BeesClientBase {
         long length;
 
         public ProgressUploadEntity(Part[] parts, HttpMethodParams params,
-                UploadProgress listener, long length) {
+                                    UploadProgress listener, long length) {
             super(parts, params);
             this.listener = listener;
             this.length = length;
@@ -361,7 +359,7 @@ public class BeesClientBase {
         private UploadProgress writeListener;
 
         public WriteListenerOutputStream(OutputStream targetStream,
-                UploadProgress writeListener, long length) {
+                                         UploadProgress writeListener, long length) {
             super();
             this.targetStream = targetStream;
             this.writeListener = writeListener;
@@ -408,5 +406,5 @@ public class BeesClientBase {
             }
         }
     }
-    
+
 }

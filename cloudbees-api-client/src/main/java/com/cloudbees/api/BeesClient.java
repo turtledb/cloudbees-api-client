@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011, CloudBees Inc.
+ * Copyright 2010-2012, CloudBees Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,26 +30,34 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.introspect.VisibilityChecker.Std;
 import org.codehaus.jettison.json.JSONObject;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 
-import static org.codehaus.jackson.annotate.JsonAutoDetect.Visibility.*;
+import static org.codehaus.jackson.annotate.JsonAutoDetect.Visibility.ANY;
+import static org.codehaus.jackson.annotate.JsonAutoDetect.Visibility.NONE;
 
 /**
  * @author Fabian Donze
  * @author Kohsuke Kawaguchi
  */
-public class BeesClient extends BeesClientBase
-{
+public class BeesClient extends BeesClientBase {
     /**
      * The encoded value we send in as the BASIC Auth header.
      */
@@ -79,11 +87,10 @@ public class BeesClient extends BeesClientBase
     }
 
     public BeesClient(String server, String apikey, String secret,
-                      String format, String version)
-    {
+                      String format, String version) {
         // TODO: this encodePassword is considered harmful as it creates assymetry between two constructors
         super(server, apikey, encodePassword(secret, version), format,
-            version);
+                version);
         init();
     }
 
@@ -95,36 +102,36 @@ public class BeesClient extends BeesClientBase
         try {
             base = new URL(conf.getServerApiUrl());
         } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("Invalid API URL:"+conf.getServerApiUrl(),e);
+            throw new IllegalArgumentException("Invalid API URL:" + conf.getServerApiUrl(), e);
         }
-        if (conf.getApiKey()!=null || conf.getSecret()!=null) {
-            String userpassword = conf.getApiKey()+':'+conf.getSecret();
+        if (conf.getApiKey() != null || conf.getSecret() != null) {
+            String userpassword = conf.getApiKey() + ':' + conf.getSecret();
             encodedAccountAuthorization = new String(Base64.encodeBase64(userpassword.getBytes()));
-        } else
+        } else {
             encodedAccountAuthorization = null;
+        }
 
     }
 
     /**
      * Creates an user, including a partial user creation.
      *
-     * @see <a href="https://sites.google.com/a/cloudbees.com/account-provisioning-api/home/user-api#TOC-Create-a-User">API spec</a>
+     * @see <a href="https://sites.google.com/a/cloudbees
+     *      .com/account-provisioning-api/home/user-api#TOC-Create-a-User">API spec</a>
      */
     public CBUser createUser(CBUser user) throws IOException {
-        return postAndRetrieve("v2/users",user,CBUser.class, "POST");
+        return postAndRetrieve("v2/users", user, CBUser.class, "POST");
     }
 
     /**
      * Updates the user record.
      *
-     * @param id
-     *      The ID of the user to update. Corresponds to {@link CBUser#id}.
-     * @param user
-     *      You should only set fields that you want to update, and leave everything else to null, to indicate
-     *      those values should remain untouched.
+     * @param id   The ID of the user to update. Corresponds to {@link CBUser#id}.
+     * @param user You should only set fields that you want to update, and leave everything else to null, to indicate
+     *             those values should remain untouched.
      */
     public CBUser updateUser(String id, CBUser user) throws IOException {
-        return postAndRetrieve("v2/users/"+id,user,CBUser.class, "PATCH");
+        return postAndRetrieve("v2/users/" + id, user, CBUser.class, "PATCH");
     }
 
     /**
@@ -135,35 +142,31 @@ public class BeesClient extends BeesClientBase
     }
 
     public CBUser addUserToAccount(CBAccount account, CBUser user) throws IOException {
-        return postAndRetrieve("v2/users/"+user.id+"/accounts/"+account.name+"/users",user,CBUser.class, "POST");
+        return postAndRetrieve("v2/users/" + user.id + "/accounts/" + account.name + "/users", user, CBUser.class,
+                "POST");
     }
 
     /**
      * The actual engine behind the REST API call.
-     *
+     * <p/>
      * It sends a request in JSON and expects a JSON response back.
      * Note that for historical reasons, there's the other half of the API that uses query parameters + digital signing.
      *
-     * @param apiTail
-     *      The end point to hit. Appended to {@link #base}. Shouldn't start with '/'
-     * @param request
-     *      JSON-bound POJO object that represents the request payload, or null if none.
-     * @param type
-     *      JSON-bound POJO class to unmarshal the response into.
-     * @param method
-     *      HTTP method name like GET or POST.
-     * @throws IOException
-     *      If the communication fails.
+     * @param apiTail The end point to hit. Appended to {@link #base}. Shouldn't start with '/'
+     * @param request JSON-bound POJO object that represents the request payload, or null if none.
+     * @param type    JSON-bound POJO class to unmarshal the response into.
+     * @param method  HTTP method name like GET or POST.
+     * @throws IOException If the communication fails.
      */
     /*package*/ <T> T postAndRetrieve(String apiTail, Object request, Class<T> type, String method) throws IOException {
-        URL url = new URL(base,apiTail);
+        URL url = new URL(base, apiTail);
         HttpURLConnection uc = (HttpURLConnection) url.openConnection();
         uc.setRequestProperty("Authorization", "Basic " + encodedAccountAuthorization);
 
         uc.setRequestProperty("Content-type", "application/json");
-        uc.setRequestProperty("Accept","application/json");
+        uc.setRequestProperty("Accept", "application/json");
         uc.setRequestMethod(method);
-        if (request!=null) {
+        if (request != null) {
             uc.setDoOutput(true);
             MAPPER.writeValue(uc.getOutputStream(), request);
             uc.getOutputStream().close();
@@ -173,125 +176,109 @@ public class BeesClient extends BeesClientBase
         try {
             InputStreamReader r = new InputStreamReader(uc.getInputStream(), "UTF-8");
             String data = IOUtils.toString(r);  // read it upfront to make debugging easier
-            if (type==null) {
+            if (type == null) {
                 return null;
             }
             T ret = MAPPER.readValue(data, type);
             if (ret instanceof CBObject)    // TODO: nested objects?
-                ((CBObject)ret).root = this;
+            {
+                ((CBObject) ret).root = this;
+            }
             return ret;
         } catch (IOException e) {
             String rsp = "";
             InputStream err = uc.getErrorStream();
-            if (err!=null) {
+            if (err != null) {
                 try {
                     rsp = IOUtils.toString(err);
                 } catch (IOException _) {
                     // ignore
                 }
             }
-            throw (IOException)new IOException("Failed to POST to "+url+" : code="+uc.getResponseCode()+" response="+rsp).initCause(e);
+            throw (IOException) new IOException(
+                    "Failed to POST to " + url + " : code=" + uc.getResponseCode() + " response=" + rsp).initCause(e);
         }
     }
 
     public CBAccount getAccount(String name) throws IOException {
-        return postAndRetrieve("v2/accounts/"+name,null,CBAccount.class, "GET");
+        return postAndRetrieve("v2/accounts/" + name, null, CBAccount.class, "GET");
     }
 
     /**
      * Looks up the user by ID.
      */
     public CBUser getUser(String id) throws IOException {
-        return postAndRetrieve("v2/users/"+id,null,CBUser.class, "GET");
+        return postAndRetrieve("v2/users/" + id, null, CBUser.class, "GET");
     }
 
     /**
      * Looks up the user by the public key fingerprint
      *
-     * @param sshPublicKeyFingerprint
-     *      Fingerprint formatted as "12:34:56:..:aa:bb:cc" (case insensitive)
+     * @param sshPublicKeyFingerprint Fingerprint formatted as "12:34:56:..:aa:bb:cc" (case insensitive)
      */
     public CBUser getUserByFingerprint(String sshPublicKeyFingerprint) throws IOException {
-        return postAndRetrieve("v2/users/fingerprint/"+sshPublicKeyFingerprint,null,CBUser.class,"GET");
+        return postAndRetrieve("v2/users/fingerprint/" + sshPublicKeyFingerprint, null, CBUser.class, "GET");
     }
 
-    public SayHelloResponse sayHello(String message) throws Exception
-    {
+    public SayHelloResponse sayHello(String message) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("message", message);
         String url = getRequestURL("say.hello", params);
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        SayHelloResponse helloResponse =
-            (SayHelloResponse)readResponse(response);
-        return helloResponse;
+        return (SayHelloResponse) readResponse(response);
     }
 
     public ApplicationGetSourceUrlResponse applicationGetSourceUrl(
-        String appId) throws Exception
-    {
+            String appId) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.getSourceUrl", params);
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationGetSourceUrlResponse apiResponse =
-            (ApplicationGetSourceUrlResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationGetSourceUrlResponse) readResponse(response);
     }
 
-    public ApplicationDeleteResponse applicationDelete(String appId) throws Exception
-    {
+    public ApplicationDeleteResponse applicationDelete(String appId) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.delete", params);
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationDeleteResponse apiResponse =
-            (ApplicationDeleteResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationDeleteResponse) readResponse(response);
     }
 
-    public ApplicationRestartResponse applicationRestart(String appId) throws Exception
-    {
+    public ApplicationRestartResponse applicationRestart(String appId) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.restart", params);
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationRestartResponse apiResponse =
-            (ApplicationRestartResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationRestartResponse) readResponse(response);
     }
 
-    public ApplicationStatusResponse applicationStart(String appId) throws Exception
-    {
+    public ApplicationStatusResponse applicationStart(String appId) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.start", params);
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationStatusResponse apiResponse =
-            (ApplicationStatusResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationStatusResponse) readResponse(response);
     }
 
-    public ApplicationStatusResponse applicationStop(String appId) throws Exception
-    {
+    public ApplicationStatusResponse applicationStop(String appId) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.stop", params);
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationStatusResponse apiResponse =
-            (ApplicationStatusResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationStatusResponse) readResponse(response);
     }
 
     public ApplicationStatusResponse applicationHibernate(String appId) throws Exception
@@ -309,37 +296,32 @@ public class BeesClient extends BeesClientBase
 
     /**
      * Returns all the applications in all the account sthat you belong to.
-     *
+     * <p/>
      * Short-hand for {@code applicationList(null)}.
      */
-    public ApplicationListResponse applicationList() throws Exception
-    {
+    public ApplicationListResponse applicationList() throws Exception {
         return applicationList(null);
     }
 
     /**
      * Returns all the applications in the specified account.
      *
-     * @param account
-     *      if null, returns all the applications from all the accounts that you belong to.
+     * @param account if null, returns all the applications from all the accounts that you belong to.
      * @since 1.1.3
      */
-    public ApplicationListResponse applicationList(String account) throws Exception
-    {
+    public ApplicationListResponse applicationList(String account) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
-        if (account != null)
+        if (account != null) {
             params.put("account", account);
+        }
         String url = getRequestURL("application.list", params);
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationListResponse apiResponse =
-            (ApplicationListResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationListResponse) readResponse(response);
     }
 
-    public ApplicationInfo applicationInfo(String appId) throws Exception
-    {
+    public ApplicationInfo applicationInfo(String appId) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.info", params);
@@ -347,13 +329,12 @@ public class BeesClient extends BeesClientBase
         String response = executeRequest(url);
         traceResponse(response);
         ApplicationInfoResponse apiResponse =
-            (ApplicationInfoResponse)readResponse(response);
+                (ApplicationInfoResponse) readResponse(response);
         return apiResponse.getApplicationInfo();
     }
 
     public ApplicationSetMetaResponse applicationSetMeta(String appId,
-        Map<String, String> metaAttrs) throws Exception
-    {
+                                                         Map<String, String> metaAttrs) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.putAll(metaAttrs);
         params.put("app_id", appId);
@@ -361,21 +342,18 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        ApplicationSetMetaResponse apiResponse =
-            (ApplicationSetMetaResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationSetMetaResponse) readResponse(response);
     }
 
     /**
      * @deprecated
      */
-    public ApplicationJarHashesResponse applicationJarCrcs(String appId, Map<String, String> hashes) throws Exception
-    {
+    public ApplicationJarHashesResponse applicationJarCrcs(String appId, Map<String, String> hashes) throws Exception {
         return applicationJarHashes(appId, hashes);
     }
 
-    public ApplicationJarHashesResponse applicationJarHashes(String appId, Map<String, String> hashes) throws Exception
-    {
+    public ApplicationJarHashesResponse applicationJarHashes(String appId, Map<String, String> hashes)
+            throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         params.put("hashes", createParameter(hashes));
@@ -385,19 +363,16 @@ public class BeesClient extends BeesClientBase
         // use the upload method (POST) to handle the potentially large "hashes" parameter payload
         trace("API call: " + url);
         String response = executeUpload(url, params, new HashMap<String, File>(), null);
-        ApplicationJarHashesResponse apiResponse =
-            (ApplicationJarHashesResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationJarHashesResponse) readResponse(response);
     }
 
     /**
-     * @deprecated use {@link #applicationDeployEar(String,String,String,java.io.File,java.io.File,UploadProgress)}
+     * @deprecated use {@link #applicationDeployEar(String, String, String, java.io.File, java.io.File, UploadProgress)}
      */
     @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployEar(
-        String appId, String environment, String description, String earFile,
-        String srcFile, UploadProgress progress) throws Exception
-    {
+            String appId, String environment, String description, String earFile,
+            String srcFile, UploadProgress progress) throws Exception {
         return applicationDeployEar(appId, environment, description,
                 asFile(earFile), asFile(srcFile), progress);
     }
@@ -406,22 +381,20 @@ public class BeesClient extends BeesClientBase
      * @since 1.1.4
      */
     public ApplicationDeployArchiveResponse applicationDeployEar(
-        String appId, String environment, String description, File earFile,
-        File srcFile, UploadProgress progress) throws Exception
-    {
+            String appId, String environment, String description, File earFile,
+            File srcFile, UploadProgress progress) throws Exception {
         String archiveType = "ear";
         return applicationDeployArchive(appId, environment, description,
                 earFile, srcFile, archiveType, false, progress);
     }
 
     /**
-     * @deprecated use {@link #applicationDeployWar(String,String,String,File,File,UploadProgress)}
+     * @deprecated use {@link #applicationDeployWar(String, String, String, File, File, UploadProgress)}
      */
     @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployWar(
-        String appId, String environment, String description, String warFile,
-        String srcFile, UploadProgress progress) throws Exception
-    {
+            String appId, String environment, String description, String warFile,
+            String srcFile, UploadProgress progress) throws Exception {
         return applicationDeployWar(appId, environment, description, asFile(warFile),
                 asFile(srcFile), progress);
     }
@@ -430,21 +403,19 @@ public class BeesClient extends BeesClientBase
      * @since 1.1.4
      */
     public ApplicationDeployArchiveResponse applicationDeployWar(
-        String appId, String environment, String description, File warFile,
-        File srcFile, UploadProgress progress) throws Exception
-    {
+            String appId, String environment, String description, File warFile,
+            File srcFile, UploadProgress progress) throws Exception {
         return applicationDeployWar(appId, environment, description, warFile,
                 srcFile, true, progress);
     }
 
     /**
-     * @deprecated use {@link #applicationDeployWar(String,String,String,File,File,boolean,UploadProgress)}
+     * @deprecated use {@link #applicationDeployWar(String, String, String, File, File, boolean, UploadProgress)}
      */
     @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployWar(
-        String appId, String environment, String description, String warFile,
-        String srcFile, boolean deltaDeploy, UploadProgress progress) throws Exception
-    {
+            String appId, String environment, String description, String warFile,
+            String srcFile, boolean deltaDeploy, UploadProgress progress) throws Exception {
         return applicationDeployWar(appId, environment, description,
                 asFile(warFile), asFile(srcFile), deltaDeploy, progress);
     }
@@ -453,23 +424,22 @@ public class BeesClient extends BeesClientBase
      * @since 1.1.4
      */
     public ApplicationDeployArchiveResponse applicationDeployWar(
-        String appId, String environment, String description, File warFile,
-        File srcFile, boolean deltaDeploy, UploadProgress progress) throws Exception
-    {
+            String appId, String environment, String description, File warFile,
+            File srcFile, boolean deltaDeploy, UploadProgress progress) throws Exception {
         String archiveType = "war";
         return applicationDeployArchive(appId, environment, description,
                 warFile, srcFile, archiveType, deltaDeploy, progress);
     }
 
     /**
-     * @deprecated use {@link #applicationDeployArchive(String,String,String,File,File,String,UploadProgress)}
+     * @deprecated use {@link #applicationDeployArchive(String, String, String, File, File, String, UploadProgress)}
      */
     @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployArchive(
             String appId, String environment, String description, String earFile,
-            String srcFile, String archiveType, UploadProgress progress) throws Exception
-    {
-        return applicationDeployArchive(appId, environment, description, asFile(earFile), asFile(srcFile), archiveType, progress);
+            String srcFile, String archiveType, UploadProgress progress) throws Exception {
+        return applicationDeployArchive(appId, environment, description, asFile(earFile), asFile(srcFile), archiveType,
+                progress);
     }
 
     /**
@@ -477,20 +447,21 @@ public class BeesClient extends BeesClientBase
      */
     public ApplicationDeployArchiveResponse applicationDeployArchive(
             String appId, String environment, String description, File earFile,
-            File srcFile, String archiveType, UploadProgress progress) throws Exception
-    {
-        return applicationDeployArchive(appId, environment, description, earFile, srcFile, archiveType, false, progress);
+            File srcFile, String archiveType, UploadProgress progress) throws Exception {
+        return applicationDeployArchive(appId, environment, description, earFile, srcFile, archiveType, false,
+                progress);
     }
 
     /**
-     * @deprecated use {@link #applicationDeployArchive(String,String,String,File,File,String,boolean,UploadProgress)}
+     * @deprecated use {@link #applicationDeployArchive(String, String, String, File, File, String, boolean,
+     *             UploadProgress)}
      */
     @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployArchive(
             String appId, String environment, String description, String earFile,
-            String srcFile, String archiveType, boolean deltaDeploy, UploadProgress progress) throws Exception
-    {
-        return applicationDeployArchive(appId, environment, description, asFile(earFile), asFile(srcFile), archiveType, deltaDeploy, progress);
+            String srcFile, String archiveType, boolean deltaDeploy, UploadProgress progress) throws Exception {
+        return applicationDeployArchive(appId, environment, description, asFile(earFile), asFile(srcFile), archiveType,
+                deltaDeploy, progress);
     }
 
     /**
@@ -498,20 +469,22 @@ public class BeesClient extends BeesClientBase
      */
     public ApplicationDeployArchiveResponse applicationDeployArchive(
             String appId, String environment, String description, File earFile,
-            File srcFile, String archiveType, boolean deltaDeploy, UploadProgress progress) throws Exception
-    {
-        return applicationDeployArchive(appId, environment, description, earFile, srcFile, archiveType, deltaDeploy, null, progress);
+            File srcFile, String archiveType, boolean deltaDeploy, UploadProgress progress) throws Exception {
+        return applicationDeployArchive(appId, environment, description, earFile, srcFile, archiveType, deltaDeploy,
+                null, progress);
     }
 
     /**
-     * @deprecated use {@link #applicationDeployArchive(String,String,String,File,File,String,boolean,Map,UploadProgress)}
+     * @deprecated use {@link #applicationDeployArchive(String, String, String, File, File, String, boolean, Map,
+     *             UploadProgress)}
      */
     @Deprecated
     public ApplicationDeployArchiveResponse applicationDeployArchive(
             String appId, String environment, String description, String earFile,
-            String srcFile, String archiveType, boolean deltaDeploy, Map<String, String> parameters, UploadProgress progress) throws Exception
-    {
-        return applicationDeployArchive(appId, environment, description, asFile(earFile), asFile(srcFile), archiveType, deltaDeploy, parameters, progress);
+            String srcFile, String archiveType, boolean deltaDeploy, Map<String, String> parameters,
+            UploadProgress progress) throws Exception {
+        return applicationDeployArchive(appId, environment, description, asFile(earFile), asFile(srcFile), archiveType,
+                deltaDeploy, parameters, progress);
     }
 
     /**
@@ -519,8 +492,8 @@ public class BeesClient extends BeesClientBase
      */
     public ApplicationDeployArchiveResponse applicationDeployArchive(
             String appId, String environment, String description, File earFile,
-            File srcFile, String archiveType, boolean deltaDeploy, Map<String, String> parameters, UploadProgress progress) throws Exception
-    {
+            File srcFile, String archiveType, boolean deltaDeploy, Map<String, String> parameters,
+            UploadProgress progress) throws Exception {
         return applicationDeployArchive(new ApplicationDeployArgs.Builder(appId)
                 .environment(environment).description(description)
                 .deployPackage(earFile, archiveType).srcFile(srcFile)
@@ -528,8 +501,7 @@ public class BeesClient extends BeesClientBase
                 .withProgressFeedback(progress).build());
     }
 
-    public ApplicationDeployArchiveResponse applicationDeployArchive(ApplicationDeployArgs args) throws Exception
-    {
+    public ApplicationDeployArchiveResponse applicationDeployArchive(ApplicationDeployArgs args) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         Map<String, File> fileParams = new HashMap<String, File>();
         params.put("app_id", args.appId);
@@ -552,19 +524,22 @@ public class BeesClient extends BeesClientBase
                 trace("No existing checksums, upload full archive");
             } else {
                 trace("Creating Delta archive for: " + archiveFile);
-                archiveFile = ArchiveUtils.createDeltaWarFile(applicationCheckSumsResponse.getCheckSums(), archiveFile, archiveFile.getParent());
+                archiveFile = ArchiveUtils.createDeltaWarFile(applicationCheckSumsResponse.getCheckSums(), archiveFile,
+                        archiveFile.getParent());
                 deployDelta = true;
             }
         }
 
         if (args.deltaDeploy && !args.archiveType.equals("ear")) {
             trace("Get existing jar hashes");
-            ApplicationJarHashesResponse applicationJarHashesResponse = applicationJarHashes(args.appId, JarUtils.getJarHashes(archiveFile));
+            ApplicationJarHashesResponse applicationJarHashesResponse =
+                    applicationJarHashes(args.appId, JarUtils.getJarHashes(archiveFile));
             if (applicationJarHashesResponse.getJarHash().size() == 0) {
                 trace("No existing jars");
             } else {
                 trace("Creating Delta2 archive for: " + archiveFile);
-                File archiveFile2 = JarUtils.createDeltaWarFile(applicationJarHashesResponse.getJarHash(), archiveFile, archiveFile.getParent());
+                File archiveFile2 = JarUtils.createDeltaWarFile(applicationJarHashesResponse.getJarHash(), archiveFile,
+                        archiveFile.getParent());
                 // Delete the old delta archive
                 if (deployDelta) {
                     archiveFile.delete();
@@ -574,88 +549,85 @@ public class BeesClient extends BeesClientBase
             }
         }
 
-        if (deployDelta || deployJarDelta)
+        if (deployDelta || deployJarDelta) {
             trace("Uploading delta archive: " + archiveFile);
+        }
 
         File archiveFileSrc = args.srcFile;
         long uploadSize = archiveFile.length();
-        if (archiveFileSrc != null)
+        if (archiveFileSrc != null) {
             uploadSize += archiveFileSrc.length();
+        }
 
         fileParams.put("archive", archiveFile);
         params.put("archive_type", args.archiveType);
-        
+
         params.put("create", Boolean.valueOf(args.create).toString());
 
-        if (args.environment != null)
+        if (args.environment != null) {
             params.put("environment", args.environment);
+        }
 
-        if (args.description != null)
+        if (args.description != null) {
             params.put("description", args.description);
+        }
 
-        if (archiveFileSrc != null)
+        if (archiveFileSrc != null) {
             fileParams.put("src", archiveFileSrc);
+        }
 
         params.put("parameters", createParameter(args.parameters));
         params.put("variables", createParameter(args.variables));
 
         // extend the deploy invocation timeout to 4 hours
         long expireTime = System.currentTimeMillis() + 4 * 60 * 60 * 1000;
-        params.put("expires", new Long(expireTime / 1000).toString());
+        params.put("expires", Long.toString(expireTime / 1000));
 
         String url = getApiUrl("application.deployArchive").toString();
         params.put("action", "application.deployArchive");
         trace("API call: " + url);
         String response = executeUpload(url, params, fileParams, args.progress);
         try {
-            ApplicationDeployArchiveResponse apiResponse =
-                (ApplicationDeployArchiveResponse)readResponse(response);
-
-            return apiResponse;
+            return (ApplicationDeployArchiveResponse) readResponse(response);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Invalid application deployment response: " + args.appId, e);
             logger.log(Level.FINE, "Deploy response trace: " + response);
             throw e;
         } finally {
             // Delete the delta archive file
-            if (deployDelta || deployJarDelta)
+            if (deployDelta || deployJarDelta) {
                 archiveFile.delete();
+            }
         }
     }
 
-    public ApplicationCheckSumsResponse applicationCheckSums(String appId) throws Exception
-    {
+    public ApplicationCheckSumsResponse applicationCheckSums(String appId) throws Exception {
         return applicationCheckSums(appId, true);
     }
-    public ApplicationCheckSumsResponse applicationCheckSums(String appId, boolean traceResponse) throws Exception
-    {
+
+    public ApplicationCheckSumsResponse applicationCheckSums(String appId, boolean traceResponse) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.checkSums", params);
         trace("API call: " + url);
         String response = executeRequest(url);
-        if (traceResponse)
+        if (traceResponse) {
             traceResponse(response);
-        ApplicationCheckSumsResponse apiResponse =
-            (ApplicationCheckSumsResponse)readResponse(response);
-        return apiResponse;
+        }
+        return (ApplicationCheckSumsResponse) readResponse(response);
     }
 
-    public ApplicationScaleResponse applicationScale( String appId, int unit) throws Exception
-    {
+    public ApplicationScaleResponse applicationScale(String appId, int unit) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
-        params.put("unit", ""+unit);
+        params.put("unit", "" + unit);
         params.put("app_id", appId);
         String url = getRequestURL("application.scale", params);
         String response = executeRequest(url);
-        ApplicationScaleResponse apiResponse =
-            (ApplicationScaleResponse)readResponse(response);
-        return apiResponse;
+        return (ApplicationScaleResponse) readResponse(response);
     }
 
     public DatabaseCreateResponse databaseCreate(String domain, String dbId,
-        String username, String password) throws Exception
-    {
+                                                 String username, String password) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("database_id", dbId);
         params.put("database_username", username);
@@ -665,71 +637,60 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseCreateResponse apiResponse =
-            (DatabaseCreateResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseCreateResponse) readResponse(response);
     }
 
-    public DatabaseDeleteResponse databaseDelete(String dbId) throws Exception
-    {
+    public DatabaseDeleteResponse databaseDelete(String dbId) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("database_id", dbId);
         String url = getRequestURL("database.delete", params);
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseDeleteResponse apiResponse =
-            (DatabaseDeleteResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseDeleteResponse) readResponse(response);
     }
 
-    public DatabaseInfo databaseInfo(String dbId, boolean fetchPassword) throws Exception
-    {
+    public DatabaseInfo databaseInfo(String dbId, boolean fetchPassword) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("database_id", dbId);
-        params.put("fetch_password", ((Boolean)fetchPassword).toString());
+        params.put("fetch_password", ((Boolean) fetchPassword).toString());
         String url = getRequestURL("database.info", params);
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
         DatabaseInfoResponse apiResponse =
-            (DatabaseInfoResponse)readResponse(response);
+                (DatabaseInfoResponse) readResponse(response);
         return apiResponse.getDatabaseInfo();
     }
 
     /**
      * Returns all the databases in all the account sthat you belong to.
-     *
+     * <p/>
      * Short-hand for {@code databaseList(null)}.
      */
-    public DatabaseListResponse databaseList() throws Exception
-    {
+    public DatabaseListResponse databaseList() throws Exception {
         return databaseList(null);
     }
 
     /**
      * Returns all the databases in the specified account.
      *
-     * @param account
-     *      if null, returns all the databases from all the accounts that you belong to.
+     * @param account if null, returns all the databases from all the accounts that you belong to.
      * @since 1.1.3
      */
-    public DatabaseListResponse databaseList(String account) throws Exception
-    {
+    public DatabaseListResponse databaseList(String account) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
-        if (account != null)
+        if (account != null) {
             params.put("account", account);
+        }
         String url = getRequestURL("database.list", params);
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseListResponse apiResponse =
-            (DatabaseListResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseListResponse) readResponse(response);
     }
 
-    public DatabaseSetPasswordResponse databaseSetPassword(String dbId, String password) throws Exception
-    {
+    public DatabaseSetPasswordResponse databaseSetPassword(String dbId, String password) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("database_id", dbId);
         params.put("database_password", password);
@@ -737,26 +698,20 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseSetPasswordResponse apiResponse =
-            (DatabaseSetPasswordResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseSetPasswordResponse) readResponse(response);
     }
 
-    public DatabaseSnapshotListResponse databaseSnapshotList(String dbId) throws Exception
-    {
+    public DatabaseSnapshotListResponse databaseSnapshotList(String dbId) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("database_id", dbId);
         String url = getRequestURL("database.snapshot.list", params);
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseSnapshotListResponse apiResponse =
-            (DatabaseSnapshotListResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseSnapshotListResponse) readResponse(response);
     }
 
-    public DatabaseSnapshotDeleteResponse databaseSnapshotDelete(String dbId, String snapshotId) throws Exception
-    {
+    public DatabaseSnapshotDeleteResponse databaseSnapshotDelete(String dbId, String snapshotId) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("database_id", dbId);
         params.put("snapshot_id", snapshotId);
@@ -764,13 +719,10 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseSnapshotDeleteResponse apiResponse =
-            (DatabaseSnapshotDeleteResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseSnapshotDeleteResponse) readResponse(response);
     }
 
-    public DatabaseSnapshotDeployResponse databaseSnapshotDeploy(String dbId, String snapshotId) throws Exception
-    {
+    public DatabaseSnapshotDeployResponse databaseSnapshotDeploy(String dbId, String snapshotId) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("database_id", dbId);
         params.put("snapshot_id", snapshotId);
@@ -778,63 +730,57 @@ public class BeesClient extends BeesClientBase
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseSnapshotDeployResponse apiResponse =
-            (DatabaseSnapshotDeployResponse)readResponse(response);
-        return apiResponse;
+        return (DatabaseSnapshotDeployResponse) readResponse(response);
     }
 
-    public DatabaseSnapshotInfo databaseSnapshotCreate(String dbId, String snapshotTitle) throws Exception
-    {
+    public DatabaseSnapshotInfo databaseSnapshotCreate(String dbId, String snapshotTitle) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("database_id", dbId);
-        if (snapshotTitle != null)
+        if (snapshotTitle != null) {
             params.put("snapshot_title", snapshotTitle);
+        }
         String url = getRequestURL("database.snapshot.create", params);
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        DatabaseSnapshotInfo apiResponse =
-            (DatabaseSnapshotInfo)readResponse(response);
-        return apiResponse;
+        return (DatabaseSnapshotInfo) readResponse(response);
     }
 
-    public AccountKeysResponse accountKeys(String domain, String user, String password) throws Exception
-    {
+    public AccountKeysResponse accountKeys(String domain, String user, String password) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("user", user);
         params.put("password", password);
-        if (domain != null) params.put("domain", domain);
+        if (domain != null) {
+            params.put("domain", domain);
+        }
         String url = getRequestURL("account.keys", params);
         String response = executeRequest(url);
-        AccountKeysResponse apiResponse =
-            (AccountKeysResponse)readResponse(response);
-        return apiResponse;
+        return (AccountKeysResponse) readResponse(response);
     }
 
-    public AccountListResponse accountList() throws Exception
-    {
+    public AccountListResponse accountList() throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         String url = getRequestURL("account.list", params);
         trace("API call: " + url);
         String response = executeRequest(url);
         traceResponse(response);
-        AccountListResponse apiResponse =
-            (AccountListResponse)readResponse(response);
-        return apiResponse;
+        return (AccountListResponse) readResponse(response);
     }
 
-    public ApplicationConfiguration getApplicationConfiguration(String warFilePath, String account, String[] environments) throws Exception {
+    public ApplicationConfiguration getApplicationConfiguration(String warFilePath, String account,
+                                                                String[] environments) throws Exception {
         ApplicationConfiguration appConfig;
         File deployFile = asFile(warFilePath);
         if (deployFile.exists()) {
-            appConfig = getAppConfig(deployFile, environments, new String[] { "deploy" });
+            appConfig = getAppConfig(deployFile, environments, new String[]{"deploy"});
         } else {
             throw new IllegalArgumentException("File not found: " + warFilePath);
         }
 
         String appid = appConfig.getApplicationId();
-        if (appid == null || appid.equals(""))
+        if (appid == null || appid.equals("")) {
             throw new IllegalArgumentException("No application id specified");
+        }
 
         String[] appIdParts = appid.split("/");
         if (appIdParts.length < 2) {
@@ -847,8 +793,8 @@ public class BeesClient extends BeesClientBase
         return appConfig;
     }
 
-    public ConfigurationParametersUpdateResponse configurationParametersUpdate(String resourceId, String configType, File resourceFile) throws Exception
-    {
+    public ConfigurationParametersUpdateResponse configurationParametersUpdate(String resourceId, String configType,
+                                                                               File resourceFile) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         Map<String, File> fileParams = new HashMap<String, File>();
 
@@ -860,37 +806,116 @@ public class BeesClient extends BeesClientBase
         params.put("action", "configuration.parameters.update");
         // use the upload method (POST) to handle the potentially large resource list
         String response = executeUpload(url, params, fileParams, null);
-        ConfigurationParametersUpdateResponse apiResponse =
-            (ConfigurationParametersUpdateResponse)readResponse(response);
-        return apiResponse;
+        return (ConfigurationParametersUpdateResponse) readResponse(response);
     }
 
-    public ConfigurationParametersDeleteResponse configurationParametersDelete(String resourceId, String configType) throws Exception
-    {
+    public ConfigurationParametersDeleteResponse configurationParametersDelete(String resourceId, String configType)
+            throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("resource_id", resourceId);
         params.put("config_type", configType);
         String url = getRequestURL("configuration.parameters.delete", params);
         String response = executeRequest(url);
-        ConfigurationParametersDeleteResponse apiResponse =
-            (ConfigurationParametersDeleteResponse)readResponse(response);
-        return apiResponse;
+        return (ConfigurationParametersDeleteResponse) readResponse(response);
     }
 
-    public ConfigurationParametersResponse configurationParameters(String resourceId, String configType) throws Exception
-    {
+    public ConfigurationParametersResponse configurationParameters(String resourceId, String configType)
+            throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("resource_id", resourceId);
         params.put("config_type", configType);
         String url = getRequestURL("configuration.parameters", params);
         String response = executeRequest(url);
-        ConfigurationParametersResponse apiResponse =
-            (ConfigurationParametersResponse)readResponse(response);
-        return apiResponse;
+        return (ConfigurationParametersResponse) readResponse(response);
+    }
+
+    public ServiceListResponse serviceList(String account) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("account", account);
+        String url = getRequestURL("service.list", params);
+        String response = executeRequest(url);
+        return (ServiceListResponse) readResponse(response);
+    }
+
+    public ServiceSubscriptionInfo serviceSubscribe(String service, String plan, String account,
+                                                    Map<String, String> settings) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("account", account);
+        params.put("service", service);
+        if (plan != null) {
+            params.put("plan", plan);
+        }
+        params.put("settings", createParameter(settings));
+        String url = getRequestURL("service.subscribe", params);
+        String response = executeRequest(url);
+        return ((ServiceSubscriptionResponse) readResponse(response)).getSubscription();
+    }
+
+    public ServiceSubscriptionDeleteResponse serviceUnSubscribe(String service, String subscriptionId)
+            throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("subscription_id", subscriptionId);
+        params.put("service", service);
+        String url = getRequestURL("service.unsubscribe", params);
+        String response = executeRequest(url);
+        return (ServiceSubscriptionDeleteResponse) readResponse(response);
+    }
+
+    public ServiceSubscriptionInfo serviceSubscriptionUpdate(String service, String plan, String subscriptionId,
+                                                             Map<String, String> settings) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("subscription_id", subscriptionId);
+        params.put("service", service);
+        if (plan != null) {
+            params.put("plan", plan);
+        }
+        params.put("settings", createParameter(settings));
+        String url = getRequestURL("service.subscription.update", params);
+        String response = executeRequest(url);
+        return ((ServiceSubscriptionResponse) readResponse(response)).getSubscription();
+    }
+
+    public ServiceSubscriptionInfo serviceSubscriptionInfo(String service, String subscriptionId) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("subscription_id", subscriptionId);
+        params.put("service", service);
+        String url = getRequestURL("service.subscription.info", params);
+        String response = executeRequest(url);
+        return ((ServiceSubscriptionResponse) readResponse(response)).getSubscription();
+    }
+
+    public ServiceSubscriptionListResponse serviceSubscriptionList(String account) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("account", account);
+        String url = getRequestURL("service.subscription.list", params);
+        String response = executeRequest(url);
+        return (ServiceSubscriptionListResponse) readResponse(response);
+    }
+
+    public ServiceResourceInfo serviceResourceInfo(String service, String resourceId) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("service", service);
+        params.put("resource_id", resourceId);
+        String url = getRequestURL("service.resource.info", params);
+        String response = executeRequest(url);
+        return ((ServiceResourceResponse) readResponse(response)).getResource();
+    }
+
+    public ServiceResourceListResponse serviceResourceList(String service, String account, String resourceType)
+            throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("account", account);
+        params.put("service", service);
+        if (resourceType != null) {
+            params.put("resource_type", resourceType);
+        }
+        String url = getRequestURL("service.resource.list", params);
+        String response = executeRequest(url);
+        return (ServiceResourceListResponse) readResponse(response);
     }
 
     protected static ApplicationConfiguration getAppConfig(File deployZip, final String[] environments,
-                                         final String[] implicitEnvironments) throws IOException {
+                                                           final String[] implicitEnvironments) throws IOException {
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
 
         FileInputStream fin = new FileInputStream(deployZip);
@@ -912,15 +937,15 @@ public class BeesClient extends BeesClientBase
         return applicationConfiguration;
     }
 
-    protected String createParameter(Map<String,String>parameters) {
-        if (parameters == null)
+    protected String createParameter(Map<String, String> parameters) {
+        if (parameters == null) {
             parameters = new HashMap<String, String>();
+        }
         JSONObject jsonObject = new JSONObject(parameters);
         return jsonObject.toString();
     }
 
-    public void tailLog(String appId, String logName, OutputStream out) throws Exception
-    {
+    public void tailLog(String appId, String logName, OutputStream out) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         params.put("log_name", logName);
@@ -936,8 +961,7 @@ public class BeesClient extends BeesClientBase
         }
     }
 
-    public String call(String action, Map<String, String> params) throws Exception
-    {
+    public String call(String action, Map<String, String> params) throws Exception {
         String url = getRequestURL(action, params);
         trace("API call: " + url);
         String response = executeRequest(url);
@@ -952,7 +976,7 @@ public class BeesClient extends BeesClientBase
                 protected MapperWrapper wrapMapper(MapperWrapper next) {
                     return new MapperWrapper(next) {
                         public boolean shouldSerializeMember(Class definedIn, String fieldName) {
-                            return definedIn != Object.class ? super.shouldSerializeMember(definedIn, fieldName) : false;
+                            return definedIn != Object.class && super.shouldSerializeMember(definedIn, fieldName);
                         }
 
                     };
@@ -963,7 +987,7 @@ public class BeesClient extends BeesClientBase
                 protected MapperWrapper wrapMapper(MapperWrapper next) {
                     return new MapperWrapper(next) {
                         public boolean shouldSerializeMember(Class definedIn, String fieldName) {
-                            return definedIn != Object.class ? super.shouldSerializeMember(definedIn, fieldName) : false;
+                            return definedIn != Object.class && super.shouldSerializeMember(definedIn, fieldName);
                         }
 
                     };
@@ -1005,6 +1029,12 @@ public class BeesClient extends BeesClientBase
         xstream.processAnnotations(ConfigurationParametersResponse.class);
         xstream.processAnnotations(ConfigurationParametersUpdateResponse.class);
         xstream.processAnnotations(ConfigurationParametersDeleteResponse.class);
+        xstream.processAnnotations(ServiceSubscriptionResponse.class);
+        xstream.processAnnotations(ServiceSubscriptionListResponse.class);
+        xstream.processAnnotations(ServiceSubscriptionDeleteResponse.class);
+        xstream.processAnnotations(ServiceResourceInfo.class);
+        xstream.processAnnotations(ServiceResourceResponse.class);
+        xstream.processAnnotations(ServiceResourceListResponse.class);
 
         // Hack to fix backward compatibility
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);
@@ -1019,38 +1049,39 @@ public class BeesClient extends BeesClientBase
         return xstream;
     }
 
-    protected Object readResponse(String response) throws Exception
-    {
+    protected Object readResponse(String response) throws Exception {
         Object obj = getXStream().fromXML(response);
         if (obj instanceof ErrorResponse) {
-            throw new BeesClientException((ErrorResponse)obj);
+            throw new BeesClientException((ErrorResponse) obj);
         }
         return obj;
     }
 
-    public static String encodePassword(String password, String version)
-    {
+    public static String encodePassword(String password, String version) {
         if (version.equals("0.1")) {
             try {
                 MessageDigest sha = MessageDigest.getInstance("SHA");
-                byte[] shaBytes = sha.digest(password.getBytes("UTF8"));
-                StringBuffer hex = new StringBuffer();
-                for (int i = 0; i < shaBytes.length; ++i) {
-                    hex.append(Integer.toHexString(
-                        (shaBytes[i] & 0xFF) | 0x100).substring(1, 3));
+                byte[] passwordDigest = sha.digest(password.getBytes("UTF8"));
+                String result = new BigInteger(1, passwordDigest).toString(16);
+                if (result.length() < 32) {
+                    char[] padded = new char[32];
+                    char[] raw = result.toCharArray();
+                    Arrays.fill(padded, 0, 32 - raw.length, '0');
+                    System.arraycopy(raw, 0, padded, 32 - raw.length, raw.length);
+                    result = new String(padded);
                 }
-
-                return hex.toString();
+                return result;
             } catch (NoSuchAlgorithmException e) {
+                throw new IllegalStateException("JVM is supposed to provide SHA instance of MessageDigest", e);
             } catch (UnsupportedEncodingException e) {
+                throw new IllegalStateException("JVM is supposed to provide UTF-8 character encoding", e);
             }
-            return null;
-        } else
+        } else {
             return password;
+        }
     }
 
-    public void mainCall(String[] args) throws Exception
-    {
+    public void mainCall(String[] args) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         int argIndex = 0;
         if (argIndex < args.length) {
@@ -1058,34 +1089,36 @@ public class BeesClient extends BeesClientBase
             for (; argIndex < args.length; argIndex++) {
                 String arg = args[argIndex];
                 String[] pair = arg.split("=", 2);
-                if (pair.length < 2)
-                    throw new BeesClient.UsageError("Marlformed call parameter pair: " +
-                        arg);
+                if (pair.length < 2) {
+                    throw new BeesClient.UsageError("Malformed call parameter pair: " +
+                            arg);
+                }
                 params.put(pair[0], pair[1]);
             }
             String response = call(action, params);
             System.out.println(response);
-        } else
+        } else {
             throw new BeesClient.UsageError("Missing required action argument");
+        }
     }
 
-    public void main(String[] args) throws Exception
-    {
+    public void main(String[] args) throws Exception {
         int argIndex = 0;
         Map<String, String> options = new HashMap<String, String>();
         for (; argIndex < args.length; argIndex++) {
             String arg = args[argIndex];
             if (arg.startsWith("-")) {
-                if (arg.equals("--call") || arg.equals("-c"))
+                if (arg.equals("--call") || arg.equals("-c")) {
                     options.put("operation", arg);
-                else if (arg.equals("--username") || arg.equals("-u"))
+                } else if (arg.equals("--username") || arg.equals("-u")) {
                     options.put("username", arg);
-                else if (arg.equals("--password") || arg.equals("-p"))
+                } else if (arg.equals("--password") || arg.equals("-p")) {
                     options.put("password", arg);
-                else if (arg.equals("--url") || arg.equals("-u"))
+                } else if (arg.equals("--url") || arg.equals("-u")) {
                     options.put("url", arg);
-                else
+                } else {
                     throw new BeesClient.UsageError("Unsupported option: " + arg);
+                }
             } else {
                 break;
             }
@@ -1093,9 +1126,9 @@ public class BeesClient extends BeesClientBase
 
         String operation = getRequiredOption("operation", options);
         BeesClient client =
-            new BeesClient(getRequiredOption("url", options),
-                getRequiredOption("username", options), getRequiredOption(
-                    "password", options), "0.1", "1.0");
+                new BeesClient(getRequiredOption("url", options),
+                        getRequiredOption("username", options), getRequiredOption(
+                        "password", options), "0.1", "1.0");
 
         if (operation.equals("call")) {
             String[] subArgs = new String[args.length - argIndex];
@@ -1107,22 +1140,20 @@ public class BeesClient extends BeesClientBase
     }
 
     private static String getRequiredOption(String optionName,
-        Map<String, String> options) throws BeesClient.UsageError
-    {
-        if (options.containsKey(optionName))
+                                            Map<String, String> options) throws BeesClient.UsageError {
+        if (options.containsKey(optionName)) {
             return options.get(optionName);
-        else
+        } else {
             throw new BeesClient.UsageError("Missing required flag: --" + optionName);
+        }
     }
 
     private static File asFile(String filePath) {
         return filePath == null ? null : new File(filePath);
     }
 
-    public static class UsageError extends Exception
-    {
-        UsageError(String reason)
-        {
+    public static class UsageError extends Exception {
+        UsageError(String reason) {
             super(reason);
         }
     }
