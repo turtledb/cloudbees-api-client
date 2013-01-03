@@ -294,6 +294,19 @@ public class BeesClient extends BeesClientBase
         return apiResponse;
     }
 
+    public ApplicationStatusResponse applicationHibernate(String appId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("app_id", appId);
+        String url = getRequestURL("application.hibernate", params);
+        trace("API call: " + url);
+        String response = executeRequest(url);
+        traceResponse(response);
+        ApplicationStatusResponse apiResponse =
+            (ApplicationStatusResponse)readResponse(response);
+        return apiResponse;
+    }
+
     /**
      * Returns all the applications in all the account sthat you belong to.
      *
