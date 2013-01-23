@@ -25,9 +25,8 @@
 
   <artifactId>cloudbees-api-client-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.3.1-SNAPSHOT</version>
+  <version>1.4.0-SNAPSHOT</version>
   <modules>
-    <module>cloudbees-api-core</module>
     <module>cloudbees-api-client</module>
     <module>cloudbees-api-client-nodeps</module>
   </modules>
