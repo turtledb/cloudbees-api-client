@@ -48,7 +48,7 @@ public class CBUser extends CBObject {
     public CBUser createAccount(String name) throws IOException {
         CBAccount acc = new CBAccount();
         acc.name = name;
-        return root.postAndRetrieve("v2/users/" + id + "/accounts", acc, CBUser.class, "POST");
+        return root.jsonPOJORequest("v2/users/" + id + "/accounts", acc, CBUser.class, "POST");
     }
 
     public void delete() throws IOException {

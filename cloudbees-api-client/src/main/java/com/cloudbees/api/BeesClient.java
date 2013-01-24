@@ -24,22 +24,19 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.introspect.VisibilityChecker.Std;
 import org.codehaus.jettison.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.BigInteger;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -120,7 +117,7 @@ public class BeesClient extends BeesClientBase {
      *      .com/account-provisioning-api/home/user-api#TOC-Create-a-User">API spec</a>
      */
     public CBUser createUser(CBUser user) throws IOException {
-        return postAndRetrieve("v2/users", user, CBUser.class, "POST");
+        return jsonPOJORequest("v2/users", user, CBUser.class, "POST");
     }
 
     /**
@@ -131,18 +128,18 @@ public class BeesClient extends BeesClientBase {
      *             those values should remain untouched.
      */
     public CBUser updateUser(String id, CBUser user) throws IOException {
-        return postAndRetrieve("v2/users/" + id, user, CBUser.class, "PATCH");
+        return jsonPOJORequest("v2/users/" + id, user, CBUser.class, "PATCH");
     }
 
     /**
      * Deletes an user.
      */
     public void deleteUser(String id) throws IOException {
-        postAndRetrieve("v2/users/" + id, null, null, "DELETE");
+        jsonPOJORequest("v2/users/" + id, null, null, "DELETE");
     }
 
     public CBUser addUserToAccount(CBAccount account, CBUser user) throws IOException {
-        return postAndRetrieve("v2/users/" + user.id + "/accounts/" + account.name + "/users", user, CBUser.class,
+        return jsonPOJORequest("v2/users/" + user.id + "/accounts/" + account.name + "/users", user, CBUser.class,
                 "POST");
     }
 
@@ -158,57 +155,107 @@ public class BeesClient extends BeesClientBase {
      * @param method  HTTP method name like GET or POST.
      * @throws IOException If the communication fails.
      */
-    /*package*/ <T> T postAndRetrieve(String apiTail, Object request, Class<T> type, String method) throws IOException {
-        URL url = new URL(base, apiTail);
-        HttpURLConnection uc = (HttpURLConnection) url.openConnection();
-        uc.setRequestProperty("Authorization", "Basic " + encodedAccountAuthorization);
-
-        uc.setRequestProperty("Content-type", "application/json");
-        uc.setRequestProperty("Accept", "application/json");
-        uc.setRequestMethod(method);
+    protected <T> T jsonPOJORequest(String apiTail, Object request, Class<T> type, String method) throws IOException {
+        String content = null;
         if (request != null) {
-            uc.setDoOutput(true);
-            MAPPER.writeValue(uc.getOutputStream(), request);
-            uc.getOutputStream().close();
+            content = MAPPER.writeValueAsString(request);
         }
-        uc.connect();
+        HttpReply resp = jsonRequest(apiTail, method, null, content);
+        if (resp.getCode() >= 300)
+            throw new IOException("Failed to " + method + " : " + apiTail + " : code=" + resp.getCode() + " response=" + resp.getContent());
 
-        try {
-            InputStreamReader r = new InputStreamReader(uc.getInputStream(), "UTF-8");
-            String data = IOUtils.toString(r);  // read it upfront to make debugging easier
-            if (type == null) {
-                return null;
-            }
-            T ret = MAPPER.readValue(data, type);
+        if (type != null && resp.getContent() != null) {
+            T ret = MAPPER.readValue(resp.getContent(), type);
             if (ret instanceof CBObject)    // TODO: nested objects?
             {
                 ((CBObject) ret).root = this;
             }
             return ret;
-        } catch (IOException e) {
-            String rsp = "";
-            InputStream err = uc.getErrorStream();
-            if (err != null) {
-                try {
-                    rsp = IOUtils.toString(err);
-                } catch (IOException _) {
-                    // ignore
-                }
-            }
-            throw (IOException) new IOException(
-                    "Failed to POST to " + url + " : code=" + uc.getResponseCode() + " response=" + rsp).initCause(e);
         }
+        return null;
+    }
+
+    /**
+     * Sends a request in JSON and expects a JSON response back.
+     *
+     * @param urlTail The end point to hit. Appended to {@link #base}. Shouldn't start with '/'
+     * @param method  HTTP method name like GET or POST.
+     * @param headers
+     *@param jsonContent  The json request payload, or null if none.  @throws IOException If the communication fails.
+     */
+    public HttpReply jsonRequest(String urlTail, String method, Map<String, String> headers, String jsonContent) throws IOException {
+        BeesClientConfiguration conf = getBeesClientConfiguration();
+        HttpClient httpClient = HttpClientHelper.createClient(conf);
+        HttpMethodBase httpMethod = null;
+
+        URL url = new URL(base, urlTail);
+        String urlString;
+        try {
+            urlString = url.toURI().toString();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Invalid API URL:" + url.toString(), e);
+        }
+
+        trace("API call: " + urlString);
+        if (method.equalsIgnoreCase("GET")) {
+            httpMethod = new GetMethod(urlString);
+        } else if ((method.equalsIgnoreCase("POST"))) {
+            httpMethod = new PostMethod(urlString);
+        } else if ((method.equalsIgnoreCase("PUT"))) {
+            httpMethod = new PutMethod(urlString);
+        } else if ((method.equalsIgnoreCase("DELETE"))) {
+            httpMethod = new DeleteMethod(urlString);
+        } else if ((method.equalsIgnoreCase("PATCH"))) {
+            httpMethod = new PatchMethod(urlString);
+        } else if ((method.equalsIgnoreCase("HEAD"))) {
+            httpMethod = new HeadMethod(urlString);
+        } else if ((method.equalsIgnoreCase("TRACE"))) {
+            httpMethod = new TraceMethod(urlString);
+        } else if ((method.equalsIgnoreCase("OPTIONS"))) {
+            httpMethod = new OptionsMethod(urlString);
+        } else
+            throw new IOException("Method not supported: " + method);
+
+        httpMethod.setRequestHeader("Accept", "application/json");
+        if (encodedAccountAuthorization != null)
+            httpMethod.setRequestHeader("Authorization", "Basic " + encodedAccountAuthorization);
+        if (jsonContent != null && httpMethod instanceof EntityEnclosingMethod) {
+            StringRequestEntity requestEntity = new StringRequestEntity(jsonContent, "application/json", "UTF-8");
+            ((EntityEnclosingMethod)httpMethod).setRequestEntity(requestEntity);
+            trace("Payload: " + jsonContent);
+        }
+
+        if (headers != null) {
+            for (Map.Entry<String, String> entry: headers.entrySet()) {
+                httpMethod.setRequestHeader(entry.getKey(), entry.getValue());
+            }
+        }
+
+        int status = 500;
+        String rsp = "Error";
+        try {
+            status = httpClient.executeMethod(httpMethod);
+            rsp = IOUtils.toString(httpMethod.getResponseBodyAsStream());
+        } catch (IOException e) {
+            throw new IOException("Failed to " + method + " : " + urlTail + " : code=" + status + " response=" + e.getMessage(), e);
+        } finally {
+            httpMethod.releaseConnection();
+        }
+
+        trace(status + ": " + rsp);
+
+        return new HttpReply(status, rsp);
     }
 
     public CBAccount getAccount(String name) throws IOException {
-        return postAndRetrieve("v2/accounts/" + name, null, CBAccount.class, "GET");
+        return jsonPOJORequest("v2/accounts/" + name, null, CBAccount.class, "GET");
     }
 
     /**
      * Looks up the user by ID.
      */
     public CBUser getUser(String id) throws IOException {
-        return postAndRetrieve("v2/users/" + id, null, CBUser.class, "GET");
+        return jsonPOJORequest("v2/users/" + id, null, CBUser.class, "GET");
     }
 
     /**
@@ -217,7 +264,7 @@ public class BeesClient extends BeesClientBase {
      * @param sshPublicKeyFingerprint Fingerprint formatted as "12:34:56:..:aa:bb:cc" (case insensitive)
      */
     public CBUser getUserByFingerprint(String sshPublicKeyFingerprint) throws IOException {
-        return postAndRetrieve("v2/users/fingerprint/" + sshPublicKeyFingerprint, null, CBUser.class, "GET");
+        return jsonPOJORequest("v2/users/fingerprint/" + sshPublicKeyFingerprint, null, CBUser.class, "GET");
     }
 
     public SayHelloResponse sayHello(String message) throws Exception {
@@ -1155,6 +1202,20 @@ public class BeesClient extends BeesClientBase {
     public static class UsageError extends Exception {
         UsageError(String reason) {
             super(reason);
+        }
+    }
+
+    class PatchMethod extends EntityEnclosingMethod {
+        PatchMethod() {
+        }
+
+        PatchMethod(String uri) {
+            super(uri);
+        }
+
+        @Override
+        public String getName() {
+            return "PATCH";
         }
     }
 }
