@@ -73,6 +73,10 @@
                   <pattern>net.sf.cglib</pattern>
                   <shadedPattern>com.cloudbees.shaded.sf.cglib</shadedPattern>
                 </relocation>
+                <relocation>
+                  <pattern>org.codehaus.jackson</pattern>
+                  <shadedPattern>com.cloudbees.shaded.codehaus.jackson</shadedPattern>
+                </relocation>
               </relocations>
               <artifactSet>
                 <excludes>
