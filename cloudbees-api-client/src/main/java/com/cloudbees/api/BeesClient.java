@@ -960,7 +960,24 @@ public class BeesClient extends BeesClientBase {
         String response = executeRequest(url);
         return (ServiceResourceListResponse) readResponse(response);
     }
-
+    
+    public ServiceResourceBindingListResponse resourceBindingList(String service, String    resourceId) throws Exception
+    {
+        return resourceBindingList(service, resourceId, false);
+    }
+    public ServiceResourceBindingListResponse resourceBindingList(String service, String    resourceId, boolean bidirectional) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("resource_id", resourceId);
+        params.put("service", service);
+        params.put("bidirectional", Boolean.toString(bidirectional));
+        String url = getRequestURL("resource.binding.list", params);
+        String response = executeRequest(url);
+        ServiceResourceBindingListResponse apiResponse =
+            (ServiceResourceBindingListResponse)readResponse(response);
+        return apiResponse;
+    }
+    
     protected static ApplicationConfiguration getAppConfig(File deployZip, final String[] environments,
                                                            final String[] implicitEnvironments) throws IOException {
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
@@ -1082,6 +1099,7 @@ public class BeesClient extends BeesClientBase {
         xstream.processAnnotations(ServiceResourceInfo.class);
         xstream.processAnnotations(ServiceResourceResponse.class);
         xstream.processAnnotations(ServiceResourceListResponse.class);
+        xstream.processAnnotations(ServiceResourceBindingListResponse.class);
 
         // Hack to fix backward compatibility
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);
