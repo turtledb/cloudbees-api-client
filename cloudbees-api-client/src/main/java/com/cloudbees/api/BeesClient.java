@@ -1100,6 +1100,7 @@ public class BeesClient extends BeesClientBase {
         xstream.processAnnotations(ServiceResourceResponse.class);
         xstream.processAnnotations(ServiceResourceListResponse.class);
         xstream.processAnnotations(ServiceResourceBindingListResponse.class);
+        xstream.processAnnotations(ResourceBindingInfo.class);
 
         // Hack to fix backward compatibility
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);
