@@ -88,10 +88,7 @@ public class OauthClientImpl implements OauthClient {
             return null;
         }
 
-        if(Base64.isBase64(auth[1])){
-            return Base64.base64Decode(auth[1]);
-        }
-        return auth[1];
+        return Base64.base64Decode(auth[1]);
     }
 
     @Override
