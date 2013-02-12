@@ -73,7 +73,7 @@ public class OauthClientImpl implements OauthClient {
     @Override
     public String parseToken(String authenticationHeader) {
         if(authenticationHeader == null){
-            logger.error("Null authorization header");
+            logger.debug("Null authorization header");
             return null;
         }
 
