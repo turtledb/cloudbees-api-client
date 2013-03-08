@@ -672,6 +672,16 @@ public class BeesClient extends BeesClientBase {
         String response = executeRequest(url);
         return (ApplicationScaleResponse) readResponse(response);
     }
+    
+    public ApplicationSnapshotListResponse applicationSnapshotList(String appId) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("app_id", appId);
+        String url = getRequestURL("application.snapshot.list", params);
+        trace("API call: " + url);
+        String response = executeRequest(url);
+        traceResponse(response);
+        return (ApplicationSnapshotListResponse) readResponse(response);
+    }
 
     public DatabaseCreateResponse databaseCreate(String domain, String dbId,
                                                  String username, String password) throws Exception {
@@ -1075,6 +1085,8 @@ public class BeesClient extends BeesClientBase {
         xstream.processAnnotations(ApplicationSetMetaResponse.class);
         xstream.processAnnotations(ApplicationCheckSumsResponse.class);
         xstream.processAnnotations(ApplicationScaleResponse.class);
+        xstream.processAnnotations(ApplicationSnapshotInfo.class);
+        xstream.processAnnotations(ApplicationSnapshotListResponse.class);
         xstream.processAnnotations(DatabaseCreateResponse.class);
         xstream.processAnnotations(DatabaseSetPasswordResponse.class);
         xstream.processAnnotations(DatabaseDeleteResponse.class);
