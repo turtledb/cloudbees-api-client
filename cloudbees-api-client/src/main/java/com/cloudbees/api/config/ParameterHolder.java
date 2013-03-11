@@ -17,6 +17,10 @@ public class ParameterHolder {
     /**
      * Parameters are string-to-string map, made available to
      * applications as system properties.
+     *
+     * @return
+     *      This method always returns the same live map. Update to this map
+     *      gets reflected to the {@link ConfigParameters}.
      */
     public ParameterMap getParameters() {
         if (parameters == null)
@@ -27,6 +31,10 @@ public class ParameterHolder {
     /**
      * Runtime parameters are used to communicate with the stack
      * that runs your application (as opposed to the application itself.)
+     *
+     * @return
+     *      This method always returns the same live map. Update to this map
+     *      gets reflected to the {@link ConfigParameters}.
      */
     public ParameterMap getRuntimeParameters() {
         if (runtimeParameters == null)
