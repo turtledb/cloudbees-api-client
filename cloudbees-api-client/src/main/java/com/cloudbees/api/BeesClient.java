@@ -853,6 +853,10 @@ public class BeesClient extends BeesClientBase {
 
     public ConfigurationParametersUpdateResponse configurationParametersUpdate(String resourceId, String configType,
                                                                                File resourceFile) throws Exception {
+        assertNotNull(resourceId,"resourceId");
+        assertNotNull(configType,"configType");
+        assertNotNull(resourceFile,"resourceFile");
+
         Map<String, String> params = new HashMap<String, String>();
         Map<String, File> fileParams = new HashMap<String, File>();
 
@@ -888,6 +892,9 @@ public class BeesClient extends BeesClientBase {
 
     public ConfigurationParametersDeleteResponse configurationParametersDelete(String resourceId, String configType)
             throws Exception {
+        assertNotNull(resourceId,"resourceId");
+        assertNotNull(configType,"configType");
+
         Map<String, String> params = new HashMap<String, String>();
         params.put("resource_id", resourceId);
         params.put("config_type", configType);
@@ -898,6 +905,9 @@ public class BeesClient extends BeesClientBase {
 
     public ConfigurationParametersResponse configurationParameters(String resourceId, String configType)
             throws Exception {
+        assertNotNull(resourceId,"resourceId");
+        assertNotNull(configType,"configType");
+
         Map<String, String> params = new HashMap<String, String>();
         params.put("resource_id", resourceId);
         params.put("config_type", configType);
@@ -1275,6 +1285,12 @@ public class BeesClient extends BeesClientBase {
         public String getName() {
             return "PATCH";
         }
+    }
+
+    <T> T assertNotNull(T value, String arg) {
+        if (value==null)
+            throw new IllegalArgumentException("Null is not a valid value for the '"+arg+"' argument");
+        return value;
     }
 }
 
