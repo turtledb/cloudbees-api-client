@@ -867,6 +867,25 @@ public class BeesClient extends BeesClientBase {
         return (ConfigurationParametersUpdateResponse) readResponse(response);
     }
 
+    /**
+     * Updates the configuration of the given resource from the configuration object model.
+     */
+    public ConfigurationParametersUpdateResponse configurationParametersUpdate(
+            String resourceId, String configType, ConfigParameters model) throws Exception {
+
+        File xmlFile = File.createTempFile("conf", "xml");
+        FileWriter fos = null;
+        try {
+            fos = new FileWriter(xmlFile);
+            fos.write(model.toXML());
+            fos.close();
+            return configurationParametersUpdate(resourceId,configType,xmlFile);
+        } finally {
+            IOUtils.closeQuietly(fos);
+            xmlFile.delete();
+        }
+    }
+
     public ConfigurationParametersDeleteResponse configurationParametersDelete(String resourceId, String configType)
             throws Exception {
         Map<String, String> params = new HashMap<String, String>();

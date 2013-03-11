@@ -19,6 +19,7 @@ import java.util.List;
  *
  * @author Fabian Donze
  * @see BeesClient#configurationParametersAsObject(String, String)
+ * @see BeesClient#configurationParametersUpdate(String, String, ConfigParameters)
  */
 @XStreamAlias("config")
 public class ConfigParameters extends ParameterHolder {
