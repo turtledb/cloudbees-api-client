@@ -18,7 +18,7 @@ import java.util.List;
  * Data model for configuration.
  *
  * @author Fabian Donze
- * @see BeesClient#configurationParameters(String, String)
+ * @see BeesClient#configurationParametersAsObject(String, String)
  */
 @XStreamAlias("config")
 public class ConfigParameters extends ParameterHolder {

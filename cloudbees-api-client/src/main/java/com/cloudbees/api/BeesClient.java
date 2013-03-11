@@ -16,6 +16,7 @@
 
 package com.cloudbees.api;
 
+import com.cloudbees.api.config.ConfigParameters;
 import com.cloudbees.upload.ArchiveUtils;
 import com.cloudbees.upload.JarUtils;
 import com.cloudbees.utils.AppConfigHelper;
@@ -884,6 +885,13 @@ public class BeesClient extends BeesClientBase {
         String url = getRequestURL("configuration.parameters", params);
         String response = executeRequest(url);
         return (ConfigurationParametersResponse) readResponse(response);
+    }
+
+    /**
+     * Perform {@link #configurationParameters(String, String)} and obtains the result as a data-bound object.
+     */
+    public ConfigParameters configurationParametersAsObject(String resourceId, String configType) throws Exception {
+        return ConfigParameters.parse(configurationParameters(resourceId,configType).getConfiguration());
     }
 
     public ServiceListResponse serviceList(String account) throws Exception {
