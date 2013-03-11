@@ -1,9 +1,12 @@
 package com.cloudbees.api;
 
+import com.cloudbees.api.config.ConfigParameters;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class ApplicationDeployArgs {
     public final String appId;
@@ -172,6 +175,18 @@ public class ApplicationDeployArgs {
         public Builder withVars(Map<String, String> vars) {
             if (vars != null) {
                 variables.putAll(vars);
+            }
+            return this;
+        }
+
+        /**
+         * Pulls in parameters defined in {@link ConfigParameters#getParameters()}
+         * and {@link ConfigParameters#getRuntimeParameters()}
+         */
+        public Builder withConfigs(ConfigParameters config) {
+            withVars(config.getParameters());
+            for (Entry<String, String> e : config.getRuntimeParameters().entrySet()) {
+                withParam("runtime."+e.getKey(),e.getValue());
             }
             return this;
         }

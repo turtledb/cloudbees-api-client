@@ -4,6 +4,7 @@
 
 package com.cloudbees.api.config;
 
+import com.cloudbees.api.ApplicationDeployArgs;
 import com.cloudbees.api.BeesClient;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -20,6 +21,7 @@ import java.util.List;
  * @author Fabian Donze
  * @see BeesClient#configurationParametersAsObject(String, String)
  * @see BeesClient#configurationParametersUpdate(String, String, ConfigParameters)
+ * @see ApplicationDeployArgs.Builder#withConfigs(ConfigParameters)
  */
 @XStreamAlias("config")
 public class ConfigParameters extends ParameterHolder {
