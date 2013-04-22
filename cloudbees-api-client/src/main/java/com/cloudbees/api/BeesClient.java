@@ -1024,7 +1024,18 @@ public class BeesClient extends BeesClientBase {
             (ServiceResourceBindingListResponse)readResponse(response);
         return apiResponse;
     }
-    
+
+    public AccountRegionListResponse accountRegionList(String account, String service) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("account", account);
+        if (service != null)
+            params.put("service", service);
+        String url = getRequestURL("account.region.list", params);
+        String response = executeRequest(url);
+        return (AccountRegionListResponse)readResponse(response);
+    }
+
     protected static ApplicationConfiguration getAppConfig(File deployZip, final String[] environments,
                                                            final String[] implicitEnvironments) throws IOException {
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
@@ -1150,6 +1161,8 @@ public class BeesClient extends BeesClientBase {
         xstream.processAnnotations(ServiceResourceListResponse.class);
         xstream.processAnnotations(ServiceResourceBindingListResponse.class);
         xstream.processAnnotations(ResourceBindingInfo.class);
+        xstream.processAnnotations(AccountRegionInfo.class);
+        xstream.processAnnotations(AccountRegionListResponse.class);
 
         // Hack to fix backward compatibility
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);
