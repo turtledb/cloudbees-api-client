@@ -1151,12 +1151,91 @@ public class BeesClient extends BeesClientBase {
         return apiResponse;
     }
 
+    public ServiceResourceBindResponse resourceBind(String fromService, String fromResourceId, String toService, String toResourceId, String alias, Map<String, String> settings) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("to_service", toService);
+        params.put("to_resource_id", toResourceId);
+        params.put("from_service", fromService);
+        params.put("from_resource_id", fromResourceId);
+        params.put("alias", alias);
+        params.put("settings", createParameter(settings));
+        String url = getRequestURL("service.resource.bind", params);
+        String response = executeRequest(url);
+        ServiceResourceBindResponse apiResponse =
+                (ServiceResourceBindResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ServiceResourceUnBindResponse resourceUnBind( String service, String resourceId, String alias) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("alias", alias);
+        params.put("service", service);
+        params.put("resource_id", resourceId);
+        String url = getRequestURL("service.resource.unbind", params);
+        String response = executeRequest(url);
+        ServiceResourceUnBindResponse apiResponse =
+                (ServiceResourceUnBindResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ServiceResourceInfo serviceResourceCreate(String service, String account, String resourceType, String resourceName, Map<String, String> settings) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("account", account);
+        params.put("service", service);
+        if (resourceType != null)
+            params.put("resource_type", resourceType);
+        params.put("resource_name", resourceName);
+        params.put("settings", createParameter(settings));
+
+        ServiceResourceResponse apiResponse = (ServiceResourceResponse) apiCall("service.resource.create", settings, params);
+        return apiResponse.getResource();
+    }
+
+    public ServiceResourceInfo serviceResourceUpdate(String service, String resourceId, Map<String, String> settings) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("service", service);
+        params.put("resource_id", resourceId);
+        params.put("settings", createParameter(settings));
+
+        ServiceResourceResponse apiResponse = (ServiceResourceResponse) apiCall("service.resource.update", settings, params);
+        return apiResponse.getResource();
+    }
+
+    public ServiceResourceDeleteResponse serviceResourceDelete(String service, String resourceId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("service", service);
+        params.put("resource_id", resourceId);
+        String url = getRequestURL("service.resource.delete", params);
+        String response = executeRequest(url);
+        ServiceResourceDeleteResponse apiResponse =
+                (ServiceResourceDeleteResponse)readResponse(response);
+        return apiResponse;
+    }
+
+
+
     @Override
     public String executeRequest(String url) throws Exception {
         trace("API call: " + url);
         String response = super.executeRequest(url);
         traceResponse(response);
         return response;
+    }
+
+    @Override
+    protected String executeUpload(String uploadURL, Map<String, String> params, Map<String, File> files, UploadProgress writeListener) throws Exception {
+        if (isVerbose()) {
+            String msg = "API call: " + uploadURL;
+            if (params != null && params.size() > 0) msg += ",P" + params;
+            if (files != null && files.size() > 0) msg += ",F" + files;
+            trace(msg);
+        }
+        return super.executeUpload(uploadURL, params, files, writeListener);
     }
 
     protected static ApplicationConfiguration getAppConfig(File deployZip, final String[] environments,
@@ -1204,6 +1283,36 @@ public class BeesClient extends BeesClientBase {
             out.write(bytes, 0, numRead);
             numRead = input.read(bytes);
         }
+    }
+
+    protected Object apiCall(String apiMethod, Map<String, String> settings, Map<String, String> params) throws Exception {
+        Map<String, File> fileParams = new HashMap<String, File>();
+        if (settings != null) {
+            for (Map.Entry<String, String> entry : settings.entrySet()) {
+                String value = entry.getValue().toLowerCase();
+                int idx = value.startsWith("file://") ? 7 : 0;
+                if (idx == 0)
+                    idx = value.startsWith("files://") ? 8 : 0;
+                if (idx > 0) {
+                    File file = new File(entry.getValue().substring(idx));
+                    fileParams.put("FILE." + entry.getKey(), file);
+                    params.put("FILENAME." + entry.getKey(), file.getName());
+                }
+            }
+        }
+        String response;
+        // If files are to be uploaded use POST to upload
+        if (fileParams.size() > 0) {
+            String url = getApiUrl(apiMethod).toString();
+            params.put("action", apiMethod);
+            response = executeUpload(url, params, fileParams, new UploadProgress() {
+                public void handleBytesWritten(long l, long l1, long l2) {}
+            });
+        } else {
+            String url = getRequestURL(apiMethod, params);
+            response = executeRequest(url);
+        }
+        return readResponse(response);
     }
 
     public String call(String action, Map<String, String> params) throws Exception {
@@ -1292,6 +1401,9 @@ public class BeesClient extends BeesClientBase {
         xstream.processAnnotations(ApplicationInstanceStatusResponse.class);
         xstream.processAnnotations(ApplicationInstanceInvokeResponse.class);
         xstream.processAnnotations(ApplicationConfigUpdateResponse.class);
+        xstream.processAnnotations(ServiceResourceDeleteResponse.class);
+        xstream.processAnnotations(ServiceResourceBindResponse.class);
+        xstream.processAnnotations(ServiceResourceUnBindResponse.class);
 
         // Hack to fix backward compatibility
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);
