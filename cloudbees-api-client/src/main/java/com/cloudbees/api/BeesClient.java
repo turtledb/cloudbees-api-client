@@ -272,9 +272,7 @@ public class BeesClient extends BeesClientBase {
         Map<String, String> params = new HashMap<String, String>();
         params.put("message", message);
         String url = getRequestURL("say.hello", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (SayHelloResponse) readResponse(response);
     }
 
@@ -283,9 +281,7 @@ public class BeesClient extends BeesClientBase {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.getSourceUrl", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (ApplicationGetSourceUrlResponse) readResponse(response);
     }
 
@@ -293,9 +289,7 @@ public class BeesClient extends BeesClientBase {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.delete", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (ApplicationDeleteResponse) readResponse(response);
     }
 
@@ -303,9 +297,7 @@ public class BeesClient extends BeesClientBase {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.restart", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (ApplicationRestartResponse) readResponse(response);
     }
 
@@ -313,9 +305,7 @@ public class BeesClient extends BeesClientBase {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.start", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (ApplicationStatusResponse) readResponse(response);
     }
 
@@ -323,9 +313,7 @@ public class BeesClient extends BeesClientBase {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.stop", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (ApplicationStatusResponse) readResponse(response);
     }
 
@@ -334,9 +322,7 @@ public class BeesClient extends BeesClientBase {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.hibernate", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         ApplicationStatusResponse apiResponse =
             (ApplicationStatusResponse)readResponse(response);
         return apiResponse;
@@ -363,9 +349,7 @@ public class BeesClient extends BeesClientBase {
             params.put("account", account);
         }
         String url = getRequestURL("application.list", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (ApplicationListResponse) readResponse(response);
     }
 
@@ -373,9 +357,7 @@ public class BeesClient extends BeesClientBase {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.info", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         ApplicationInfoResponse apiResponse =
                 (ApplicationInfoResponse) readResponse(response);
         return apiResponse.getApplicationInfo();
@@ -387,9 +369,7 @@ public class BeesClient extends BeesClientBase {
         params.putAll(metaAttrs);
         params.put("app_id", appId);
         String url = getRequestURL("application.setMeta", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (ApplicationSetMetaResponse) readResponse(response);
     }
 
@@ -657,11 +637,7 @@ public class BeesClient extends BeesClientBase {
         Map<String, String> params = new HashMap<String, String>();
         params.put("app_id", appId);
         String url = getRequestURL("application.checkSums", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        if (traceResponse) {
-            traceResponse(response);
-        }
         return (ApplicationCheckSumsResponse) readResponse(response);
     }
 
@@ -674,16 +650,6 @@ public class BeesClient extends BeesClientBase {
         return (ApplicationScaleResponse) readResponse(response);
     }
     
-    public ApplicationSnapshotListResponse applicationSnapshotList(String appId) throws Exception {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("app_id", appId);
-        String url = getRequestURL("application.snapshot.list", params);
-        trace("API call: " + url);
-        String response = executeRequest(url);
-        traceResponse(response);
-        return (ApplicationSnapshotListResponse) readResponse(response);
-    }
-
     public DatabaseCreateResponse databaseCreate(String domain, String dbId,
                                                  String username, String password) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
@@ -692,9 +658,7 @@ public class BeesClient extends BeesClientBase {
         params.put("database_password", password);
         params.put("domain", domain);
         String url = getRequestURL("database.create", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (DatabaseCreateResponse) readResponse(response);
     }
 
@@ -702,9 +666,7 @@ public class BeesClient extends BeesClientBase {
         Map<String, String> params = new HashMap<String, String>();
         params.put("database_id", dbId);
         String url = getRequestURL("database.delete", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (DatabaseDeleteResponse) readResponse(response);
     }
 
@@ -713,9 +675,7 @@ public class BeesClient extends BeesClientBase {
         params.put("database_id", dbId);
         params.put("fetch_password", ((Boolean) fetchPassword).toString());
         String url = getRequestURL("database.info", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         DatabaseInfoResponse apiResponse =
                 (DatabaseInfoResponse) readResponse(response);
         return apiResponse.getDatabaseInfo();
@@ -742,9 +702,7 @@ public class BeesClient extends BeesClientBase {
             params.put("account", account);
         }
         String url = getRequestURL("database.list", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (DatabaseListResponse) readResponse(response);
     }
 
@@ -753,9 +711,7 @@ public class BeesClient extends BeesClientBase {
         params.put("database_id", dbId);
         params.put("database_password", password);
         String url = getRequestURL("database.setPassword", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (DatabaseSetPasswordResponse) readResponse(response);
     }
 
@@ -763,9 +719,7 @@ public class BeesClient extends BeesClientBase {
         Map<String, String> params = new HashMap<String, String>();
         params.put("database_id", dbId);
         String url = getRequestURL("database.snapshot.list", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (DatabaseSnapshotListResponse) readResponse(response);
     }
 
@@ -774,9 +728,7 @@ public class BeesClient extends BeesClientBase {
         params.put("database_id", dbId);
         params.put("snapshot_id", snapshotId);
         String url = getRequestURL("database.snapshot.delete", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (DatabaseSnapshotDeleteResponse) readResponse(response);
     }
 
@@ -785,9 +737,7 @@ public class BeesClient extends BeesClientBase {
         params.put("database_id", dbId);
         params.put("snapshot_id", snapshotId);
         String url = getRequestURL("database.snapshot.deploy", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (DatabaseSnapshotDeployResponse) readResponse(response);
     }
 
@@ -798,9 +748,7 @@ public class BeesClient extends BeesClientBase {
             params.put("snapshot_title", snapshotTitle);
         }
         String url = getRequestURL("database.snapshot.create", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (DatabaseSnapshotInfo) readResponse(response);
     }
 
@@ -819,9 +767,7 @@ public class BeesClient extends BeesClientBase {
     public AccountListResponse accountList() throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         String url = getRequestURL("account.list", params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return (AccountListResponse) readResponse(response);
     }
 
@@ -1036,6 +982,183 @@ public class BeesClient extends BeesClientBase {
         return (AccountRegionListResponse)readResponse(response);
     }
 
+    public ApplicationInstanceListResponse applicationInstanceList(String appId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("app_id", appId);
+        String url = getRequestURL("application.instance.list", params);
+        String response = executeRequest(url);
+        ApplicationInstanceListResponse apiResponse =
+                (ApplicationInstanceListResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ApplicationInstanceStatusResponse applicationInstanceReplace(String instanceId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("instance_id", instanceId);
+        String url = getRequestURL("application.instance.replace", params);
+        String response = executeRequest(url);
+        ApplicationInstanceStatusResponse apiResponse =
+                (ApplicationInstanceStatusResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ApplicationInstanceStatusResponse applicationInstanceRestart(String instanceId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("instance_id", instanceId);
+        String url = getRequestURL("application.instance.restart", params);
+        String response = executeRequest(url);
+        ApplicationInstanceStatusResponse apiResponse =
+                (ApplicationInstanceStatusResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ApplicationInstanceStatusResponse applicationInstanceDelete(String instanceId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("instance_id", instanceId);
+        String url = getRequestURL("application.instance.delete", params);
+        String response = executeRequest(url);
+        ApplicationInstanceStatusResponse apiResponse =
+                (ApplicationInstanceStatusResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public com.cloudbees.api.ApplicationInstanceInfo applicationInstanceTagsUpdate(String instanceId, Map<String, String> tags, boolean replace) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("instance_id", instanceId);
+        params.put("reset", Boolean.toString(replace));
+        params.put("parameters", createParameter(tags));
+
+        String url = getApiUrl("application.instance.update").toString();
+        params.put("action", "application.instance.update");
+        // use the upload method (POST) to handle the potentially large tags payload
+        String response = executeUpload(url, params, new HashMap<String, File>(), null);
+        com.cloudbees.api.ApplicationInstanceInfo apiResponse =
+                (com.cloudbees.api.ApplicationInstanceInfo)readResponse(response);
+        return apiResponse;
+    }
+
+    public com.cloudbees.api.ApplicationInstanceInfo applicationInstanceInfo(String instanceId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("instance_id", instanceId);
+
+        String url = getRequestURL("application.instance.info", params);
+        String response = executeRequest(url);
+        com.cloudbees.api.ApplicationInstanceInfo apiResponse =
+                (com.cloudbees.api.ApplicationInstanceInfo)readResponse(response);
+        return apiResponse;
+    }
+
+    public ApplicationInstanceInvokeResponse applicationInstanceInvoke(String instanceId, String invoke, Map<String, String>parameters) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("instance_id", instanceId);
+        params.put("invoke",invoke);
+        params.put("parameters", createParameter(parameters));
+
+        String url = getRequestURL("application.instance.invoke", params);
+        String response = executeRequest(url);
+        ApplicationInstanceInvokeResponse apiResponse =
+                (ApplicationInstanceInvokeResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public void applicationInstanceTailLog(String instanceId, String logName, OutputStream out) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("instance_id", instanceId);
+        params.put("log_name", logName);
+        String url = getRequestURL("tail", params, false);
+        trace("API call: " + url);
+        InputStream input = executeCometRequest(url);
+
+        byte[] bytes = new byte[1024];
+        int numRead = input.read(bytes);
+        while (numRead != -1) {
+            out.write(bytes, 0, numRead);
+            numRead = input.read(bytes);
+        }
+    }
+
+    public ApplicationSnapshotListResponse applicationSnapshotList(String appId) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("app_id", appId);
+        String url = getRequestURL("application.snapshot.list", params);
+        String response = executeRequest(url);
+        return (ApplicationSnapshotListResponse) readResponse(response);
+    }
+
+    public ApplicationSnapshotStatusResponse applicationSnapshotDelete(String snapshotId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("snapshot_id", snapshotId);
+        String url = getRequestURL("application.snapshot.delete", params);
+        String response = executeRequest(url);
+        ApplicationSnapshotStatusResponse apiResponse =
+                (ApplicationSnapshotStatusResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public com.cloudbees.api.ApplicationSnapshotInfo applicationSnapshotInfo(String snapshotId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("snapshot_id", snapshotId);
+        String url = getRequestURL("application.snapshot.info", params);
+        String response = executeRequest(url);
+        com.cloudbees.api.ApplicationSnapshotInfo apiResponse =
+                (com.cloudbees.api.ApplicationSnapshotInfo)readResponse(response);
+        return apiResponse;
+    }
+
+    public ApplicationSnapshotStatusResponse applicationSnapshotUpdate(String snapshotId, Map<String, String> parameters) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("snapshot_id", snapshotId);
+        params.put("parameters", createParameter(parameters));
+        String url = getRequestURL("application.snapshot.update", params);
+        String response = executeRequest(url);
+        ApplicationSnapshotStatusResponse apiResponse =
+                (ApplicationSnapshotStatusResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ApplicationStatusResponse applicationProxyUpdate(String appId, Map<String, String> parameters) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("app_id", appId);
+        params.put("parameters", createParameter(parameters));
+        String url = getRequestURL("application.proxy.update", params);
+        String response = executeRequest(url);
+        ApplicationStatusResponse apiResponse =
+                (ApplicationStatusResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ApplicationConfigUpdateResponse applicationConfigUpdate(String appId, Map<String, String> parameters) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("app_id", appId);
+        params.put("parameters", createParameter(parameters));
+        String url = getRequestURL("application.config.update", params);
+        String response = executeRequest(url);
+        ApplicationConfigUpdateResponse apiResponse =
+                (ApplicationConfigUpdateResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    @Override
+    public String executeRequest(String url) throws Exception {
+        trace("API call: " + url);
+        String response = super.executeRequest(url);
+        traceResponse(response);
+        return response;
+    }
+
     protected static ApplicationConfiguration getAppConfig(File deployZip, final String[] environments,
                                                            final String[] implicitEnvironments) throws IOException {
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
@@ -1135,6 +1258,7 @@ public class BeesClient extends BeesClientBase {
         xstream.processAnnotations(ApplicationScaleResponse.class);
         xstream.processAnnotations(ApplicationSnapshotInfo.class);
         xstream.processAnnotations(ApplicationSnapshotListResponse.class);
+        xstream.processAnnotations(ApplicationSnapshotStatusResponse.class);
         xstream.processAnnotations(DatabaseCreateResponse.class);
         xstream.processAnnotations(DatabaseSetPasswordResponse.class);
         xstream.processAnnotations(DatabaseDeleteResponse.class);
@@ -1163,6 +1287,11 @@ public class BeesClient extends BeesClientBase {
         xstream.processAnnotations(ResourceBindingInfo.class);
         xstream.processAnnotations(AccountRegionInfo.class);
         xstream.processAnnotations(AccountRegionListResponse.class);
+        xstream.processAnnotations(ApplicationInstanceInfo.class);
+        xstream.processAnnotations(ApplicationInstanceListResponse.class);
+        xstream.processAnnotations(ApplicationInstanceStatusResponse.class);
+        xstream.processAnnotations(ApplicationInstanceInvokeResponse.class);
+        xstream.processAnnotations(ApplicationConfigUpdateResponse.class);
 
         // Hack to fix backward compatibility
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);

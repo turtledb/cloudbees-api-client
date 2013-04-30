@@ -25,7 +25,6 @@ class ParameterSettings implements Map.Entry<String,String> {
         return name;
     }
 
-    @Override
     public String getKey() {
         return name;
     }
