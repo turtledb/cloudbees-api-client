@@ -618,7 +618,7 @@ public class BeesClient extends BeesClientBase {
         try {
             return (ApplicationDeployArchiveResponse) readResponse(response);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Invalid application deployment response: " + args.appId, e);
+            logger.log(Level.FINE, "Invalid application deployment response: " + args.appId, e);
             logger.log(Level.FINE, "Deploy response trace: " + response);
             throw e;
         } finally {
