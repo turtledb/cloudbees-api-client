@@ -3,7 +3,7 @@
     <groupId>com.cloudbees.oauth</groupId>
     <artifactId>oauth-client</artifactId>
     <packaging>jar</packaging>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
     <name>CloudBees OAuth Client</name>
 
     <scm>
