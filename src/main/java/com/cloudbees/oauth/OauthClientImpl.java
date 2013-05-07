@@ -5,7 +5,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.core.util.Base64;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,17 +17,21 @@ import javax.servlet.http.HttpServletRequest;
 public class OauthClientImpl implements OauthClient {
     private final String gcUrl;
     private final Client client = JerseyClientFactory.getClient();
-    private final ObjectMapper om = JacksonConfigurator.getMapper();
 
-    private static final String defaultGcUrl = "https://grandcentral.cloudbees.com";
+    private static final String defaultGcUrl = "https://grandcentral.beescloud.com";
 
+    /**
+     * OauthClient implementation.
+     *
+     * @param gcUrl - Grandcentral URI. For example, development: https://grandcentral.beescloud.com,
+     *              for production: https://grandcentral.cloudbees.com. Default is development.
+     */
     public OauthClientImpl(String gcUrl) {
         if(gcUrl == null){
             this.gcUrl = defaultGcUrl;
         }else{
             this.gcUrl = gcUrl;
         }
-
     }
 
     public OauthClientImpl() {
@@ -58,12 +61,18 @@ public class OauthClientImpl implements OauthClient {
     }
 
     @Override
-    public OauthToken validateToken(String clientId, String clientSecret, String token) {
+    public OauthToken validateToken(String clientId, String clientSecret, String token, String... scopes) {
         try{
             WebResource wr = client.resource(gcUrl).path("oauth/tokens").path(token);
             wr.addFilter(new HTTPBasicAuthFilter(clientId, clientSecret));
             ClientResponse cr = wr.get(ClientResponse.class);
-            return cr.getEntity(OauthToken.class);
+            OauthToken oauthToken =  cr.getEntity(OauthToken.class);
+            for(String scope: scopes){
+                if(!oauthToken.validateScope(scope)){
+                    return null;
+                }
+            }
+            return oauthToken;
         }catch (Exception e){
             logger.error("Failed to get token details",e);
             return null;

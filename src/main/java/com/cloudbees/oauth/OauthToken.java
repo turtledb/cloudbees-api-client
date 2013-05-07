@@ -29,6 +29,9 @@ public class OauthToken {
     @JsonProperty("accounts")
     public String[] accounts;
 
+    /**
+     * scope -  is space separated list of scopes
+     */
     @JsonProperty("scope")
     public String scope;
 
@@ -41,7 +44,11 @@ public class OauthToken {
         return scope.split(" ");
     }
 
-    public boolean isScopeApproved(String scope){
+    /**
+     * Return true if the given scope is fond in the scopes granted with this token
+     */
+    @JsonIgnore
+    public boolean validateScope(String scope){
         if(scope == null){
             return false;
         }

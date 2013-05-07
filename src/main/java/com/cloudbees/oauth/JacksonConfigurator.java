@@ -31,10 +31,10 @@ public class JacksonConfigurator implements ContextResolver<ObjectMapper> {
         SerializationConfig serializationConfig = mapper.getSerializationConfig();
 
         //don't write null values
-        serializationConfig.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+        serializationConfig.withSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 
         DeserializationConfig deserializationConfig = mapper.getDeserializationConfig();
-        deserializationConfig.set(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+        deserializationConfig.without(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
         return mapper;
     }
 
