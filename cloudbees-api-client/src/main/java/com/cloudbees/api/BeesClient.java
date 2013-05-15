@@ -17,6 +17,8 @@
 package com.cloudbees.api;
 
 import com.cloudbees.api.config.ConfigParameters;
+import com.cloudbees.api.config.ParameterSettings;
+import com.cloudbees.api.config.ResourceSettings;
 import com.cloudbees.upload.ArchiveUtils;
 import com.cloudbees.upload.JarUtils;
 import com.cloudbees.utils.AppConfigHelper;
@@ -43,6 +45,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -389,7 +392,6 @@ public class BeesClient extends BeesClientBase {
         String url = getApiUrl("application.jarHashes").toString();
         params.put("action", "application.jarHashes");
         // use the upload method (POST) to handle the potentially large "hashes" parameter payload
-        trace("API call: " + url);
         String response = executeUpload(url, params, new HashMap<String, File>(), null);
         return (ApplicationJarHashesResponse) readResponse(response);
     }
@@ -613,14 +615,9 @@ public class BeesClient extends BeesClientBase {
 
         String url = getApiUrl("application.deployArchive").toString();
         params.put("action", "application.deployArchive");
-        trace("API call: " + url);
         String response = executeUpload(url, params, fileParams, args.progress);
         try {
             return (ApplicationDeployArchiveResponse) readResponse(response);
-        } catch (Exception e) {
-            logger.log(Level.FINE, "Invalid application deployment response: " + args.appId, e);
-            logger.log(Level.FINE, "Deploy response trace: " + response);
-            throw e;
         } finally {
             // Delete the delta archive file
             if (deployDelta || deployJarDelta) {
@@ -1217,7 +1214,192 @@ public class BeesClient extends BeesClientBase {
         return apiResponse;
     }
 
+    public ApplicationCreateResponse applicationCreate(String appId, Map<String, String> parameters) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("app_id", appId);
+        params.put("parameters", createParameter(parameters));
+        String url = getRequestURL("application.create", params);
+        String response = executeRequest(url);
+        ApplicationCreateResponse apiResponse =
+                (ApplicationCreateResponse)readResponse(response);
+        return apiResponse;
+    }
 
+    public ServerPoolInfo serverPoolCreate(String account, String poolName, Map<String, String> parameters) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("account", account);
+        params.put("pool_name", poolName);
+        params.put("parameters", createParameter(parameters));
+        String url = getRequestURL("server.pool.create", params);
+        String response = executeRequest(url);
+        ServerPoolInfo apiResponse =
+                (ServerPoolInfo)readResponse(response);
+        return apiResponse;
+    }
+
+    public ServerPoolInfo serverPoolInfo(String poolId) throws Exception
+    {
+        return serverPoolInfo(poolId, false);
+    }
+    public ServerPoolInfo serverPoolInfo(String poolId, boolean withApplications) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("pool_id", poolId);
+        if (withApplications)
+            params.put("with_applications", "true");
+        String url = getRequestURL("server.pool.info", params);
+        String response = executeRequest(url);
+        ServerPoolInfo apiResponse =
+                (ServerPoolInfo)readResponse(response);
+        return apiResponse;
+    }
+
+    public ServerPoolListResponse serverPoolList(String account) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("account", account);
+        String url = getRequestURL("server.pool.list", params);
+        String response = executeRequest(url);
+        ServerPoolListResponse apiResponse =
+                (ServerPoolListResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ServerPoolDeleteResponse serverPoolDelete(String poolId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("pool_id", poolId);
+        String url = getRequestURL("server.pool.delete", params);
+        String response = executeRequest(url);
+        ServerPoolDeleteResponse apiResponse =
+                (ServerPoolDeleteResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ServerInfo serverCreate(String poolId, Map<String, String> parameters) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("pool_id", poolId);
+        params.put("parameters", createParameter(parameters));
+        String url = getRequestURL("server.create", params);
+        String response = executeRequest(url);
+        ServerInfo apiResponse =
+                (ServerInfo)readResponse(response);
+        return apiResponse;
+    }
+
+    public ServerRestoreResponse serverRestore(String serverId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("server_id", serverId);
+        String url = getRequestURL("server.restore", params);
+        String response = executeRequest(url);
+        ServerRestoreResponse apiResponse =
+                (ServerRestoreResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ServerInfo serverInfo(String serverId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("server_id", serverId);
+        String url = getRequestURL("server.info", params);
+        String response = executeRequest(url);
+        ServerInfo apiResponse =
+                (ServerInfo)readResponse(response);
+        return apiResponse;
+    }
+
+    public ServerStatusResponse serverStop(String serverId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("server_id", serverId);
+        String url = getRequestURL("server.stop", params);
+        String response = executeRequest(url);
+        ServerStatusResponse apiResponse =
+                (ServerStatusResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ServerStatusResponse serverDelete(String serverId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("server_id", serverId);
+        String url = getRequestURL("server.delete", params);
+        String response = executeRequest(url);
+        ServerStatusResponse apiResponse =
+                (ServerStatusResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ServerStatusResponse serverDeactivate(String serverId) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("server_id", serverId);
+        String url = getRequestURL("server.deactivate", params);
+        String response = executeRequest(url);
+        ServerStatusResponse apiResponse =
+                (ServerStatusResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public ServiceSubscriptionInvokeInfo serviceSubscriptionInvoke(String service, String subscriptionId, String invoke, Map<String, String> parameters) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("service", service);
+        params.put("subscription_id", subscriptionId);
+        params.put("invoke", invoke);
+        params.put("parameters", createParameter(parameters));
+
+        ServiceSubscriptionInvokeResponse apiResponse = (ServiceSubscriptionInvokeResponse) apiCall("service.subscription.invoke", parameters, params);
+        return apiResponse.getInvokeInfo();
+    }
+
+
+    public ServiceResourceInvokeInfo serviceResourceInvoke(String service, String resourceId, String invoke, Map<String, String> parameters) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("service", service);
+        params.put("resource_id", resourceId);
+        params.put("invoke", invoke);
+        params.put("parameters", createParameter(parameters));
+
+        ServiceResourceInvokeResponse apiResponse = (ServiceResourceInvokeResponse) apiCall("service.resource.invoke", parameters, params);
+        return apiResponse.getInvokeInfo();
+    }
+
+    public ApplicationCreateResponse applicationCreate(String appId, Map<String, String> parameters, Map<String, String> appParameters, Map<String, String> appVariables) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("app_id", appId);
+        params.put("parameters", createParameter(parameters));
+        params.put("app_parameters", createParameter(appParameters));
+        params.put("app_variables", createParameter(appVariables));
+        String url = getRequestURL("application.create", params);
+        String response = executeRequest(url);
+        ApplicationCreateResponse apiResponse =
+                (ApplicationCreateResponse)readResponse(response);
+        return apiResponse;
+    }
+
+    public List<ResourceSettings> applicationResources(String appId, String resourceType, String configType, String environment) throws Exception
+    {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("app_id", appId);
+        if (environment != null)
+            params.put("environment", environment);
+        if (resourceType != null)
+            params.put("resource_type", resourceType);
+        if (configType != null)
+            params.put("config_type", configType);
+        String url = getRequestURL("application.resources", params);
+        String response = executeRequest(url);
+        List<ResourceSettings> apiResponse =
+                (List<ResourceSettings>)readResponse(response);
+        return apiResponse;
+    }
 
     @Override
     public String executeRequest(String url) throws Exception {
@@ -1317,9 +1499,7 @@ public class BeesClient extends BeesClientBase {
 
     public String call(String action, Map<String, String> params) throws Exception {
         String url = getRequestURL(action, params);
-        trace("API call: " + url);
         String response = executeRequest(url);
-        traceResponse(response);
         return response;
     }
 
@@ -1404,6 +1584,23 @@ public class BeesClient extends BeesClientBase {
         xstream.processAnnotations(ServiceResourceDeleteResponse.class);
         xstream.processAnnotations(ServiceResourceBindResponse.class);
         xstream.processAnnotations(ServiceResourceUnBindResponse.class);
+        xstream.processAnnotations(RepositoryInfo.class);
+        xstream.processAnnotations(CIInfo.class);
+        xstream.processAnnotations(ApplicationCreateResponse.class);
+        xstream.processAnnotations(ServerPoolInfo.class);
+        xstream.processAnnotations(ServerPoolListResponse.class);
+        xstream.processAnnotations(ServerPoolDeleteResponse.class);
+        xstream.processAnnotations(ServerInfo.class);
+        xstream.processAnnotations(ServerStatusResponse.class);
+        xstream.processAnnotations(ServerRestoreResponse.class);
+        xstream.processAnnotations(ServerReinitResponse.class);
+        xstream.processAnnotations(ServiceResourceInvokeInfo.class);
+        xstream.processAnnotations(ServiceSubscriptionInvokeInfo.class);
+        xstream.processAnnotations(ServiceResourceResponse.class);
+        xstream.processAnnotations(ServiceResourceInvokeResponse.class);
+        xstream.processAnnotations(ServiceSubscriptionInvokeResponse.class);
+        xstream.processAnnotations(ParameterSettings.class);
+        xstream.processAnnotations(ResourceSettings.class);
 
         // Hack to fix backward compatibility
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);

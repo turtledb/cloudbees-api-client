@@ -10,7 +10,7 @@ import java.lang.Object;import java.lang.Override;import java.lang.String;import
  *
  * @author Fabian Donze
  */
-class ParameterSettings implements Map.Entry<String,String> {
+public class ParameterSettings implements Map.Entry<String,String> {
     @XStreamAsAttribute
     private String name;
     @XStreamAsAttribute

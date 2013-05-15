@@ -87,6 +87,10 @@ public class ResourceSettings {
         return parameters.asMap();
     }
 
+    public void addParameter(String name, String value) {
+        parameters.add(new ParameterSettings(name, value));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
