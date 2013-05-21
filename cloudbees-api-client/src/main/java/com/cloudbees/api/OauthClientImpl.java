@@ -60,10 +60,23 @@ public class OauthClientImpl implements OauthClient {
             token.tokenType = resp.accessToken.tokenType;
             token.uid = resp.uid;
             token.email = resp.email;
+            token.id = resp.id;
             return token;
         }catch(IOException e){
             throw new OauthClientException("Failed to validate token. "+e.getMessage(), e);
         }
+    }
+
+    public void deleteToken(String oauthTokenId) throws OauthClientException {
+        try {
+            bees.jsonPOJORequest(gcUrl + "/api/v2/authorizations/"+oauthTokenId, null, null, "DELETE");
+        } catch (IOException e) {
+            throw new OauthClientException("Failed to delete OAuth token",e);
+        }
+    }
+
+    public void deleteToken(OauthToken token) throws OauthClientException {
+        deleteToken(token.id);
     }
 
     public OauthToken validateToken(String token, String... scopes) {

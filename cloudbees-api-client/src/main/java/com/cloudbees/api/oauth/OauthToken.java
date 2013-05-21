@@ -32,6 +32,9 @@ public class OauthToken {
     @JsonProperty("account")
     public String account;
 
+    @JsonProperty("id")
+    public String id;
+
     /**
      * scope -  is space separated list of scopes
      */

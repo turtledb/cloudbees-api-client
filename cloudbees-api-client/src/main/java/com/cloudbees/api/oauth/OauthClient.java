@@ -21,6 +21,16 @@ public interface OauthClient {
     public OauthToken createToken(TokenRequest tokenRequest) throws OauthClientException;
 
     /**
+     * Deletes a token created by {@link #createToken(TokenRequest)}
+     */
+    public void deleteToken(String oauthTokenId) throws OauthClientException;
+
+    /**
+      * Deletes a token created by {@link #createToken(TokenRequest)}
+      */
+    public void deleteToken(OauthToken token) throws OauthClientException;
+
+    /**
      * Validates token with the given scopes. Returns null if the given access token is invalid, otherwise OauthToken is returned.
      *
      * <p>
