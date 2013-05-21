@@ -30,7 +30,7 @@ public class OauthClientImpl implements OauthClient {
      * OauthClient implementation.
      *
      * @param gcUrl - Grandcentral URI. For example, development: https://grandcentral.beescloud.com,
-     *              for production: https://grandcentral.cloudbees.com. Default is development.
+     *              for production: https://grandcentral.cloudbees.com. Default is production.
      */
     public OauthClientImpl(String gcUrl) {
         if(gcUrl == null){
@@ -40,6 +40,10 @@ public class OauthClientImpl implements OauthClient {
         }
     }
 
+    /**
+     * Create OAuthClient object that talks to the GrandCentral specified by the <tt>GRANDCENTRAL_URL</tt> environment
+     * variable.
+     */
     public OauthClientImpl() {
         this(null);
     }
