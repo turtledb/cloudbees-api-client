@@ -1,4 +1,4 @@
-package com.cloudbees.oauth;
+package com.cloudbees.api.oauth;
 
 /**
  * @author Vivek Pandey

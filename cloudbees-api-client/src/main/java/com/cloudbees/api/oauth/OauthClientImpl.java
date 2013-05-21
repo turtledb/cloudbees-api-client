@@ -1,4 +1,4 @@
-package com.cloudbees.oauth;
+package com.cloudbees.api.oauth;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
