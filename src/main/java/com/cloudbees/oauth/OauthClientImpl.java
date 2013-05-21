@@ -18,7 +18,13 @@ public class OauthClientImpl implements OauthClient {
     private final String gcUrl;
     private final Client client = JerseyClientFactory.getClient();
 
-    private static final String defaultGcUrl = "https://grandcentral.beescloud.com";
+    private static String defaultGcUrl;
+
+    static {
+        defaultGcUrl = System.getenv("GRANDCENTRAL_URL");
+        if (defaultGcUrl==null)
+            defaultGcUrl = "https://grandcentral.cloudbees.com";
+    }
 
     /**
      * OauthClient implementation.
