@@ -263,6 +263,15 @@ public class BeesClient extends BeesClientBase {
     }
 
     /**
+     * Retrieves the information of the current user.
+     *
+     * The "current user" refers to the user who generated the token used to authenticate the method call.
+     */
+    public CBUser getSelfUser() throws IOException {
+        return getUser("self");
+    }
+
+    /**
      * Looks up the user by the public key fingerprint
      *
      * @param sshPublicKeyFingerprint Fingerprint formatted as "12:34:56:..:aa:bb:cc" (case insensitive)
