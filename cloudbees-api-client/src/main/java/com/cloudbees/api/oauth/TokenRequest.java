@@ -46,6 +46,7 @@ public class TokenRequest {
         for(String scope: scopes){
             try {
                 new URI(scope);
+                this.scopes.add(scope);
             } catch (URISyntaxException e) {
                 throw new OauthClientException("Scope must be a valid URI", e);
             }
