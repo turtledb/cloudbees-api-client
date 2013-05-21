@@ -13,24 +13,25 @@ import com.cloudbees.api.BeesClient;
 public interface OauthClient {
 
     /**
-     * Creates a OAuth token using user's username and password (or API key and secret.)
+     * Creates a OAuth token for the current user (used to create {@link BeesClient})
      *
      * @return OauthToken. always non-null if there was error such as invalid credentials
      * @throws OauthClientException if there is any error during token validation
      */
-    public OauthToken createToken(String username, String password, TokenRequest tokenRequest) throws OauthClientException;
+    public OauthToken createToken(TokenRequest tokenRequest) throws OauthClientException;
 
     /**
      * Validates token with the given scopes. Returns null if the given access token is invalid, otherwise OauthToken is returned.
      *
-     * @param clientId OAuth client_id
-     * @param clientSecret OAuth client_secret
+     * <p>
+     * {@link BeesClient} must be constructed with OAuth client ID and client secret as the username and password.
+     *
      * @param token non-null token
      * @param scopes array of scope that are expected to be granted for this token
      * @return null if the token is invalid such as expired or unknown to the CloudBees OAuth server or the expected
      * scopes are not found.
      */
-    public OauthToken validateToken(String clientId, String clientSecret, String token, String... scopes) throws OauthClientException;
+    public OauthToken validateToken(String token, String... scopes) throws OauthClientException;
 
     /**
      * Parses Bearer token from HTTP Authentication header

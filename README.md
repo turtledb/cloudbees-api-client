@@ -53,4 +53,4 @@ This API's primary interface is `OauthClient`, and you can create one like this:
 
     OauthClient oac = client.getOauthClient();
 
-See [the javadoc](blob/master/cloudbees-api-client/src/main/java/com/cloudbees/api/oauth/OauthClient.java) of `OauthClient` for more about all the operations that are exposed.
+See [the javadoc](/cloudbees/cloudbees-api-client/blob/master/cloudbees-api-client/src/main/java/com/cloudbees/api/oauth/OauthClient.java) of `OauthClient` for more about all the operations that are exposed.

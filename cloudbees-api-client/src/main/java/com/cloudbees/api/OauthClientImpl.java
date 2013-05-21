@@ -48,7 +48,7 @@ public class OauthClientImpl implements OauthClient {
         this.gcUrl = gcUrl;
     }
 
-    public OauthToken createToken(String email, String password, TokenRequest tokenRequest) throws OauthClientException {
+    public OauthToken createToken(TokenRequest tokenRequest) throws OauthClientException {
         try{
             AuthorizationResponse resp = bees.jsonPOJORequest(gcUrl + "/api/v2/authorizations", null, AuthorizationResponse.class, "POST");
 
@@ -66,7 +66,7 @@ public class OauthClientImpl implements OauthClient {
         }
     }
 
-    public OauthToken validateToken(String clientId, String clientSecret, String token, String... scopes) {
+    public OauthToken validateToken(String token, String... scopes) {
         try{
             OauthToken oauthToken = bees.jsonPOJORequest(gcUrl+"/oauth/tokens/"+token,null,OauthToken.class,"GET");
 
