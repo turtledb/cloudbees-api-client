@@ -111,49 +111,17 @@
         </dependency>
     </dependencies>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>cloudbees-internal-snapshots</id>
-            <name>CloudBees Internal Snapshots</name>
-            <url>${cloudbeesInternalDistMgmtSnapshotsUrl}</url>
-        </snapshotRepository>
-        <repository>
-            <id>cloudbees-internal-staging</id>
-            <name>CloudBees Internal Release Repository</name>
-            <url>${cloudbeesInternalDistMgmtReleasesUrl}</url>
-        </repository>
-    </distributionManagement>
-
-    <profiles>
-        <profile>
-            <id>cloudbees-internal-release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+  <distributionManagement>
+    <repository>
+      <id>cloudbees-nexus-staging</id>
+      <name>Nexus Release Repository</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>cloudbees-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
 
 </project>
