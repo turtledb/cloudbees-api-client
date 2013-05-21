@@ -125,7 +125,7 @@ public class BeesClient extends BeesClientBase {
      * @return never null
      */
     public OauthClient getOauthClient() {
-        return new OauthClientImpl(base.toExternalForm().replace("//api.","//grandcentral."));
+        return new OauthClientImpl(this,base.toExternalForm().replace("//api.","//grandcentral."));
     }
 
     /**

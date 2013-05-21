@@ -49,8 +49,8 @@ OAuth API
 =========
 [CloudBees OAuth service](http://wiki.cloudbees.com/bin/view/RUN/OAuth) lets your app interact with CloudBees OAuth service.
 
-This API's primary interface is `OAuthClient`, and you can create one like this:
+This API's primary interface is `OauthClient`, and you can create one like this:
 
-    OAuthClient oac = new OAuthClientImpl();
+    OauthClient oac = client.getOauthClient();
 
-See [the javadoc](blob/master/src/main/java/com/cloudbees/api/oauth/OauthClient.java) of `OAuthClient` for more about all the operations that are exposed.
+See [the javadoc](blob/master/cloudbees-api-client/src/main/java/com/cloudbees/api/oauth/OauthClient.java) of `OauthClient` for more about all the operations that are exposed.
