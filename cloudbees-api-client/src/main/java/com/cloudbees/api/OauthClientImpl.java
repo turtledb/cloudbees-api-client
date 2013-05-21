@@ -50,7 +50,7 @@ public class OauthClientImpl implements OauthClient {
 
     public OauthToken createToken(TokenRequest tokenRequest) throws OauthClientException {
         try{
-            AuthorizationResponse resp = bees.jsonPOJORequest(gcUrl + "/api/v2/authorizations", null, AuthorizationResponse.class, "POST");
+            AuthorizationResponse resp = bees.jsonPOJORequest(gcUrl + "/api/v2/authorizations", tokenRequest, AuthorizationResponse.class, "POST");
 
             OauthToken token = new OauthToken();
             token.refreshToken = resp.refreshToken;
