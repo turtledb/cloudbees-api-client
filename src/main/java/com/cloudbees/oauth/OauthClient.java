@@ -12,9 +12,10 @@ public interface OauthClient {
     /**
      * Creates a OAuth token using user's username and password (or API key and secret.)
      *
-     * @return OauthToken. null if there was error such as invalid credentials
+     * @return OauthToken. always non-null if there was error such as invalid credentials
+     * @throws OauthClientException if there is any error during token validation
      */
-    public OauthToken createToken(String username, String password, TokenRequest tokenRequest);
+    public OauthToken createToken(String username, String password, TokenRequest tokenRequest) throws OauthClientException;
 
     /**
      * Validates token with the given scopes. Returns null if the given access token is invalid, otherwise OauthToken is returned.

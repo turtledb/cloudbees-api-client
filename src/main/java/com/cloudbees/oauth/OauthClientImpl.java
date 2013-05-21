@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 
 /**
  *
@@ -49,24 +50,25 @@ public class OauthClientImpl implements OauthClient {
     }
 
     @Override
-    public OauthToken createToken(String email, String password, TokenRequest tokenRequest) {
+    public OauthToken createToken(String email, String password, TokenRequest tokenRequest) throws OauthClientException{
         try{
             WebResource wr = client.resource(gcUrl).path("/api/v2/authorizations");
             wr.addFilter(new HTTPBasicAuthFilter(email, password));
 
-            ClientResponse cr = wr.post(ClientResponse.class,tokenRequest);
+            ClientResponse cr = wr.accept(MediaType.APPLICATION_JSON_TYPE).type(MediaType.APPLICATION_JSON_TYPE).post(ClientResponse.class,tokenRequest);
             AuthorizationResponse resp = cr.getEntity(AuthorizationResponse.class);
             OauthToken token = new OauthToken();
+            token.refreshToken = resp.refreshToken;
             token.accessToken = resp.accessToken.token;
-            token.accounts = resp.accounts;
-            token.scope = resp.scope;
-            token.tokenType = resp.tokenType;
+            token.account = resp.account;
+            token.scopes = resp.accessToken.scopes;
+            token.tokenType = resp.accessToken.tokenType;
             token.uid = resp.uid;
             token.email = resp.email;
             return token;
         }catch(Exception e){
             logger.error("Failed to create token", e);
-            return null;
+            throw new OauthClientException("Failed to validate token. "+e.getMessage(), e);
         }
     }
 
@@ -77,6 +79,9 @@ public class OauthClientImpl implements OauthClient {
             wr.addFilter(new HTTPBasicAuthFilter(clientId, clientSecret));
             ClientResponse cr = wr.get(ClientResponse.class);
             OauthToken oauthToken =  cr.getEntity(OauthToken.class);
+            if(oauthToken.expiresIn <= 0){
+                return null;
+            }
             for(String scope: scopes){
                 if(!oauthToken.validateScope(scope)){
                     return null;

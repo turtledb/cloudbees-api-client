@@ -8,6 +8,9 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @author Vivek Pandey
  */
 public class OauthToken {
+    @JsonProperty("refresh_token")
+    public String refreshToken;
+
     @JsonProperty("access_token")
     public String accessToken;
 
@@ -26,23 +29,15 @@ public class OauthToken {
     @JsonProperty("email")
     public String email;
 
-    @JsonProperty("accounts")
-    public String[] accounts;
+    @JsonProperty("account")
+    public String account;
 
     /**
      * scope -  is space separated list of scopes
      */
-    @JsonProperty("scope")
-    public String scope;
+    @JsonProperty("scopes")
+    public String[] scopes;
 
-    @JsonIgnore
-    public String[] getScopes(){
-        if(scope == null){
-            return new String[0];
-        }
-
-        return scope.split(" ");
-    }
 
     /**
      * Return true if the given scope is fond in the scopes granted with this token
@@ -52,7 +47,7 @@ public class OauthToken {
         if(scope == null){
             return false;
         }
-        for(String s: getScopes()){
+        for(String s: scopes){
             if(s.trim().equals(scope)){
                 return true;
             }

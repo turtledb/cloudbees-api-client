@@ -11,20 +11,21 @@ class AuthorizationResponse {
     @JsonProperty("id")
     public String id;
 
+    @JsonProperty("refresh_token")
+    public String refreshToken;
+
+
     @JsonProperty("access_token")
     public AccessToken accessToken;
-
-    @JsonProperty("scope")
-    public String scope;
-
-    @JsonProperty("token_type")
-    public String tokenType;
 
     @JsonProperty("uid")
     public String uid;
 
     @JsonProperty("email")
     public String email;
+
+    @JsonProperty("account")
+    public String account;
 
 
     @JsonProperty("created_at")
@@ -33,8 +34,8 @@ class AuthorizationResponse {
     @JsonProperty("updated_at")
     public Date updatedAt;
 
-    @JsonProperty("accounts")
-    public String[] accounts;
+    @JsonProperty("scopes")
+    public String[] scopes;
 
     @JsonProperty("app")
     public App app;
@@ -43,8 +44,18 @@ class AuthorizationResponse {
         @JsonProperty("token")
         public String token;
 
+        @JsonProperty("token_type")
+        public String tokenType;
+
         @JsonProperty("created_at")
         public Date createdAt;
+
+        @JsonProperty("expires_in")
+        public int expiresIn;
+
+        @JsonProperty("scopes")
+        public String[] scopes;
+
     }
 
 

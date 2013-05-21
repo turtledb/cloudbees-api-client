@@ -28,13 +28,12 @@ class JacksonConfigurator implements ContextResolver<ObjectMapper> {
 
     private static ObjectMapper createMapper(){
         ObjectMapper mapper = new ObjectMapper();
-        SerializationConfig serializationConfig = mapper.getSerializationConfig();
 
-        //don't write null values
-        serializationConfig.withSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+        mapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
+        mapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 
-        DeserializationConfig deserializationConfig = mapper.getDeserializationConfig();
-        deserializationConfig.without(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
+        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
         return mapper;
     }
 
