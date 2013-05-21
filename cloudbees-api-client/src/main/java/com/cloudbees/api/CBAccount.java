@@ -17,7 +17,7 @@ public class CBAccount extends CBObject {
     /**
      * This is the login ID of the account, a short alpha-numeric token without any special characters.
      */
-    String name;
+    public String name;
 
     public List<CBSubscription> subscriptions;
 
