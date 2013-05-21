@@ -57,6 +57,8 @@ import static org.codehaus.jackson.annotate.JsonAutoDetect.Visibility.ANY;
 import static org.codehaus.jackson.annotate.JsonAutoDetect.Visibility.NONE;
 
 /**
+ * Main entry point to the CloudBees API.
+ *
  * @author Fabian Donze
  * @author Kohsuke Kawaguchi
  */
