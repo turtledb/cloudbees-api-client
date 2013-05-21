@@ -41,6 +41,7 @@ These map to the following methods:
 
     client.createUser(...)
     client.getUser(...)
+    client.getSelfUser()
     client.updateUser(...)
     client.getUserByFingerprint(...)
 
