@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 public interface OauthClient {
 
     /**
-     * Creates a OAuth token using user's username and password
+     * Creates a OAuth token using user's username and password (or API key and secret.)
      *
      * @return OauthToken. null if there was error such as invalid credentials
      */

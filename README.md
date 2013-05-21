@@ -8,7 +8,6 @@ To use this library, add the following <dependency> tag in your Maven POM:
     <dependency>
       <groupId>com.cloudbees.oauth</groupId>
       <artifactId>oauth-client</artifactId>
-      <packaging>jar</packaging>
       <version>1.1</version>
     </dependency>
 
