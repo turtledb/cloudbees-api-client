@@ -64,7 +64,7 @@ import static org.codehaus.jackson.annotate.JsonAutoDetect.Visibility.NONE;
  */
 public class BeesClient extends BeesClientBase {
     /**
-     * The encoded value we send in as the BASIC Auth header.
+     * The encoded value we send in as the "Authorization" header.
      */
     private String encodedAccountAuthorization;
 
@@ -109,13 +109,7 @@ public class BeesClient extends BeesClientBase {
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Invalid API URL:" + conf.getServerApiUrl(), e);
         }
-        if (conf.getApiKey() != null || conf.getSecret() != null) {
-            String userpassword = conf.getApiKey() + ':' + conf.getSecret();
-            encodedAccountAuthorization = new String(Base64.encodeBase64(userpassword.getBytes()));
-        } else {
-            encodedAccountAuthorization = null;
-        }
-
+        encodedAccountAuthorization = conf.getAuthorization();
     }
 
     /**
@@ -248,7 +242,7 @@ public class BeesClient extends BeesClientBase {
 
         httpMethod.setRequestHeader("Accept", "application/json");
         if (encodedAccountAuthorization != null)
-            httpMethod.setRequestHeader("Authorization", "Basic " + encodedAccountAuthorization);
+            httpMethod.setRequestHeader("Authorization", encodedAccountAuthorization);
         if (jsonContent != null && httpMethod instanceof EntityEnclosingMethod) {
             StringRequestEntity requestEntity = new StringRequestEntity(jsonContent, "application/json", "UTF-8");
             ((EntityEnclosingMethod)httpMethod).setRequestEntity(requestEntity);
