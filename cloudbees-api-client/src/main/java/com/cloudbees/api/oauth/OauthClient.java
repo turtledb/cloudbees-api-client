@@ -1,11 +1,14 @@
 package com.cloudbees.api.oauth;
 
-import javax.servlet.http.HttpServletRequest;
+import com.cloudbees.api.BeesClient;
 
 /**
- * Client to create and validate token
+ * Defines OAuth-related CloudBees API.
+ *
+ * Also see {@link OauthClientServletUtil} that defines related convenience methods for webapps.
  *
  * @author Vivek Pandey
+ * @see BeesClient#getOauthClient()
  */
 public interface OauthClient {
 
@@ -37,14 +40,4 @@ public interface OauthClient {
      * @return Returns null if there is no Bearer token found otherwise a String representing oauth token
      */
     public String parseToken(String authenticationHeader);
-
-    /**
-     * Parses Bearer token from HTTP Authentication header or from access_token query or form parameter
-     *
-     * @param request HttpServletRequest
-     *
-     * @return Returns null if there is no Bearer token found otherwise a String representing oauth token
-     */
-    public String parseToken(HttpServletRequest request);
-
 }

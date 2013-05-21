@@ -90,7 +90,14 @@
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
-      <version>1.5.0</version>
+      <version>1.9.2</version>
+    </dependency>
+    <dependency><!-- optional servlet API dependency for additional convenience methods -->
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
+      <scope>provided</scope>
+      <optional>true</optional>
     </dependency>
   </dependencies>
 

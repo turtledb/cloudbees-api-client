@@ -1,4 +1,4 @@
-package com.cloudbees.api.oauth;
+package com.cloudbees.api;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 

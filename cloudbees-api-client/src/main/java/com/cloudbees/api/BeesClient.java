@@ -19,6 +19,8 @@ package com.cloudbees.api;
 import com.cloudbees.api.config.ConfigParameters;
 import com.cloudbees.api.config.ParameterSettings;
 import com.cloudbees.api.config.ResourceSettings;
+import com.cloudbees.api.oauth.OauthClient;
+import com.cloudbees.api.OauthClientImpl;
 import com.cloudbees.upload.ArchiveUtils;
 import com.cloudbees.upload.JarUtils;
 import com.cloudbees.utils.AppConfigHelper;
@@ -112,6 +114,18 @@ public class BeesClient extends BeesClientBase {
             encodedAccountAuthorization = null;
         }
 
+    }
+
+    /**
+     * Obtains another interface of the API client that defines OAuth APIs.
+     *
+     * <p>
+     * This method does not involve any remote call.
+     *
+     * @return never null
+     */
+    public OauthClient getOauthClient() {
+        return new OauthClientImpl(base.toExternalForm().replace("//api.","//grandcentral."));
     }
 
     /**
