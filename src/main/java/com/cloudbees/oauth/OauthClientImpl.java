@@ -124,18 +124,7 @@ public class OauthClientImpl implements OauthClient {
             return tokenParam;
         }
 
-        String[] auth = authenticationHeader.split(" ");
-        if(auth.length != 2){
-            logger.error("Invalid Authorization header: "+authenticationHeader);
-            return null;
-        }
-        String scheme = auth[0];
-        if(!scheme.equals("Bearer")){
-            logger.error("Only Bearer authentication scheme is supported. Received scheme: "+scheme);
-            return null;
-        }
-
-        return Base64.base64Decode(auth[1]);
+        return parseToken(authenticationHeader);
     }
 
 
