@@ -45,3 +45,12 @@ These map to the following methods:
     client.updateUser(...)
     client.getUserByFingerprint(...)
 
+OAuth API
+=========
+[CloudBees OAuth service](http://wiki.cloudbees.com/bin/view/RUN/OAuth) lets your app interact with CloudBees OAuth service.
+
+This API's primary interface is `OAuthClient`, and you can create one like this:
+
+    OAuthClient oac = new OAuthClientImpl();
+
+See [the javadoc](blob/master/src/main/java/com/cloudbees/api/oauth/OauthClient.java) of `OAuthClient` for more about all the operations that are exposed.

@@ -1,8 +1,3 @@
-target
-*.iml
-build
-.DS_Store
-=======
 # IntelliJ project files 
 *.iml
 *.ipr
@@ -15,3 +10,12 @@ build
 .project
 
 .DS_Store
+
+#Ignore all dot files
+.*
+
+#except .gitignore
+!.gitignore
+target/*
+build/*
+*~
