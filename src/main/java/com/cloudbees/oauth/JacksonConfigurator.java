@@ -14,7 +14,7 @@ import javax.ws.rs.ext.Provider;
  */
 @Provider
 @Produces("application/json")
-public class JacksonConfigurator implements ContextResolver<ObjectMapper> {
+class JacksonConfigurator implements ContextResolver<ObjectMapper> {
 
     private static final ObjectMapper mapper = createMapper();
 

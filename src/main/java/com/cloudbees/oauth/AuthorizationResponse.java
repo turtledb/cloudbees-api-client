@@ -7,7 +7,7 @@ import java.util.Date;
 /**
  * @author Vivek Pandey
  */
-public class AuthorizationResponse {
+class AuthorizationResponse {
     @JsonProperty("id")
     public String id;
 

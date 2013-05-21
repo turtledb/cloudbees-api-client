@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Vivek Pandey
  */
-public class JerseyClientFactory {
+class JerseyClientFactory {
     private static final Client client=createClient();
 
     public static Client getClient(){
