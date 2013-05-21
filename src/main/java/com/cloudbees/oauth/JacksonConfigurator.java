@@ -10,11 +10,14 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
 /**
+ * This is not a public interface of this library, even though for technical reasons
+ * it has to be marked public. Please do not use this class.
+ *
  * @author Vivek Pandey
  */
 @Provider
 @Produces("application/json")
-class JacksonConfigurator implements ContextResolver<ObjectMapper> {
+public class JacksonConfigurator implements ContextResolver<ObjectMapper> {
 
     private static final ObjectMapper mapper = createMapper();
 
