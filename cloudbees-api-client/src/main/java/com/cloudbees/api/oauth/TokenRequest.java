@@ -1,5 +1,6 @@
 package com.cloudbees.api.oauth;
 
+import com.cloudbees.api.BeesClientConfiguration;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.net.URI;
@@ -25,6 +26,7 @@ public class TokenRequest {
 
     private String refreshToken;
 
+    private boolean generateRefreshToken = true;
 
     /**
      *
@@ -62,10 +64,16 @@ public class TokenRequest {
     }
 
     public TokenRequest withNote(String note) {
-        this.note = note;
-        return this;
+        return withNote(note,null);
     }
 
+    /**
+     * @param note
+     *      One liner human readable text describing who requested this token. This will
+     *      aid users in reviewing and revoking tokens later. Can be null.
+     * @param noteUrl
+     *      URL that provides more details about the note. Can be null.
+     */
     public TokenRequest withNote(String note, String noteUrl) {
         this.note = note;
         this.note = noteUrl;
@@ -77,6 +85,9 @@ public class TokenRequest {
         return Collections.unmodifiableList(scopes);
     }
 
+    /**
+     * Adds more scopes to this request. A scope needs to look like an URI.
+     */
     public TokenRequest withScope(String scope) {
         if (scope!=null) {
             try {
@@ -89,11 +100,23 @@ public class TokenRequest {
         return this;
     }
 
+    public TokenRequest withScopes(String... scopes) {
+        for (String scope : scopes) {
+            withScope(scope);
+        }
+        return this;
+    }
+
     @JsonProperty("refresh_token")
     public String getRefreshToken() {
         return refreshToken;
     }
 
+    /**
+     * Instead of authenticating the {@linkplain OauthClient#createToken(TokenRequest) create token request}
+     * with the parameters you set in {@link BeesClientConfiguration} (such as API key + secret, or username + password),
+     * authenticate the call with the specified refresh token generated earlier.
+     */
     public TokenRequest withRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
         return this;
@@ -104,8 +127,31 @@ public class TokenRequest {
         return accountName;
     }
 
+    /**
+     * Sets the account name that the generated token is restricted to.
+     *
+     * An OAuth token is always restricted to just one account (out of all the accounts that the user has access to.)
+     */
     public TokenRequest withAccountName(String accountName) {
         this.accountName = accountName;
+        return this;
+    }
+
+    @JsonProperty("generate_refresh_token")
+    public boolean isGenerateRefreshToken() {
+        return generateRefreshToken;
+    }
+
+    /**
+     * Request that the refresh token be generated aside from access token.
+     *
+     * Unlike access token which will expire automatically in a short amount of time (currently an hour),
+     * a refresh token allows the client to generate more access tokens in the future.
+     *
+     * @see #withRefreshToken(String)
+     */
+    public TokenRequest withGenerateRequestToken(boolean b) {
+        this.generateRefreshToken = b;
         return this;
     }
 }
