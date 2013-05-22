@@ -27,6 +27,8 @@ class AuthorizationResponse {
     @JsonProperty("account")
     public String account;
 
+    @JsonProperty("expires_in")
+    public int expiresIn;
 
     @JsonProperty("created_at")
     public Date createdAt;
