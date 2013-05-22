@@ -56,10 +56,11 @@ public class OauthClientImpl implements OauthClient {
             OauthTokenDetail resp = bees.jsonPOJORequest(gcUrl + "/api/v2/authorizations", tokenRequest, OauthTokenDetail.class, "POST");
 
             OauthToken token = new OauthToken();
+            token.owner = this;
             token.refreshToken = resp.refreshToken;
             token.accessToken = resp.accessToken.token;
             token.setAccount(resp.account);
-            token.scopes = new ArrayList<String>(Arrays.asList(resp.accessToken.scopes));
+            token.scopes = resp.accessToken.scopes;
             token.tokenType = resp.accessToken.tokenType;
             token.uid = resp.uid;
             token.email = resp.email;
@@ -77,10 +78,6 @@ public class OauthClientImpl implements OauthClient {
         } catch (IOException e) {
             throw new OauthClientException("Failed to delete OAuth token",e);
         }
-    }
-
-    public void deleteToken(OauthToken token) throws OauthClientException {
-        deleteToken(token.id);
     }
 
     public OauthToken validateToken(String token, String... scopes) {
@@ -102,15 +99,15 @@ public class OauthClientImpl implements OauthClient {
         }
     }
 
-    public String parseToken(String authenticationHeader) {
-        if(authenticationHeader == null){
+    public String parseAuthorizationHeader(String authorizationHeader) {
+        if(authorizationHeader == null){
             logger.fine("Null authorization header");
             return null;
         }
 
-        String[] auth = authenticationHeader.split(" ");
+        String[] auth = authorizationHeader.split(" ");
         if(auth.length != 2){
-            logger.warning("Invalid Authorization header: " + authenticationHeader);
+            logger.warning("Invalid Authorization header: " + authorizationHeader);
             return null;
         }
         String scheme = auth[0];

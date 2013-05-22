@@ -1,5 +1,6 @@
 package com.cloudbees.api.oauth;
 
+import com.cloudbees.api.OAuthTokenBase;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
  *
  * @author Kohsuke Kawaguchi
  */
-public class AbstractOauthToken {
+public class AbstractOauthToken extends OAuthTokenBase {
     /**
      * ID that represents this token among other tokens that the user has created.
      * Used for updating/revoking this token.
@@ -51,4 +52,11 @@ public class AbstractOauthToken {
      */
     @JsonProperty("scopes")
     public List<String> scopes;
+
+    /**
+     * Deletes this token.
+     */
+    public void delete() throws OauthClientException {
+        owner.deleteToken(id);
+    }
 }

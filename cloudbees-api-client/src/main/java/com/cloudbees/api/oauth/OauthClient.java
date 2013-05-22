@@ -22,13 +22,10 @@ public interface OauthClient {
 
     /**
      * Deletes a token created by {@link #createToken(TokenRequest)}
+     *
+     * @see AbstractOauthToken#delete()
      */
     public void deleteToken(String oauthTokenId) throws OauthClientException;
-
-    /**
-      * Deletes a token created by {@link #createToken(TokenRequest)}
-      */
-    public void deleteToken(OauthToken token) throws OauthClientException;
 
     /**
      * Validates token with the given scopes. Returns null if the given access token is invalid, otherwise OauthToken is returned.
@@ -44,11 +41,11 @@ public interface OauthClient {
     public OauthToken validateToken(String token, String... scopes) throws OauthClientException;
 
     /**
-     * Parses Bearer token from HTTP Authentication header
+     * Parses Bearer token from HTTP Authorization header
      *
-     * @param authenticationHeader HTTP Authentication Header
+     * @param authorizationHeader HTTP Authorization Header
      *
      * @return Returns null if there is no Bearer token found otherwise a String representing oauth token
      */
-    public String parseToken(String authenticationHeader);
+    public String parseAuthorizationHeader(String authorizationHeader);
 }

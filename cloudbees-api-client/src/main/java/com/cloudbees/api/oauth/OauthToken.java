@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class OauthToken extends AbstractOauthToken {
 
+
     /**
      * A short-lived opaque token that you'll send in the "Authorize" HTTP header as "Authorize: bearer <i>valueOfAccessToken</i>"
      */

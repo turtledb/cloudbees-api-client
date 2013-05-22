@@ -34,7 +34,7 @@ public class OauthClientServletUtil {
             return tokenParam;
         }
 
-        return client.parseToken(authenticationHeader);
+        return client.parseAuthorizationHeader(authenticationHeader);
     }
 
     private static final Logger LOGGER = Logger.getLogger(OauthClientServletUtil.class.getName());
