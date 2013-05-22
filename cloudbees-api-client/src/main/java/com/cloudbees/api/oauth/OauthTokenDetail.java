@@ -1,34 +1,19 @@
-package com.cloudbees.api;
+package com.cloudbees.api.oauth;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Vivek Pandey
  */
-class AuthorizationResponse {
-    @JsonProperty("id")
-    public String id;
-
-    @JsonProperty("refresh_token")
-    public String refreshToken;
-
-
+public class OauthTokenDetail extends AbstractOauthToken {
     @JsonProperty("access_token")
     public AccessToken accessToken;
 
-    @JsonProperty("uid")
-    public String uid;
-
-    @JsonProperty("email")
-    public String email;
-
     @JsonProperty("account")
     public String account;
-
-    @JsonProperty("expires_in")
-    public int expiresIn;
 
     @JsonProperty("created_at")
     public Date createdAt;
@@ -36,13 +21,10 @@ class AuthorizationResponse {
     @JsonProperty("updated_at")
     public Date updatedAt;
 
-    @JsonProperty("scopes")
-    public String[] scopes;
-
     @JsonProperty("app")
     public App app;
 
-    public static class AccessToken{
+    public static class AccessToken {
         @JsonProperty("token")
         public String token;
 
@@ -56,12 +38,12 @@ class AuthorizationResponse {
         public int expiresIn;
 
         @JsonProperty("scopes")
-        public String[] scopes;
+        public List<String> scopes;
 
     }
 
 
-    public static class App{
+    public static class App {
         @JsonProperty("name")
         public String name;
 

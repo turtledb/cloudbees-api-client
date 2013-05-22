@@ -1,5 +1,6 @@
 package com.cloudbees.api;
 
+import com.cloudbees.api.oauth.OauthTokenDetail;
 import com.cloudbees.api.oauth.OauthClient;
 import com.cloudbees.api.oauth.OauthClientException;
 import com.cloudbees.api.oauth.OauthToken;
@@ -52,7 +53,7 @@ public class OauthClientImpl implements OauthClient {
 
     public OauthToken createToken(TokenRequest tokenRequest) throws OauthClientException {
         try{
-            AuthorizationResponse resp = bees.jsonPOJORequest(gcUrl + "/api/v2/authorizations", tokenRequest, AuthorizationResponse.class, "POST");
+            OauthTokenDetail resp = bees.jsonPOJORequest(gcUrl + "/api/v2/authorizations", tokenRequest, OauthTokenDetail.class, "POST");
 
             OauthToken token = new OauthToken();
             token.refreshToken = resp.refreshToken;
