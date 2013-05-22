@@ -1,6 +1,6 @@
 package com.cloudbees.api.oauth;
 
-import com.cloudbees.api.OAuthTokenBase;
+import com.cloudbees.api.OAuthObject;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @author Kohsuke Kawaguchi
  */
-public class AbstractOauthToken extends OAuthTokenBase {
+public class AbstractOauthToken extends OAuthObject {
     /**
      * ID that represents this token among other tokens that the user has created.
      * Used for updating/revoking this token.

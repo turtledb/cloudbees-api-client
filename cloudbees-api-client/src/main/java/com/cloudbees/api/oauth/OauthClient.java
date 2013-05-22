@@ -55,4 +55,27 @@ public interface OauthClient {
      * @return Returns null if there is no Bearer token found otherwise a String representing oauth token
      */
     public String parseAuthorizationHeader(String authorizationHeader);
+
+    /**
+     * Registers a new OAuth client application.
+     *
+     * @return
+     *      A fully populated {@link OauthClientApplication} object. This is not the same object
+     *      as you passed in the input.
+     */
+    public OauthClientApplication registerApplication(OauthClientApplication input) throws OauthClientException;
+
+    /**
+     * Gets the details of an OAuth client application by its client ID.
+     *
+     * @return never null. If the app isn't found, an exeption will be thrown.
+     */
+    public OauthClientApplication getApplication(String clientId) throws OauthClientException;
+
+    /**
+     * Lists up all the OAuth client applications registered by the current user.
+     */
+    public List<OauthClientApplication> listApplication() throws OauthClientException;
+
+    void deleteApplication(String clientId) throws OauthClientException;
 }

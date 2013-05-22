@@ -1,6 +1,7 @@
 package com.cloudbees.api;
 
 import com.cloudbees.api.oauth.OauthClient;
+import com.cloudbees.api.oauth.OauthClientApplication;
 import com.cloudbees.api.oauth.OauthClientException;
 import com.cloudbees.api.oauth.OauthToken;
 import com.cloudbees.api.oauth.OauthTokenDetail;
@@ -140,6 +141,53 @@ public class OauthClientImpl implements OauthClient {
         }
     }
 
+    public OauthClientApplication registerApplication(OauthClientApplication input) throws OauthClientException {
+        try {
+            OauthClientApplication r = bees.jsonPOJORequest(gcUrl + "/api/v2/applications/", null, OauthClientApplication.class, "POST");
+            r.owner = this;
+            return r;
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "Failed to register an application", e);
+            return null;
+        }
+    }
+
+    public OauthClientApplication getApplication(String clientId) throws OauthClientException {
+        try {
+            OauthClientApplication r = bees.jsonPOJORequest(gcUrl + "/api/v2/applications/"+clientId, null, OauthClientApplication.class, "POST");
+            r.owner = this;
+            return r;
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "Failed to retrieve an application "+clientId, e);
+            return null;
+        }
+    }
+
+    public void deleteApplication(String clientId) throws OauthClientException {
+        try {
+            bees.jsonPOJORequest(gcUrl + "/api/v2/applications/"+clientId, null, null, "DELETE");
+        } catch (IOException e) {
+            throw new OauthClientException("Failed to delete OAuth application",e);
+        }
+    }
+
+    public static class AppList {
+        @JsonProperty
+        public List<OauthClientApplication> applications;
+    }
+
+    public List<OauthClientApplication> listApplication() throws OauthClientException {
+        try {
+            AppList r = bees.jsonPOJORequest(gcUrl + "/api/v2/applications/", null, AppList.class, "GET");
+            for (OauthClientApplication a : r.applications) {
+                a.owner = this;
+            }
+            return r.applications;
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "Failed to list up OAuth applications", e);
+            return null;
+        }
+    }
 
     private static final Logger logger = Logger.getLogger(OauthClientImpl.class.getName());
 }
