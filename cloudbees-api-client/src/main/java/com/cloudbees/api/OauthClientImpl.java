@@ -143,7 +143,7 @@ public class OauthClientImpl implements OauthClient {
 
     public OauthClientApplication registerApplication(OauthClientApplication input) throws OauthClientException {
         try {
-            OauthClientApplication r = bees.jsonPOJORequest(gcUrl + "/api/v2/applications/", null, OauthClientApplication.class, "POST");
+            OauthClientApplication r = bees.jsonPOJORequest(gcUrl + "/api/v2/applications/", input, OauthClientApplication.class, "POST");
             r.owner = this;
             return r;
         } catch (IOException e) {
