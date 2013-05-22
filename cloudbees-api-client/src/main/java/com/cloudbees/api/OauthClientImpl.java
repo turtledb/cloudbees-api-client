@@ -1,11 +1,12 @@
 package com.cloudbees.api;
 
-import com.cloudbees.api.oauth.OauthTokenDetail;
 import com.cloudbees.api.oauth.OauthClient;
 import com.cloudbees.api.oauth.OauthClientException;
 import com.cloudbees.api.oauth.OauthToken;
+import com.cloudbees.api.oauth.OauthTokenDetail;
 import com.cloudbees.api.oauth.TokenRequest;
 import org.apache.commons.codec.binary.Base64;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
@@ -13,8 +14,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,6 +69,23 @@ public class OauthClientImpl implements OauthClient {
             return token;
         }catch(IOException e){
             throw new OauthClientException("Failed to validate token. "+e.getMessage(), e);
+        }
+    }
+
+    public static class OauthTokenDetailList {
+        @JsonProperty
+        public List<OauthTokenDetail> authorized_tokens;
+    }
+
+    public List<OauthTokenDetail> listTokens() throws OauthClientException {
+        try{
+            OauthTokenDetailList rsp = bees.jsonPOJORequest(gcUrl + "/api/v2/authorizations", null, OauthTokenDetailList.class, "GET");
+            for (OauthTokenDetail d : rsp.authorized_tokens) {
+                d.owner = this;
+            }
+            return rsp.authorized_tokens;
+        } catch(IOException e) {
+            throw new OauthClientException("Failed to list up tokens. "+e.getMessage(), e);
         }
     }
 
