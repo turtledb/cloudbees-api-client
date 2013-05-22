@@ -3,6 +3,8 @@ package com.cloudbees.api.oauth;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -50,11 +52,11 @@ public class OauthToken {
     public String email;
 
     /**
-     * The account for which this token is valid. OAuth token is always restricted to one account (of
-     * all the other accounts that the user might have access to.)
+     * Right now an OAuth token only grants access to one account only, but this might be something
+     * we may want to change later, so we aren't providing direct access to this property.
      */
     @JsonProperty("account")
-    public String account;
+    private String account;
 
     /**
      * ID that represents this token among other tokens that the user has created.
@@ -86,5 +88,23 @@ public class OauthToken {
             }
         }
         return false;
+    }
+
+    /**
+     * Checks if this token grants access to the specified account.
+     */
+    public boolean belongsToAccount(String account) {
+        return this.account.equals(account);
+    }
+
+    /**
+     * List up all the accounts to which this token grants some access.
+     */
+    public Collection<String> listAccounts() {
+        return Collections.singleton(account);
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
     }
 }

@@ -12,6 +12,8 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,8 +57,8 @@ public class OauthClientImpl implements OauthClient {
             OauthToken token = new OauthToken();
             token.refreshToken = resp.refreshToken;
             token.accessToken = resp.accessToken.token;
-            token.account = resp.account;
-            token.scopes = resp.accessToken.scopes;
+            token.setAccount(resp.account);
+            token.scopes = new ArrayList<String>(Arrays.asList(resp.accessToken.scopes));
             token.tokenType = resp.accessToken.tokenType;
             token.uid = resp.uid;
             token.email = resp.email;
