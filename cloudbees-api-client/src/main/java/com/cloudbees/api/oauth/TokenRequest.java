@@ -83,7 +83,7 @@ public class TokenRequest {
                 new URI(scope);
                 this.scopes.add(scope);
             } catch (URISyntaxException e) {
-                throw new IllegalArgumentException("Scope must be a valid URI", e);
+                throw new IllegalArgumentException("Scope must be a valid URI: "+scope, e);
             }
         }
         return this;
