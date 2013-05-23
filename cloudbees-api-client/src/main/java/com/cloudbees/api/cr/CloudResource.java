@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +33,7 @@ public class CloudResource {
      */
     private final Credential credential;
 
-    private volatile List<String> types;
+    private volatile Set<String> types;
     private volatile ObjectNode payload;
 
     public CloudResource(URL url, Credential credential) {
@@ -115,6 +116,15 @@ public class CloudResource {
     }
 
     /**
+     * Under some limited circumstances, you get a list of types of another cloud resource
+     * when you get a reference to it. In such a case, use this method to inform {@link CloudResource}
+     * about its types. This will save an unnecessary roundtrip.
+     */
+    public void setTypes(Collection<String> types) {
+        this.types = new HashSet<String>(types);
+    }
+
+    /**
      * Retrieves the current state of the CloudResource object as JSON DOM node.
      *
      * @param force
@@ -124,7 +134,7 @@ public class CloudResource {
         if (force || payload==null) {
             HttpURLConnection con = connect();
             // TODO: we need to honor encoding in the Content-Type header, instead of letting Jackson guess it
-            payload = (ObjectNode)OM.readTree(con.getInputStream());
+            payload = (ObjectNode)MAPPER.readTree(con.getInputStream());
         }
         return payload;
     }
@@ -134,10 +144,10 @@ public class CloudResource {
     }
 
     /**
-     * Retrieves the current state of the cloud resource and data-bind it to the given obejct via Jackson
+     * Retrieves the current state of the cloud resource and data-bind it to the given object via Jackson
      */
     public <T> T retrieve(Class<T> type, boolean force) throws IOException {
-        return OM.readValue(retrieve(force),type);
+        return MAPPER.readValue(retrieve(force),type);
     }
 
     public <T> T retrieve(Class<T> type) throws IOException {
@@ -156,7 +166,7 @@ public class CloudResource {
         sendRequest(request, con);
 
         if (responseType!=null)
-            return OM.readValue(con.getInputStream(),responseType);
+            return MAPPER.readValue(con.getInputStream(),responseType);
         else {
             con.getInputStream().close();
             return null;
@@ -192,7 +202,7 @@ public class CloudResource {
         for (String t : typesOf(request.getClass())) {
             con.addRequestProperty("X-Cloud-Resource-Type",t);
         }
-        OM.writeValue(con.getOutputStream(),request);
+        MAPPER.writeValue(con.getOutputStream(),request);
         con.getOutputStream().close();
 
         checkError(con);
@@ -206,7 +216,7 @@ public class CloudResource {
         List<String> v = con.getHeaderFields().get("X-Cloud-Resource-Type");
         if (v==null)
             throw new IOException(url+" is not a cloud resource. It reported no X-Cloud-Resource-Type header");
-        this.types = v;
+        this.types = new HashSet<String>(v);
         String ct = con.getHeaderField("Content-Type");
         if (ct==null)
             throw new IOException(url+" is not a cloud resource. It reported no Content-Type");
@@ -250,12 +260,12 @@ public class CloudResource {
         return url.toString();
     }
 
-    private static final ObjectMapper OM = new ObjectMapper();
+    public static final ObjectMapper MAPPER = new ObjectMapper();
     static {
-        OM.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        OM.configure(Feature.AUTO_DETECT_FIELDS, false);
-        OM.configure(Feature.AUTO_DETECT_SETTERS, false);
-        OM.registerModule(new CloudResourceJacksonModule());
+        MAPPER.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        MAPPER.configure(Feature.AUTO_DETECT_FIELDS, false);
+        MAPPER.configure(Feature.AUTO_DETECT_SETTERS, false);
+        MAPPER.registerModule(new CloudResourceJacksonModule());
     }
 
     /**
