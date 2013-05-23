@@ -7,6 +7,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -115,6 +116,10 @@ public class TokenRequest {
 
     public TokenRequest withScope(CloudResource res, Capability capability) {
         return withScope(capability.to(res));
+    }
+
+    public TokenRequest withScope(URL cloudResource, Capability capability) {
+        return withScope(capability.to(cloudResource));
     }
 
     @JsonProperty("refresh_token")
