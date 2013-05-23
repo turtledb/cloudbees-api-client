@@ -37,4 +37,9 @@ public class BindingCollection extends CloudResourceFacet {
         @JsonProperty("settings")
         public Map<String,String> settings;
     }
+
+    /**
+     * Capability needed to call {@link #bind(CloudResource, String, Map)}
+     */
+    public static Capability BIND_CAPABILITY = new Capability("https://types.cloudbees.com/binding/bind");
 }

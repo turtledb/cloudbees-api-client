@@ -283,4 +283,9 @@ public class CloudResource {
         }
         typesOf(t.getSuperclass(),r);
     }
+
+    /**
+     * Capability required to retrieve the state of {@link CloudResource}.
+     */
+    public static Capability READ_CAPABILITY = new Capability("https://types.cloudbees.com/resource/read");
 }
