@@ -19,12 +19,6 @@ public class AbstractOauthToken extends OAuthObject {
     public String id;
 
     /**
-     * Refresh token lasts for a long time and can be used to obtain additional {@link #accessToken}s.
-     */
-    @JsonProperty("refresh_token")
-    public String refreshToken;
-
-    /**
      * Internal user ID that identifies the user who generated this token.
      */
     @JsonProperty("uid")
@@ -35,23 +29,6 @@ public class AbstractOauthToken extends OAuthObject {
      */
     @JsonProperty("email")
     public String email;
-
-    /**
-     * The number of seconds the access token will be valid, relative to the point of time where
-     * the call is issued to obtain this object (such as via {@link OauthClient#validateToken(String, String...)}.
-     *
-     * 0 or less means the token has already expired.
-     */
-    @JsonProperty("expires_in")
-    public int expiresIn;
-
-    /**
-     * OAuth scopes of this token.
-     *
-     * The meaning of the scope values are up to the applications.
-     */
-    @JsonProperty("scopes")
-    public List<String> scopes;
 
     /**
      * Deletes this token.

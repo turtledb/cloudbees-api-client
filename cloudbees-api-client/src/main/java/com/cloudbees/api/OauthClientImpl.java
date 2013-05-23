@@ -58,14 +58,14 @@ public class OauthClientImpl implements OauthClient {
 
             OauthToken token = new OauthToken();
             token.owner = this;
-            token.refreshToken = resp.refreshToken;
+            token.refreshToken = resp.refreshToken.token;
             token.accessToken = resp.accessToken.token;
             token.setAccount(resp.account);
             token.scopes = resp.accessToken.scopes;
             token.tokenType = resp.accessToken.tokenType;
             token.uid = resp.uid;
             token.email = resp.email;
-            token.expiresIn = resp.expiresIn;
+            token.expiresIn = resp.accessToken.expiresIn;
             token.id = resp.id;
             return token;
         }catch(IOException e){

@@ -8,17 +8,22 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * OAuth token and information contained within it as defined by the OAuth spec.
  *
  * @author Vivek Pandey
  */
 public class OauthToken extends AbstractOauthToken {
-
-
     /**
      * A short-lived opaque token that you'll send in the "Authorize" HTTP header as "Authorize: bearer <i>valueOfAccessToken</i>"
      */
     @JsonProperty("access_token")
     public String accessToken;
+
+    /**
+     * Refresh token lasts for a long time and can be used to obtain additional {@link #accessToken}s.
+     */
+    @JsonProperty("refresh_token")
+    public String refreshToken;
 
     @JsonProperty("token_type")
     public String tokenType;
@@ -32,6 +37,23 @@ public class OauthToken extends AbstractOauthToken {
      */
     @JsonProperty("account")
     private String account;
+
+    /**
+     * The number of seconds the access token will be valid, relative to the point of time where
+     * the call is issued to obtain this object (such as via {@link OauthClient#validateToken(String, String...)}.
+     *
+     * 0 or less means the token has already expired.
+     */
+    @JsonProperty("expires_in")
+    public int expiresIn;
+
+    /**
+     * OAuth scopes of this token.
+     *
+     * The meaning of the scope values are up to the applications.
+     */
+    @JsonProperty("scopes")
+    public List<String> scopes;
 
     /**
      * Return true if the given scope is fond in the scopes granted with this token

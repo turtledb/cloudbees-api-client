@@ -10,38 +10,38 @@ import java.util.List;
  */
 public class OauthTokenDetail extends AbstractOauthToken {
     @JsonProperty("access_token")
-    public AccessToken accessToken;
+    public AccessTokenDetail accessToken;
+
+    @JsonProperty("refresh_token")
+    public TokenDetail refreshToken;
 
     @JsonProperty("account")
     public String account;
 
-    @JsonProperty("created_at")
-    public Date createdAt;
-
-    @JsonProperty("updated_at")
-    public Date updatedAt;
-
     @JsonProperty("app")
     public App app;
 
-    public static class AccessToken {
+    public static class TokenDetail {
         @JsonProperty("token")
         public String token;
-
-        @JsonProperty("token_type")
-        public String tokenType;
 
         @JsonProperty("created_at")
         public Date createdAt;
 
-        @JsonProperty("expires_in")
-        public int expiresIn;
+        @JsonProperty("updated_at")
+        public Date updatedAt;
 
         @JsonProperty("scopes")
         public List<String> scopes;
-
     }
 
+    public static class AccessTokenDetail extends TokenDetail {
+        @JsonProperty("expires_in")
+        public int expiresIn;
+
+        @JsonProperty("token_type")
+        public String tokenType;
+    }
 
     public static class App {
         @JsonProperty("name")
