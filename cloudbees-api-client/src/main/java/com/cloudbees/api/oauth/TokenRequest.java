@@ -1,6 +1,8 @@
 package com.cloudbees.api.oauth;
 
 import com.cloudbees.api.BeesClientConfiguration;
+import com.cloudbees.api.cr.Capability;
+import com.cloudbees.api.cr.CloudResource;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.net.URI;
@@ -105,6 +107,10 @@ public class TokenRequest {
             withScope(scope);
         }
         return this;
+    }
+
+    public TokenRequest withScope(CloudResource res, Capability capability) {
+        return withScope(capability.to(res));
     }
 
     @JsonProperty("refresh_token")
