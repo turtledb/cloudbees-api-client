@@ -3,6 +3,7 @@ package com.cloudbees.api.oauth;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -48,12 +49,19 @@ public class OauthToken extends AbstractOauthToken {
     public int expiresIn;
 
     /**
-     * OAuth scopes of this token.
+     * White-space separated OAuth scopes of this token.
      *
      * The meaning of the scope values are up to the applications.
      */
-    @JsonProperty("scopes")
-    public List<String> scopes;
+    @JsonProperty("scope")
+    public String scope;
+
+    /**
+     * OAuth scopes of this token split by the whitespace.
+     */
+    public List<String> getScopes() {
+        return Arrays.asList(scope.split(" "));
+    }
 
     /**
      * Return true if the given scope is fond in the scopes granted with this token
@@ -63,7 +71,7 @@ public class OauthToken extends AbstractOauthToken {
         if(scope == null){
             return false;
         }
-        for(String s: scopes){
+        for(String s: getScopes()){
             if(s.trim().equals(scope)){
                 return true;
             }
