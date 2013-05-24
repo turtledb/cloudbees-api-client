@@ -22,8 +22,9 @@ public class Capability {
      */
     public String to(URL resource) {
         String base = resource.getHost();
-        if (resource.getDefaultPort()!=resource.getPort()) {
-            base += ":"+resource.getPort();
+        int p = resource.getPort();
+        if (resource.getDefaultPort()!=p && p!=-1) {// -1 means not set
+            base += ":"+p;
         }
 
         return String.format("crs://%s/!%s",base,uri);
