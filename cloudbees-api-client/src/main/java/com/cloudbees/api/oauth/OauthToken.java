@@ -79,6 +79,14 @@ public class OauthToken extends AbstractOauthToken {
         return false;
     }
 
+    public boolean validateScopes(String... scopes){
+        for (String s : scopes) {
+            if (!validateScope(s))
+                return false;
+        }
+        return true;
+    }
+
     /**
      * Checks if this token grants access to the specified account.
      */
