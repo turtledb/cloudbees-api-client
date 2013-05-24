@@ -15,6 +15,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,7 +63,7 @@ public class OauthClientImpl implements OauthClient {
                 token.refreshToken = resp.refreshToken.token;
             token.accessToken = resp.accessToken.token;
             token.setAccount(resp.account);
-            token.scopes = resp.accessToken.scopes;
+            token.scope = join(resp.accessToken.scopes,",");
             token.tokenType = resp.accessToken.tokenType;
             token.uid = resp.uid;
             token.email = resp.email;
@@ -72,6 +73,15 @@ public class OauthClientImpl implements OauthClient {
         }catch(IOException e){
             throw new OauthClientException("Failed to validate token. "+e.getMessage(), e);
         }
+    }
+
+    private String join(Collection<?> col, String delim) {
+        StringBuilder buf = new StringBuilder();
+        for (Object o : col) {
+            if (buf.length()>0) buf.append(delim);
+            buf.append(o);
+        }
+        return buf.toString();
     }
 
     public static class OauthTokenDetailList {
