@@ -130,7 +130,7 @@ public class OauthClientImpl implements OauthClient {
             return null;
         }
         String scheme = auth[0];
-        if(!scheme.equals("Bearer")){
+        if(!scheme.equalsIgnoreCase("Bearer")){
             logger.warning("Only Bearer authentication scheme is supported. Received scheme: " + scheme);
             return null;
         }

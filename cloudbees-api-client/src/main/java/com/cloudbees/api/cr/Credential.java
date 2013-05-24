@@ -22,7 +22,7 @@ public abstract class Credential {
      */
     public static Credential oauth(String token) {
         try {
-            final String authorization = "bearer "+ Base64Variants.MIME_NO_LINEFEEDS.encode(token.getBytes("UTF-8"));
+            final String authorization = "Bearer "+ Base64Variants.MIME_NO_LINEFEEDS.encode(token.getBytes("UTF-8"));
             return new Credential() {
                 @Override
                 public void authorizeRequest(HttpURLConnection con) {
