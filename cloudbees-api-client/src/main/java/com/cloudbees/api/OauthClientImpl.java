@@ -117,11 +117,11 @@ public class OauthClientImpl implements OauthClient {
                 return null;
             }
             for(String scope: scopes){
-                if(!oauthToken.validateScope(scope)){
-                    return null;
+                if(oauthToken.validateScope(scope)){
+                    return oauthToken;
                 }
             }
-            return oauthToken;
+            return null;
         }catch (IOException e){
             logger.log(Level.WARNING, "Failed to get token details",e);
             return null;
