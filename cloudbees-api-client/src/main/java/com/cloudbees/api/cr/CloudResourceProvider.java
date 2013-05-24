@@ -24,7 +24,7 @@ public class CloudResourceProvider extends CloudResourceFacet implements Iterabl
     public Iterator<CloudResource> iterator() {
         try {
             JsonNode res = getOwner().retrieve().get("resources");
-            if (!res.isArray())
+            if (res==null || !res.isArray())
                 throw new IllegalStateException("Expected a JSON array but "+getOwner()+" gave us "+res);
             ReferencedResource[] dto = CloudResource.MAPPER.readValue(res, ReferencedResource[].class);
             List<CloudResource> r = new ArrayList<CloudResource>(dto.length);
