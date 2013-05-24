@@ -1,5 +1,6 @@
 package com.cloudbees.api.cr;
 
+import com.cloudbees.api.oauth.OauthToken;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -54,6 +55,10 @@ public class CloudResource {
      */
     public static CloudResource fromOAuthToken(URL url, String oauthAccessToken) {
         return new CloudResource(url,Credential.oauth(oauthAccessToken));
+    }
+
+    public static CloudResource fromOAuthToken(URL url, OauthToken token) {
+        return fromOAuthToken(url,token.accessToken);
     }
 
     /**
