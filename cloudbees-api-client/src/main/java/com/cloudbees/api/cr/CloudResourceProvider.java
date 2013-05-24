@@ -12,6 +12,7 @@ import java.util.List;
  *
  * @author Kohsuke Kawaguchi
  */
+@CloudResourceType("https://types.cloudbees.com/resource/provider")
 public class CloudResourceProvider extends CloudResourceFacet implements Iterable<CloudResource> {
     public CloudResourceProvider(CloudResource owner) {
         super(owner);
