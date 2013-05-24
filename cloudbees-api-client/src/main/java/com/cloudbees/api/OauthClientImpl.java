@@ -58,7 +58,8 @@ public class OauthClientImpl implements OauthClient {
 
             OauthToken token = new OauthToken();
             token.owner = this;
-            token.refreshToken = resp.refreshToken.token;
+            if (resp.refreshToken!=null)
+                token.refreshToken = resp.refreshToken.token;
             token.accessToken = resp.accessToken.token;
             token.setAccount(resp.account);
             token.scopes = resp.accessToken.scopes;
