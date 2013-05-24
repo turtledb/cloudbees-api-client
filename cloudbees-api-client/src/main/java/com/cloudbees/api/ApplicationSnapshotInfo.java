@@ -30,6 +30,10 @@ public class ApplicationSnapshotInfo {
     private String id;
     private String applicationId;
     private Map<String, String> settings;
+
+    /**
+     * @deprecated use settings.get("created")
+     */
     private Date created;
 
     public ApplicationSnapshotInfo() {
@@ -64,8 +68,8 @@ public class ApplicationSnapshotInfo {
     }
     
     public Date getCreated() {
-        if (created == null) {
-            return null;
+        if (created != null) {
+            return created;
         }
         try {
             Date createDate =  null;
