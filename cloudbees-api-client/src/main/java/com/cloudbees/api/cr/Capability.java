@@ -26,7 +26,7 @@ public class Capability {
             base += ":"+resource.getPort();
         }
 
-        return String.format("crs://%s!%s",base,uri);
+        return String.format("crs://%s/!%s",base,uri);
     }
 
     public String to(CloudResource cr) {
