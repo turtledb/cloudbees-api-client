@@ -6,8 +6,12 @@ import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -15,6 +19,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -139,7 +144,7 @@ public class CloudResource {
         if (force || payload==null) {
             HttpURLConnection con = connect();
             // TODO: we need to honor encoding in the Content-Type header, instead of letting Jackson guess it
-            payload = (ObjectNode)MAPPER.readTree(con.getInputStream());
+            payload = (ObjectNode)MAPPER.readTree(decorateResponseStream(con.getInputStream()));
         }
         return payload;
     }
@@ -171,7 +176,7 @@ public class CloudResource {
         sendRequest(request, con);
 
         if (responseType!=null)
-            return MAPPER.readValue(con.getInputStream(),responseType);
+            return MAPPER.readValue(decorateResponseStream(con.getInputStream()),responseType);
         else {
             con.getInputStream().close();
             return null;
@@ -191,6 +196,8 @@ public class CloudResource {
         credential.authorizeRequest(con);
         sendRequest(request, con);
 
+        decorateResponseStream(con.getInputStream());
+
         if (con.getResponseCode()==201) {
             String location = con.getHeaderField("Location");
             if (location==null)
@@ -208,7 +215,8 @@ public class CloudResource {
         for (String t : typesOf(request.getClass())) {
             con.addRequestProperty("X-Cloud-Resource-Type",t);
         }
-        MAPPER.writeValue(con.getOutputStream(),request);
+        dumpRequestHeaders(con);
+        MAPPER.writeValue(decorateRequestStream(con.getOutputStream()),request);
         con.getOutputStream().close();
 
         checkError(con);
@@ -218,6 +226,7 @@ public class CloudResource {
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         credential.authorizeRequest(con);
         con.setRequestProperty("Accept", CONTENT_TYPE);
+        dumpRequestHeaders(con);
         checkError(con);
         List<String> v = con.getHeaderFields().get("X-Cloud-Resource-Type");
         if (v==null)
@@ -237,6 +246,7 @@ public class CloudResource {
      * We assume {@link HttpURLConnection} follows redirects, so we don't process them here.
      */
     private void checkError(HttpURLConnection con) throws IOException {
+        dumpResponseHeaders(con);
         if (con.getResponseCode()/100!=2) {
             String msg = "Failed to retrieve "+url;
             InputStream er = con.getErrorStream();
@@ -244,6 +254,70 @@ public class CloudResource {
                 msg += ": "+ IOUtils.toString(er);
             }
             throw new IOException(msg);
+        }
+    }
+
+    private void dumpRequestHeaders(HttpURLConnection con) {
+        if (DEBUG==null)    return;
+
+        DEBUG.println();
+        DEBUG.printf("> %s %s\n",con.getRequestMethod(),con.getURL());
+        for (Entry<String, List<String>> e : con.getRequestProperties().entrySet()) {
+            String header = e.getKey();
+            for (String v : e.getValue()) {
+                DEBUG.printf("> %s: %s\n",header,v);
+            }
+        }
+    }
+
+    private OutputStream decorateRequestStream(final OutputStream os) {
+        if (DEBUG==null)    return os;
+
+        return new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                DEBUG.write(b);
+                os.write(b);
+            }
+
+            @Override
+            public void write(byte[] b, int off, int len) throws IOException {
+                DEBUG.write(b, off, len);
+                os.write(b, off, len);
+            }
+
+            @Override
+            public void flush() throws IOException {
+                os.flush();
+            }
+
+            @Override
+            public void close() throws IOException {
+                os.close();
+            }
+        };
+    }
+
+    private InputStream decorateResponseStream(InputStream is) throws IOException {
+        if (DEBUG==null || is==null)    return is;
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IOUtils.copy(is,baos);
+        DEBUG.println(baos.toString());
+        return new ByteArrayInputStream(baos.toByteArray());
+    }
+
+    private void dumpResponseHeaders(HttpURLConnection con) throws IOException {
+        if (DEBUG==null)    return;
+
+        DEBUG.println();
+        DEBUG.printf("< %s %s\n",con.getResponseCode(),con.getResponseMessage());
+        for (Entry<String, List<String>> e : con.getHeaderFields().entrySet()) {
+            String header = e.getKey();
+            if (header==null)   continue;   // a bug in HttpURLConnection?
+            for (String v : e.getValue()) {
+                DEBUG.printf("< %s: %s\n",header,v);
+            }
         }
     }
 
@@ -305,4 +379,9 @@ public class CloudResource {
      * Capability required to retrieve the state of {@link CloudResource}.
      */
     public static Capability READ_CAPABILITY = new Capability("https://types.cloudbees.com/resource/read");
+
+    /**
+     * If set to non-null, the request and the response details are sent to this stream
+     */
+    public static PrintStream DEBUG = null;
 }
