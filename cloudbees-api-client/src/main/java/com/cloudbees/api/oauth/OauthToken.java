@@ -79,12 +79,15 @@ public class OauthToken extends AbstractOauthToken {
         return false;
     }
 
+    /**
+     * Checks if this token has any of the scopes specified
+     */
     public boolean validateScopes(String... scopes){
         for (String s : scopes) {
-            if (!validateScope(s))
-                return false;
+            if (validateScope(s))
+                return true;
         }
-        return true;
+        return false;
     }
 
     /**
