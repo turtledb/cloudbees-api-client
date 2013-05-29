@@ -48,6 +48,18 @@ public interface OauthClient {
     public OauthToken validateToken(String token, String... scopes) throws OauthClientException;
 
     /**
+     * Obtains the details of the token and performs minimal validation (such as expiration.)
+     * Returns null if the given access token is invalid, otherwise OauthToken is returned.
+     *
+     * <p>
+     * {@link BeesClient} must be constructed with OAuth client ID and client secret as the username and password.
+     *
+     * @param token non-null token
+     * @return null if the token is invalid such as expired or unknown to the CloudBees OAuth server.
+     */
+    public OauthToken validateToken(String token) throws OauthClientException;
+
+    /**
      * Parses Bearer token from HTTP Authorization header
      *
      * @param authorizationHeader HTTP Authorization Header
