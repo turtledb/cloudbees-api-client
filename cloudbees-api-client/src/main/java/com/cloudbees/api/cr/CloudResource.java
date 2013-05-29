@@ -203,6 +203,7 @@ public class CloudResource {
     private void sendRequest(Object request, HttpURLConnection con) throws IOException {
         con.setRequestMethod("POST");
         con.setRequestProperty("Accept", CONTENT_TYPE);
+        con.setRequestProperty("Content-Type", CONTENT_TYPE_UTF8);
         con.setDoOutput(true);
         for (String t : typesOf(request.getClass())) {
             con.addRequestProperty("X-Cloud-Resource-Type",t);
@@ -277,6 +278,7 @@ public class CloudResource {
      * MIME content type of the cloud resource.
      */
     public static final String CONTENT_TYPE = "application/vnd.cloudbees.resource+json";
+    public static final String CONTENT_TYPE_UTF8 = CONTENT_TYPE + ";charset=UTF-8";
 
     /**
      * Recursively list up all the {@link CloudResourceType} annotations on the given class
