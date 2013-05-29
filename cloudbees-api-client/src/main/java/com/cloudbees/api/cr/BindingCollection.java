@@ -25,7 +25,7 @@ public class BindingCollection extends CloudResourceFacet {
         br.sink = sink;
         br.label = label;
         br.settings = settings;
-        return getOwner().create("./bindings",br);
+        return getOwner().create(".",br);
     }
 
     @CloudResourceType("https://types.cloudbees.com/binding/edge")
