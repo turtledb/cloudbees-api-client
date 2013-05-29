@@ -109,19 +109,24 @@ public class OauthClientImpl implements OauthClient {
         }
     }
 
-    public OauthToken validateToken(String token, String... scopes) {
+    public OauthToken validateToken(String token, String... scopes) throws OauthClientException {
+        OauthToken oauthToken = validateToken(token);
+        if (oauthToken==null)   return null;
+
+        if (oauthToken.validateScopes(scopes))
+            return oauthToken;
+        else
+            return null;
+    }
+
+    public OauthToken validateToken(String token) throws OauthClientException {
         try{
             OauthToken oauthToken = bees.jsonPOJORequest(gcUrl+"/oauth/tokens/"+token,null,OauthToken.class,"GET");
 
             if(oauthToken.expiresIn <= 0){
                 return null;
             }
-            for(String scope: scopes){
-                if(oauthToken.validateScope(scope)){
-                    return oauthToken;
-                }
-            }
-            return null;
+            return oauthToken;
         }catch (IOException e){
             logger.log(Level.WARNING, "Failed to get token details",e);
             return null;
