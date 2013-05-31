@@ -4,6 +4,8 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -22,5 +24,12 @@ public class ReferencedResource {
         CloudResource cr = new CloudResource(new URL(url), context.getCredential());
         cr.setTypes(types);
         return cr;
+    }
+
+    public static ReferencedResource of(CloudResource cr) {
+        ReferencedResource rr = new ReferencedResource();
+        rr.url = cr.getUrl().toExternalForm();
+        rr.types = new ArrayList<String>(CloudResource.typesOf(cr.getClass()));
+        return rr;
     }
 }
