@@ -16,6 +16,7 @@ public class ServerInfo {
     String state;
     String size;
     List<String> applicationIDs;
+    List<String> applicationInstanceIDs;
     Map<String, String> parameters;
 
     public ServerInfo() {
@@ -73,5 +74,13 @@ public class ServerInfo {
 
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
+    }
+
+    public List<String> getApplicationInstanceIDs() {
+        return applicationInstanceIDs;
+    }
+
+    public void setApplicationInstanceIDs(List<String> applicationInstanceIDs) {
+        this.applicationInstanceIDs = applicationInstanceIDs;
     }
 }
