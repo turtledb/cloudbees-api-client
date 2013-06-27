@@ -115,13 +115,30 @@ public class BeesClient extends BeesClientBase {
     /**
      * Obtains another interface of the API client that defines OAuth APIs.
      *
+     * In API world, api-staging is not in a separate environment,
+     * it is part of the main production environment but offers the latest
+     * and greatest interface to the production data model.
+     *
+     * URL Resolution:
+     * api.cloudbees.com         => grandcentral.cloudbees.com
+     * api-staging.cloudbees.com => grandcentral.cloudbees.com
+     * api.beescloud.com         => grandcentral.beescloud.com
+     * api-staging.beescloud.com => grandcentral.beescloud.com
+     *
      * <p>
      * This method does not involve any remote call.
      *
      * @return never null
      */
     public OauthClient getOauthClient() {
-        String gc = base.toExternalForm().replace("//api.", "//grandcentral.");
+        String gc = base.toExternalForm();
+        gc = gc.replace("//api.",         "//grandcentral.");
+        gc = gc.replace("//api-staging.", "//grandcentral.");
+
+        if (gc.equals(base.toExternalForm())) {
+            throw new RuntimeException("Unable to determine GrandCentral URL from " + base.toExternalForm());
+        }
+
         // cut off the path portion
         while (true) {
             int scheme = gc.indexOf("://");
@@ -131,6 +148,7 @@ public class BeesClient extends BeesClientBase {
             } else
                 break;
         }
+    
         return new OauthClientImpl(this, gc);
     }
 
