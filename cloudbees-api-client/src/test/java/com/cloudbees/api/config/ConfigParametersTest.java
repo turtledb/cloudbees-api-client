@@ -6,7 +6,10 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
-import java.lang.Exception;import java.lang.Object;import java.lang.Override;import java.lang.String;import java.util.regex.Pattern;
+import java.lang.Exception;
+import java.lang.Object;
+import java.lang.String;
+import java.util.regex.Pattern;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -40,20 +43,20 @@ public class ConfigParametersTest {
      */
     private static Matcher<String> isXML(final String xml) {
         return new BaseMatcher<String>() {
-            @Override
-            public boolean matches(Object item) {
-                return compress(xml).equals(compress(item.toString()));
+            
+        	public boolean matches(Object item) {
+    			return compress(xml).equals(compress(item.toString()));
             }
-
-            @Override
+        	
             public void describeTo(Description description) {
-                description.appendValue(xml);
+    			description.appendValue(xml);
             }
 
             private String compress(String xml) {
                 String unindented = Pattern.compile(">[^<]+<").matcher(xml).replaceAll("><");
                 return unindented.replace('"','\'');    // normalize quote mark
             }
+
         };
     }
 
