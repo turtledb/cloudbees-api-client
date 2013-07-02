@@ -26,7 +26,11 @@ public class TokenRequest {
 
     private String refreshToken;
 
-    private boolean generateRefreshToken = true;
+    /* accessType tells whether client intends to access protected resources as a one time or shorter duration access
+       or for longer duration, for example when user is not present at the browser offline accessType will result in a
+       refresh_token that can be used by the client to generate new access_tokens.
+     */
+    private String accessType = "online";
 
     /**
      *
@@ -137,9 +141,9 @@ public class TokenRequest {
         return this;
     }
 
-    @JsonProperty("generate_refresh_token")
-    public boolean isGenerateRefreshToken() {
-        return generateRefreshToken;
+    @JsonProperty("access_type")
+    public String getAccessType() {
+        return accessType;
     }
 
     /**
@@ -151,7 +155,7 @@ public class TokenRequest {
      * @see #withRefreshToken(String)
      */
     public TokenRequest withGenerateRequestToken(boolean b) {
-        this.generateRefreshToken = b;
+        this.accessType = b ? "offline" : "online";
         return this;
     }
 }
