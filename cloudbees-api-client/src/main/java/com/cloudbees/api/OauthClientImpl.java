@@ -66,7 +66,7 @@ public class OauthClientImpl implements OauthClient {
             token.tokenType = resp.accessToken.tokenType;
             token.uid = resp.uid;
             token.email = resp.email;
-            token.expiresIn = resp.accessToken.expiresIn;
+            token.setExpiresIn(resp.accessToken.expiresIn);
             token.id = resp.id;
             return token;
         }catch(IOException e){
@@ -122,7 +122,7 @@ public class OauthClientImpl implements OauthClient {
         try{
             OauthToken oauthToken = bees.jsonPOJORequest(gcUrl+"/oauth/tokens/"+token,null,OauthToken.class,"GET");
 
-            if(oauthToken.expiresIn <= 0){
+            if(oauthToken.isExpired()){
                 return null;
             }
             return oauthToken;

@@ -46,7 +46,7 @@ public class OauthToken extends AbstractOauthToken {
      * 0 or less means the token has already expired.
      */
     @JsonProperty("expires_in")
-    public int expiresIn;
+    private Integer expiresIn;
 
     /**
      * White-space separated OAuth scopes of this token.
@@ -106,5 +106,14 @@ public class OauthToken extends AbstractOauthToken {
 
     public void setAccount(String account) {
         this.account = account;
+    }
+
+    public void setExpiresIn(int expiresIn){
+        this.expiresIn = expiresIn;
+    }
+
+    @JsonIgnore
+    public boolean isExpired(){
+        return (expiresIn != null && expiresIn <= 0);
     }
 }

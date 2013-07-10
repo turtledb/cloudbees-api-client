@@ -37,7 +37,7 @@ public class OauthTokenDetail extends AbstractOauthToken {
 
     public static class AccessTokenDetail extends TokenDetail {
         @JsonProperty("expires_in")
-        public int expiresIn;
+        public Integer expiresIn;
 
         @JsonProperty("token_type")
         public String tokenType;
