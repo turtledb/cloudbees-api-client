@@ -16,6 +16,6 @@
 
 #except .gitignore
 !.gitignore
-target/*
+**/target/*
 build/*
 *~
