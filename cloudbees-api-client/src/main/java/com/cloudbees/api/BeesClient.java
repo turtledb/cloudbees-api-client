@@ -20,7 +20,6 @@ import com.cloudbees.api.config.ConfigParameters;
 import com.cloudbees.api.config.ParameterSettings;
 import com.cloudbees.api.config.ResourceSettings;
 import com.cloudbees.api.oauth.OauthClient;
-import com.cloudbees.api.OauthClientImpl;
 import com.cloudbees.upload.ArchiveUtils;
 import com.cloudbees.upload.JarUtils;
 import com.cloudbees.utils.AppConfigHelper;
@@ -28,7 +27,6 @@ import com.cloudbees.utils.ZipHelper;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.methods.*;
@@ -696,11 +694,17 @@ public class BeesClient extends BeesClientBase {
     
     public DatabaseCreateResponse databaseCreate(String domain, String dbId,
                                                  String username, String password) throws Exception {
+        return databaseCreate(domain, dbId, username, password, null);
+    }
+    public DatabaseCreateResponse databaseCreate(String domain, String dbId,
+                String username, String password, String plan) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("database_id", dbId);
         params.put("database_username", username);
         params.put("database_password", password);
         params.put("domain", domain);
+        if (plan != null)
+            params.put("database_plan", plan);
         String url = getRequestURL("database.create", params);
         String response = executeRequest(url);
         return (DatabaseCreateResponse) readResponse(response);
