@@ -13,6 +13,7 @@ public class ResourceBindingInfo {
     private String fromService;
     private String fromResourceId;
     private String toService;
+    private String toResourceType;
     private String toResourceId;
     private String alias;
     Map<String, String> config;
@@ -20,7 +21,20 @@ public class ResourceBindingInfo {
     public ResourceBindingInfo() {
     }
 
-    public ResourceBindingInfo(String fromService, String fromResourceId, String toService, String         toResourceId, String alias) {
+
+    public ResourceBindingInfo(String fromService, String fromResourceId, String toService, String toResourceId, String toResourceType, String alias) {
+        this.fromService = fromService;
+        this.fromResourceId = fromResourceId;
+        this.toService = toService;
+        this.toResourceType = toResourceType;
+        this.toResourceId = toResourceId;
+        this.alias = alias;
+    }
+
+    /**
+     * @deprecated
+     */
+    public ResourceBindingInfo(String fromService, String fromResourceId, String toService, String toResourceId, String alias) {
         this.fromService = fromService;
         this.fromResourceId = fromResourceId;
         this.toService = toService;
@@ -74,6 +88,14 @@ public class ResourceBindingInfo {
 
     public void setConfig(Map<String, String> config) {
         this.config = config;
+    }
+
+    public String getToResourceType() {
+        return toResourceType;
+    }
+
+    public void setToResourceType(String toResourceType) {
+        this.toResourceType = toResourceType;
     }
 }
 
