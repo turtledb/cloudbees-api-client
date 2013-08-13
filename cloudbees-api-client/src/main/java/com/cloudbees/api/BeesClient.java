@@ -1692,7 +1692,7 @@ public class BeesClient extends BeesClientBase {
     }
 
     public static String encodePassword(String password, String version) {
-        if (version.equals("0.1")) {
+        if ("0.1".equals(version)) {
             try {
                 MessageDigest sha = MessageDigest.getInstance("SHA");
                 byte[] passwordDigest = sha.digest(password.getBytes("UTF8"));
