@@ -44,21 +44,27 @@ public enum GrantType {
         lowerCase = name().toLowerCase(Locale.ENGLISH);
     }
 
+    /**
+     * From the lower/upper case of the grant type value, obtains the enum constant.
+     */
+    public static GrantType parse(String value) {
+        for (GrantType gt : GrantType.values()) {
+            if (gt.name().equalsIgnoreCase(value))
+                return gt;
+        }
+        return null;
+    }
+
     public static class SerializerImpl extends JsonSerializer<GrantType> {
         @Override
         public void serialize(GrantType o, JsonGenerator gen, SerializerProvider serializer) throws IOException {
-            gen.writeString(o.name().toLowerCase(Locale.ENGLISH));
+            gen.writeString(o.toLowerCase());
         }
     }
     public static class DeserializerImpl extends JsonDeserializer<GrantType> {
         @Override
         public GrantType deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-            String n = jp.getText();
-            for (GrantType gt : GrantType.values()) {
-                if (gt.toLowerCase().equals(n))
-                    return gt;
-            }
-            return null;
+            return parse(jp.getText());
         }
     }
 }
