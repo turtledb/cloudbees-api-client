@@ -1,5 +1,7 @@
 package com.cloudbees.api.oauth;
 
+import com.cloudbees.api.BeesClient;
+import com.cloudbees.api.BeesClientConfiguration;
 import com.cloudbees.api.cr.Capability;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -149,5 +151,27 @@ public class OauthToken extends AbstractOauthToken implements Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new AssertionError(e);
         }
+    }
+
+    /**
+     * Creates a new {@link BeesClient} that uses the access token encapsulated in this {@link OauthToken}
+     */
+    public BeesClient createClient() {
+        BeesClientConfiguration config = new BeesClientConfiguration();
+        config.setOAuthToken(accessToken);
+        return new BeesClient(config);
+    }
+
+    /**
+     * Creates a new {@link BeesClient} that uses the access token encapsulated in this {@link OauthToken}.
+     *
+     * @param current
+     *      The configuration parameter to inherit from. This method does not mutate this object.
+     */
+    public BeesClient createClient(BeesClientConfiguration current) {
+        // TODO: there should be a copy constructor
+        BeesClientConfiguration config = new BeesClientConfiguration(current.getServerApiUrl());
+        config.setOAuthToken(accessToken);
+        return new BeesClient(config);
     }
 }
