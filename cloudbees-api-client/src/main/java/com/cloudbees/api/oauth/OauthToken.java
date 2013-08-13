@@ -108,6 +108,16 @@ public class OauthToken extends AbstractOauthToken implements Cloneable {
         this.account = account;
     }
 
+    /**
+     * The number of seconds the access token will be valid, relative to the point of time where
+     * the call is issued to obtain this object (such as via {@link OauthClient#validateToken(String, String...)}.
+     *
+     * 0 or less means the token has already expired.
+     */
+    public Integer getExpiresIn() {
+        return expiresIn;
+    }
+
     public void setExpiresIn(int expiresIn){
         this.expiresIn = expiresIn;
     }
