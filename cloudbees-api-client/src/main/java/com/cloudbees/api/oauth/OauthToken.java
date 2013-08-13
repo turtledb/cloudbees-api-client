@@ -1,8 +1,11 @@
 package com.cloudbees.api.oauth;
 
+import com.cloudbees.api.cr.Capability;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import javax.annotation.CheckReturnValue;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -67,6 +70,7 @@ public class OauthToken extends AbstractOauthToken implements Cloneable {
      * Return true if the given scope is fond in the scopes granted with this token
      */
     @JsonIgnore
+    @CheckReturnValue
     public boolean validateScope(String scope){
         if(scope == null){
             return false;
@@ -82,12 +86,24 @@ public class OauthToken extends AbstractOauthToken implements Cloneable {
     /**
      * Checks if this token has any of the scopes specified
      */
+    @CheckReturnValue
     public boolean validateScopes(String... scopes){
         for (String s : scopes) {
             if (validateScope(s))
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Checks if this token has a scope that matches the given domain name and capability.
+     *
+     * @param host
+     *      Represents the endpoint.
+     */
+    @CheckReturnValue
+    public boolean validateCapability(URL host, Capability cap) {
+        return validateScope(cap.to(host));
     }
 
     /**

@@ -27,7 +27,18 @@ public class Capability {
             base += ":"+p;
         }
 
-        return String.format("crs://%s/!%s",base,uri);
+        return toScope(base);
+    }
+
+    /**
+     * Creates a scope string that represents this capability on any node.
+     */
+    public String toAll() {
+        return toScope("*");
+    }
+
+    private String toScope(String domain) {
+        return String.format("crs://%s/!%s",domain,uri);
     }
 
     public String to(CloudResource cr) {

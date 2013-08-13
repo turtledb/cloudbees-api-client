@@ -2,6 +2,7 @@ package com.cloudbees.api.oauth;
 
 import com.cloudbees.api.BeesClient;
 
+import javax.annotation.CheckForNull;
 import java.util.List;
 
 /**
@@ -45,6 +46,7 @@ public interface OauthClient {
      * @return null if the token is invalid such as expired or unknown to the CloudBees OAuth server or the expected
      * scopes are not found.
      */
+    @CheckForNull
     public OauthToken validateToken(String token, String... scopes) throws OauthClientException;
 
     /**
@@ -63,6 +65,7 @@ public interface OauthClient {
      * @param token non-null token
      * @return null if the token is invalid such as expired or unknown to the CloudBees OAuth server.
      */
+    @CheckForNull
     public OauthToken validateToken(String token) throws OauthClientException;
 
     /**
