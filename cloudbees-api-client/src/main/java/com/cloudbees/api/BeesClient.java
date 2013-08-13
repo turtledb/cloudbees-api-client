@@ -89,6 +89,19 @@ public class BeesClient extends BeesClientBase {
         init();
     }
 
+    /**
+     * Creates a client that talks to the CloudBees production API endpoint
+     *
+     * To obtain your API key an the secret, visit https://grandcentral.cloudbees.com/user/keys
+     */
+    public BeesClient(String apikey, String secret) {
+        this("https://api.cloudbees.com/api ", apikey, secret);
+    }
+
+    public BeesClient(String server, String apikey, String secret) {
+        this(server, apikey, secret,null,null);
+    }
+
     public BeesClient(String server, String apikey, String secret,
                       String format, String version) {
         // TODO: this encodePassword is considered harmful as it creates assymetry between two constructors
