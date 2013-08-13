@@ -243,7 +243,7 @@ public class BeesClient extends BeesClientBase {
     public HttpReply jsonRequest(String urlTail, String method, Map<String, String> headers, String jsonContent) throws IOException {
         BeesClientConfiguration conf = getBeesClientConfiguration();
         HttpClient httpClient = HttpClientHelper.createClient(conf);
-        HttpMethodBase httpMethod = null;
+        HttpMethodBase httpMethod;
 
         URL url = new URL(base, urlTail);
         String urlString;
