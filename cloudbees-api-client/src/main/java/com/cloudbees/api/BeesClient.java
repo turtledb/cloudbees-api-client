@@ -93,6 +93,10 @@ public class BeesClient extends BeesClientBase {
      * Creates a client that talks to the CloudBees production API endpoint
      *
      * To obtain your API key an the secret, visit https://grandcentral.cloudbees.com/user/keys
+     *
+     * If you have reigstered an OAuth application and talking to CloudBees as that OAuth
+     * application (for example to validate OAuth tokens you received from your users via browser),
+     * then you can specify that OAuth client ID and the secret.
      */
     public BeesClient(String apikey, String secret) {
         this("https://api.cloudbees.com/api ", apikey, secret);
