@@ -3,7 +3,10 @@ package com.cloudbees.api.oauth;
 import com.cloudbees.api.OAuthObject;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * State representation of OAuth client application.
@@ -20,9 +23,11 @@ public class OauthClientApplication extends OAuthObject {
     @JsonProperty
     public String app_url;
 
-    // see https://github.com/cloudbees/grandcentral/pull/1
-//    @JsonProperty
-//    public String grant_type = "client_credentials";
+    /**
+     * The mode of token issuance allowed for this application.
+     */
+    @JsonProperty("grant_type")
+    public Set<GrantType> grant_types = new HashSet<GrantType>();
 
     /**
      * If your user ID belongs to multiple accounts,
