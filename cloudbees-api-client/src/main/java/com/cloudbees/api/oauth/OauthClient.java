@@ -54,6 +54,12 @@ public interface OauthClient {
      * <p>
      * {@link BeesClient} must be constructed with OAuth client ID and client secret as the username and password.
      *
+     * <h2>Caching</h2>
+     * <p>
+     * This method call is a network operation. If you are developing a server application that performs
+     * frequent token validations, then consider using https://github.com/CloudBees-community/cached-token-validator ,
+     * which adds caching on top of this.
+     *
      * @param token non-null token
      * @return null if the token is invalid such as expired or unknown to the CloudBees OAuth server.
      */
