@@ -103,7 +103,7 @@ public class OauthToken extends AbstractOauthToken implements Cloneable {
      */
     @CheckReturnValue
     public boolean validateCapability(URL host, Capability cap) {
-        return validateScope(cap.to(host));
+        return validateScope(cap.to(host)) || validateScope(cap.toAll());
     }
 
     /**
