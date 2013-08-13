@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author Vivek Pandey
  */
-public class OauthToken extends AbstractOauthToken {
+public class OauthToken extends AbstractOauthToken implements Cloneable {
     /**
      * A short-lived opaque token that you'll send in the "Authorize" HTTP header as "Authorize: bearer <i>valueOfAccessToken</i>"
      */
@@ -115,5 +115,13 @@ public class OauthToken extends AbstractOauthToken {
     @JsonIgnore
     public boolean isExpired(){
         return (expiresIn != null && expiresIn <= 0);
+    }
+
+    public OauthToken clone() {
+        try {
+            return (OauthToken)super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(e);
+        }
     }
 }
