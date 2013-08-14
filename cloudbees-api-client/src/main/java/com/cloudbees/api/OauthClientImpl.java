@@ -238,7 +238,7 @@ public class OauthClientImpl implements OauthClient {
             OauthTokenDetail resp = bees.formUrlEncoded(gcUrl+"/oauth/token", null, params).bind(OauthTokenDetail.class,bees);
             return toToken(resp);
         } catch (IOException e) {
-            throw new OauthClientException("Failed to exchange authorization code to access token",e);
+            throw new OauthClientException("Failed to create OAuth token from OAuth client ID&secret",e);
         }
     }
 
