@@ -235,8 +235,7 @@ public class OauthClientImpl implements OauthClient {
             params.put("grant_type", singletonList("client_credentials"));
             params.put("scope", new ArrayList<String>(scopes));
 
-            OauthTokenDetail resp = bees.formUrlEncoded(gcUrl+"/oauth/token", null, params).bind(OauthTokenDetail.class,bees);
-            return toToken(resp);
+            return bees.formUrlEncoded(gcUrl+"/oauth/token", null, params).bind(OauthToken.class,bees);
         } catch (IOException e) {
             throw new OauthClientException("Failed to create OAuth token from OAuth client ID&secret",e);
         }
