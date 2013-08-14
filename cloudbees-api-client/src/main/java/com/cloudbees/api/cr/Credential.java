@@ -1,5 +1,6 @@
 package com.cloudbees.api.cr;
 
+import com.cloudbees.api.oauth.OauthToken;
 import org.codehaus.jackson.Base64Variants;
 
 import java.io.UnsupportedEncodingException;
@@ -32,5 +33,12 @@ public abstract class Credential {
         } catch (UnsupportedEncodingException e) {
             throw new AssertionError(e);
         }
+    }
+
+    /**
+     * Creates a {@link Credential} implementation that always put the specified OAuth token.
+     */
+    public static Credential oauth(OauthToken token) {
+        return oauth(token.accessToken);
     }
 }

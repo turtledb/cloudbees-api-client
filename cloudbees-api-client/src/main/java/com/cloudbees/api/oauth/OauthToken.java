@@ -3,6 +3,7 @@ package com.cloudbees.api.oauth;
 import com.cloudbees.api.BeesClient;
 import com.cloudbees.api.BeesClientConfiguration;
 import com.cloudbees.api.cr.Capability;
+import com.cloudbees.api.cr.Credential;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -173,5 +174,12 @@ public class OauthToken extends AbstractOauthToken implements Cloneable {
         BeesClientConfiguration config = new BeesClientConfiguration(current.getServerApiUrl());
         config.setOAuthToken(accessToken);
         return new BeesClient(config);
+    }
+
+    /**
+     * Uses this OAuth token as a {@link Credential} object.
+     */
+    public Credential asCredential() {
+        return Credential.oauth(this);
     }
 }
