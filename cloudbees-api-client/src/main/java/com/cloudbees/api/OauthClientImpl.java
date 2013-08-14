@@ -15,10 +15,15 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.util.Collections.*;
 
 /**
  *
@@ -56,22 +61,25 @@ public class OauthClientImpl implements OauthClient {
     public OauthToken createToken(TokenRequest tokenRequest) throws OauthClientException {
         try{
             OauthTokenDetail resp = bees.jsonPOJORequest(gcUrl + "/api/v2/authorizations", tokenRequest, OauthTokenDetail.class, "POST");
-
-            OauthToken token = new OauthToken();
-            token.owner = this;
-            token.refreshToken = resp.refreshToken != null ? resp.refreshToken.token : null;
-            token.accessToken = resp.accessToken.token;
-            token.setAccount(resp.account);
-            token.scope = join(resp.accessToken.scopes,",");
-            token.tokenType = resp.accessToken.tokenType;
-            token.uid = resp.uid;
-            token.email = resp.email;
-            token.setExpiresIn(resp.accessToken.expiresIn);
-            token.id = resp.id;
-            return token;
+            return toToken(resp);
         }catch(IOException e){
             throw new OauthClientException("Failed to validate token. "+e.getMessage(), e);
         }
+    }
+
+    private OauthToken toToken(OauthTokenDetail resp) {
+        OauthToken token = new OauthToken();
+        token.owner = this;
+        token.refreshToken = resp.refreshToken != null ? resp.refreshToken.token : null;
+        token.accessToken = resp.accessToken.token;
+        token.setAccount(resp.account);
+        token.scope = join(resp.accessToken.scopes,",");
+        token.tokenType = resp.accessToken.tokenType;
+        token.uid = resp.uid;
+        token.email = resp.email;
+        token.setExpiresIn(resp.accessToken.expiresIn);
+        token.id = resp.id;
+        return token;
     }
 
     private String join(Collection<?> col, String delim) {
@@ -201,6 +209,34 @@ public class OauthClientImpl implements OauthClient {
         } catch (IOException e) {
             logger.log(Level.WARNING, "Failed to list up OAuth applications", e);
             return null;
+        }
+    }
+
+    public OauthToken exchangeToAccessToken(String authorizationCode, String redirectUri) throws OauthClientException {
+        try {
+            Map<String,List<String>> params = new HashMap<String, List<String>>();
+            params.put("grant_type", singletonList("authorization_code"));
+            params.put("code", singletonList(authorizationCode));
+            if (redirectUri!=null)
+                params.put("redirect_uri", singletonList(redirectUri));
+
+            OauthTokenDetail resp = bees.formUrlEncoded(gcUrl+"/oauth/token", null, params).bind(OauthTokenDetail.class,bees);
+            return toToken(resp);
+        } catch (IOException e) {
+            throw new OauthClientException("Failed to exchange authorization code to access token",e);
+        }
+    }
+
+    public OauthToken createOAuthClientToken(Collection<String> scopes) throws OauthClientException {
+        try {
+            Map<String,List<String>> params = new HashMap<String, List<String>>();
+            params.put("grant_type", singletonList("client_credentials"));
+            params.put("scope", new ArrayList<String>(scopes));
+
+            OauthTokenDetail resp = bees.formUrlEncoded(gcUrl+"/oauth/token", null, params).bind(OauthTokenDetail.class,bees);
+            return toToken(resp);
+        } catch (IOException e) {
+            throw new OauthClientException("Failed to exchange authorization code to access token",e);
         }
     }
 

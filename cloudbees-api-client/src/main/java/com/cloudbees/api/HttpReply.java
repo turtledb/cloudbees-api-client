@@ -16,14 +16,24 @@
 
 package com.cloudbees.api;
 
+import org.apache.commons.httpclient.HttpMethod;
+
+import java.io.IOException;
+
 /**
  * @author Fabian Donze
  */
 public class HttpReply {
-    private int code;
-    private String content;
+    private final HttpMethod method;
+    private final int code;
+    private final String content;
 
     public HttpReply(int code, String content) {
+        this(null,code,content);
+    }
+
+    public HttpReply(HttpMethod method, int code, String content) {
+        this.method = method;
         this.code = code;
         this.content = content;
     }
@@ -34,6 +44,23 @@ public class HttpReply {
 
     public String getContent() {
         return content;
+    }
+
+    /**
+     * Treats the response as JSON string and performs a databinding.
+     */
+    public <T> T bind(Class<T> type, BeesClient root) throws IOException {
+        if (getCode() >= 300)
+            throw new IOException("Failed to " + method.getName() + " : " + method.getURI() + " : code=" + getCode() + " response=" + getContent());
+
+        if (type != null && getContent() != null) {
+            T ret = BeesClient.MAPPER.readValue(getContent(), type);
+            if (ret instanceof CBObject) {// TODO: nested objects?
+                ((CBObject) ret).root = root;
+            }
+            return ret;
+        }
+        return null;
     }
 
     @Override

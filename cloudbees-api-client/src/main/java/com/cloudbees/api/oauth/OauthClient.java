@@ -3,6 +3,7 @@ package com.cloudbees.api.oauth;
 import com.cloudbees.api.BeesClient;
 
 import javax.annotation.CheckForNull;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -99,4 +100,36 @@ public interface OauthClient {
     public List<OauthClientApplication> listApplication() throws OauthClientException;
 
     void deleteApplication(String clientId) throws OauthClientException;
+
+    /**
+     * OAuth client application can use this method to exchange the authorization code
+     * (which it gets from the browser after GC authenticates the user and redirects him back to you)
+     * to the OAuth access token.
+     *
+     * <p>
+     * For this method to work, {@link BeesClient} should be called with OAuth client ID and secret.
+     *
+     * @see <a href="http://wiki.cloudbees.com/bin/view/RUN/OAuth#HExchangeAuthorizationCodeForAccessToken">Wiki</a>
+     *
+     * @param redirectUri
+     *      Required if present in the authorization request, and the value must be the same.
+     * @return never null. In case of a problem, an exception will be thrown.
+     */
+    OauthToken exchangeToAccessToken(String authorizationCode, String redirectUri) throws OauthClientException;
+
+    /**
+     * OAuth client application can use this method to create an OAuth token with arbitrary scopes
+     * that belongs to the user who registered the application.
+     *
+     * The created token will be tied only to the account that the OAuth client application is registered with,
+     * even if the user who registered it may have access to other accounts.
+     *
+     * <p>
+     * For this method to work, {@link BeesClient} should be called with OAuth client ID and secret.
+     *
+     * @see <a href="http://wiki.cloudbees.com/bin/view/RUN/OAuth#HServerApplication">Wiki</a>
+     *
+     * @return never null. In case of a problem, an exception will be thrown.
+     */
+    OauthToken createOAuthClientToken(Collection<String> scope) throws OauthClientException;
 }

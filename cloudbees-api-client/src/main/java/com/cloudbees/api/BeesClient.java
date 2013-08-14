@@ -28,6 +28,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.io.IOUtils;
@@ -47,6 +48,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -218,18 +220,7 @@ public class BeesClient extends BeesClientBase {
             content = MAPPER.writeValueAsString(request);
         }
         HttpReply resp = jsonRequest(apiTail, method, null, content);
-        if (resp.getCode() >= 300)
-            throw new IOException("Failed to " + method + " : " + apiTail + " : code=" + resp.getCode() + " response=" + resp.getContent());
-
-        if (type != null && resp.getContent() != null) {
-            T ret = MAPPER.readValue(resp.getContent(), type);
-            if (ret instanceof CBObject)    // TODO: nested objects?
-            {
-                ((CBObject) ret).root = this;
-            }
-            return ret;
-        }
-        return null;
+        return resp.bind(type,this);
     }
 
     /**
@@ -241,17 +232,9 @@ public class BeesClient extends BeesClientBase {
      *@param jsonContent  The json request payload, or null if none.  @throws IOException If the communication fails.
      */
     public HttpReply jsonRequest(String urlTail, String method, Map<String, String> headers, String jsonContent) throws IOException {
-        BeesClientConfiguration conf = getBeesClientConfiguration();
-        HttpClient httpClient = HttpClientHelper.createClient(conf);
         HttpMethodBase httpMethod;
 
-        URL url = new URL(base, urlTail);
-        String urlString;
-        try {
-            urlString = url.toURI().toString();
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Invalid API URL:" + url.toString(), e);
-        }
+        String urlString = absolutize(urlTail);
 
         trace("API call: " + urlString);
         if (method.equalsIgnoreCase("GET")) {
@@ -274,13 +257,62 @@ public class BeesClient extends BeesClientBase {
             throw new IOException("Method not supported: " + method);
 
         httpMethod.setRequestHeader("Accept", "application/json");
-        if (encodedAccountAuthorization != null)
-            httpMethod.setRequestHeader("Authorization", encodedAccountAuthorization);
         if (jsonContent != null && httpMethod instanceof EntityEnclosingMethod) {
             StringRequestEntity requestEntity = new StringRequestEntity(jsonContent, "application/json", "UTF-8");
             ((EntityEnclosingMethod)httpMethod).setRequestEntity(requestEntity);
             trace("Payload: " + jsonContent);
         }
+
+        return executeRequest(httpMethod,headers);
+    }
+
+    /**
+     * Sends a request in JSON and expects a JSON response back.
+     *
+     * @param urlTail The end point to hit. Appended to {@link #base}. Shouldn't start with '/'
+     * @param headers HTTP headers
+     * @param params
+     *      Form parameters
+     */
+    public HttpReply formUrlEncoded(String urlTail, Map<String, String> headers, Map<String,List<String>> params) throws IOException {
+        String urlString = absolutize(urlTail);
+        trace("API call: " + urlString);
+        PostMethod httpMethod = new PostMethod(urlString);
+
+        httpMethod.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+        for (Entry<String, List<String>> e : params.entrySet()) {
+            for (String v : e.getValue()) {
+                httpMethod.addParameter(e.getKey(),v);
+            }
+        }
+
+        return executeRequest(httpMethod,headers);
+    }
+
+    /**
+     * Computes the absolute URL to send the request to from the tail portion.
+     */
+    private String absolutize(String urlTail) throws IOException {
+        URL url = new URL(base, urlTail);
+        String urlString;
+        try {
+            urlString = url.toURI().toString();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Invalid API URL:" + url.toString(), e);
+        }
+        return urlString;
+    }
+
+    /**
+     * Execues an HTTP method
+     */
+    private HttpReply executeRequest(HttpMethod httpMethod, Map<String, String> headers) throws IOException {
+        BeesClientConfiguration conf = getBeesClientConfiguration();
+        HttpClient httpClient = HttpClientHelper.createClient(conf);
+
+        if (encodedAccountAuthorization != null)
+            httpMethod.setRequestHeader("Authorization", encodedAccountAuthorization);
 
         if (headers != null) {
             for (Map.Entry<String, String> entry: headers.entrySet()) {
@@ -294,14 +326,14 @@ public class BeesClient extends BeesClientBase {
             status = httpClient.executeMethod(httpMethod);
             rsp = IOUtils.toString(httpMethod.getResponseBodyAsStream());
         } catch (IOException e) {
-            throw new IOException("Failed to " + method + " : " + urlTail + " : code=" + status + " response=" + e.getMessage(), e);
+            throw (IOException)new IOException("Failed to " + httpMethod.getName() + " : " + httpMethod.getURI() + " : code=" + status + " response=" + e.getMessage()).initCause(e);
         } finally {
             httpMethod.releaseConnection();
         }
 
         trace(status + ": " + rsp);
 
-        return new HttpReply(status, rsp);
+        return new HttpReply(httpMethod, status, rsp);
     }
 
     public CBAccount getAccount(String name) throws IOException {
