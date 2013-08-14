@@ -16,7 +16,9 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -238,6 +240,10 @@ public class OauthClientImpl implements OauthClient {
         } catch (IOException e) {
             throw new OauthClientException("Failed to exchange authorization code to access token",e);
         }
+    }
+
+    public OauthToken createOAuthClientToken(String... scopes) throws OauthClientException {
+        return createOAuthClientToken(Arrays.asList(scopes));
     }
 
     private static final Logger logger = Logger.getLogger(OauthClientImpl.class.getName());

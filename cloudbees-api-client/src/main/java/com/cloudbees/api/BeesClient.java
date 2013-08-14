@@ -274,7 +274,7 @@ public class BeesClient extends BeesClientBase {
      * @param params
      *      Form parameters
      */
-    public HttpReply formUrlEncoded(String urlTail, Map<String, String> headers, Map<String,List<String>> params) throws IOException {
+    /*package*/ HttpReply formUrlEncoded(String urlTail, Map<String, String> headers, Map<String,List<String>> params) throws IOException {
         String urlString = absolutize(urlTail);
         trace("API call: " + urlString);
         PostMethod httpMethod = new PostMethod(urlString);
@@ -305,7 +305,7 @@ public class BeesClient extends BeesClientBase {
     }
 
     /**
-     * Execues an HTTP method
+     * Executes an HTTP method.
      */
     private HttpReply executeRequest(HttpMethod httpMethod, Map<String, String> headers) throws IOException {
         BeesClientConfiguration conf = getBeesClientConfiguration();

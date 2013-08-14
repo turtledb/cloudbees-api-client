@@ -131,5 +131,10 @@ public interface OauthClient {
      *
      * @return never null. In case of a problem, an exception will be thrown.
      */
-    OauthToken createOAuthClientToken(Collection<String> scope) throws OauthClientException;
+    OauthToken createOAuthClientToken(Collection<String> scopes) throws OauthClientException;
+
+    /**
+     * Overloaded version of {@link #createOAuthClientToken(Collection)}
+     */
+    OauthToken createOAuthClientToken(String... scopes) throws OauthClientException;
 }
