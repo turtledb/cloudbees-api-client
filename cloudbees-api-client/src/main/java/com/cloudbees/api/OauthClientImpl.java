@@ -65,7 +65,7 @@ public class OauthClientImpl implements OauthClient {
             OauthTokenDetail resp = bees.jsonPOJORequest(gcUrl + "/api/v2/authorizations", tokenRequest, OauthTokenDetail.class, "POST");
             return toToken(resp);
         }catch(IOException e){
-            throw new OauthClientException("Failed to validate token. "+e.getMessage(), e);
+            throw new OauthClientException("Failed to create token. "+e.getMessage(), e);
         }
     }
 
