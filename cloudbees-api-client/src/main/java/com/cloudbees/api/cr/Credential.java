@@ -3,6 +3,7 @@ package com.cloudbees.api.cr;
 import com.cloudbees.api.oauth.OauthToken;
 import org.codehaus.jackson.Base64Variants;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 
@@ -15,8 +16,11 @@ public abstract class Credential {
     /**
      * Decorates the connection by adding necessary information for authentication,
      * most typically the "Authorization" header.
+     *
+     * @throws IOException
+     *      If an error happens and the request should not proceed.
      */
-    public abstract void authorizeRequest(HttpURLConnection con);
+    public abstract void authorizeRequest(HttpURLConnection con) throws IOException;
 
     /**
      * Creates a {@link Credential} implementation that always put the specified OAuth token.
