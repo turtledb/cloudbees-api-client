@@ -169,4 +169,12 @@ public class TokenRequest {
         this.accessType = b ? "offline" : "online";
         return this;
     }
+
+    /**
+     * For assisting debugging.
+     */
+    @Override
+    public String toString() {
+        return super.toString()+"[accountName="+accountName+",scopes="+scopes+",accessType="+accessType+"]";
+    }
 }
