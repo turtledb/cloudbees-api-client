@@ -20,12 +20,14 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Map;
 
 @XStreamAlias("DatabaseSnapshotInfo")
 public class DatabaseSnapshotInfo {
     private String id;
     private String title;
     private String created;
+    private Map<String, String> settings;
 
     public DatabaseSnapshotInfo(String id, String title, Date created) {
         super();
@@ -51,5 +53,13 @@ public class DatabaseSnapshotInfo {
         } catch (ParseException e) {
             return null;
         }
+    }
+
+    public Map<String, String> getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Map<String, String> settings) {
+        this.settings = settings;
     }
 }

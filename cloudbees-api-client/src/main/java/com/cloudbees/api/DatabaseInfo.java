@@ -20,6 +20,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Map;
 
 @XStreamAlias("DatabaseInfo")
 public class DatabaseInfo {
@@ -32,6 +33,8 @@ public class DatabaseInfo {
     private String master;
     private String[] slaves;
     private int port;
+
+    private Map<String, String> settings;
 
     public DatabaseInfo(String name, String owner, String username, String password,
                         Date created, String status, String master, String[] slaves, int port) {
@@ -88,5 +91,13 @@ public class DatabaseInfo {
 
     public int getPort() {
         return port;
+    }
+
+    public Map<String, String> getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Map<String, String> settings) {
+        this.settings = settings;
     }
 }
