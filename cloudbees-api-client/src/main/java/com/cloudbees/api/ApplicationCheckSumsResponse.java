@@ -23,6 +23,7 @@ import java.util.Map;
 @XStreamAlias("ApplicationCheckSumsResponse")
 public class ApplicationCheckSumsResponse {
     Map<String, Long> checkSums;
+    String snapshotID;
 
     public ApplicationCheckSumsResponse() {
     }
@@ -37,5 +38,13 @@ public class ApplicationCheckSumsResponse {
 
     public void setCheckSums(Map<String, Long> checkSums) {
         this.checkSums = checkSums;
+    }
+
+    public String getSnapshotID() {
+        return snapshotID;
+    }
+
+    public void setSnapshotID(String snapshotID) {
+        this.snapshotID = snapshotID;
     }
 }

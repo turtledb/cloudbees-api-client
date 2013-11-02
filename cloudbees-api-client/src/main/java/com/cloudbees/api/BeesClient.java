@@ -651,6 +651,8 @@ public class BeesClient extends BeesClientBase {
                 archiveFile = ArchiveUtils.createDeltaWarFile(applicationCheckSumsResponse.getCheckSums(), archiveFile,
                         archiveFile.getParent());
                 deployDelta = true;
+                if (applicationCheckSumsResponse.getSnapshotID() != null)
+                    params.put("delta_snapshot_id", applicationCheckSumsResponse.getSnapshotID());
             }
         }
 
