@@ -118,6 +118,20 @@ public interface OauthClient {
     OauthToken exchangeToAccessToken(String authorizationCode, String redirectUri) throws OauthClientException;
 
     /**
+     * Exchange refresh_token to an access token. The new access_token can be created with the same or subset of
+     * original scopes the refresh token was granted for.
+     *
+     * @param refreshToken required. refresh_token.
+     *
+     * @param scopes optional. If not provided the returned access_token carries the same scopes as the one granted
+     *               to refresh_token.
+     * @return Valid OauthToken
+     *
+     * @throws OauthClientException
+     */
+    OauthToken exchangeToAccessToken(String refreshToken, String... scopes) throws OauthClientException;
+
+    /**
      * OAuth client application can use this method to create an OAuth token with arbitrary scopes
      * that belongs to the user who registered the application.
      *

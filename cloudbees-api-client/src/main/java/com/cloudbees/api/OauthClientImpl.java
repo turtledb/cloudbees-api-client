@@ -18,14 +18,13 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static java.util.Collections.*;
+import static java.util.Collections.singletonList;
 
 /**
  *
@@ -222,8 +221,23 @@ public class OauthClientImpl implements OauthClient {
             if (redirectUri!=null)
                 params.put("redirect_uri", singletonList(redirectUri));
 
-            OauthTokenDetail resp = bees.formUrlEncoded(gcUrl+"/oauth/token", null, params).bind(OauthTokenDetail.class,bees);
-            return toToken(resp);
+            OauthToken resp = bees.formUrlEncoded(gcUrl+"/oauth/token", null, params).bind(OauthToken.class,bees);
+            return resp;
+        } catch (IOException e) {
+            throw new OauthClientException("Failed to exchange authorization code to access token",e);
+        }
+    }
+
+    public OauthToken exchangeToAccessToken(String refreshToken, String... scopes) throws OauthClientException {
+        try {
+            Map<String,List<String>> params = new HashMap<String, List<String>>();
+            params.put("grant_type", singletonList("refresh_token"));
+            params.put("refresh_token", singletonList(refreshToken));
+            if (scopes!=null)
+                params.put("scope", singletonList(join(Arrays.asList(scopes),",")));
+
+            OauthToken resp = bees.formUrlEncoded(gcUrl+"/oauth/token", null, params).bind(OauthToken.class,bees);
+            return resp;
         } catch (IOException e) {
             throw new OauthClientException("Failed to exchange authorization code to access token",e);
         }
