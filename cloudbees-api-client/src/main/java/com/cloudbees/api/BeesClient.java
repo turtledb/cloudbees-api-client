@@ -170,6 +170,22 @@ public class BeesClient extends BeesClientBase {
     }
 
     /**
+     * Create OAuth client using the given GC URL. It's useful for client apps who want to test their functionality with
+     * GC instances running locally or elsewhere for individual testing.
+     *
+     * It also decouples RUN api instance from GC instance, useful in certain test scenarios
+     *
+     * @param gcUrl If null defaults to https://grandcentral.cloudbees.com
+     *
+     */
+    public OauthClient getOauthClient(String gcUrl) {
+        if(gcUrl == null){
+            gcUrl = "https://grandcentral.cloudbees.com";
+        }
+        return new OauthClientImpl(this, gcUrl);
+    }
+
+    /**
      * Creates an user, including a partial user creation.
      *
      * @see <a href="https://sites.google.com/a/cloudbees
