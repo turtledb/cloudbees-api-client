@@ -767,8 +767,10 @@ public class BeesClient extends BeesClientBase {
                 String username, String password, String plan) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("database_id", dbId);
-        params.put("database_username", username);
-        params.put("database_password", password);
+        if (username != null)
+            params.put("database_username", username);
+        if (password != null)
+            params.put("database_password", password);
         params.put("domain", domain);
         if (plan != null)
             params.put("database_plan", plan);
@@ -821,6 +823,13 @@ public class BeesClient extends BeesClientBase {
         return (DatabaseListResponse) readResponse(response);
     }
 
+    /**
+     * @deprecated use databaseUpdate
+     * @param dbId    The database ID
+     * @param password  The database password
+     * @return   DatabaseSetPasswordResponse
+     * @throws Exception
+     */
     public DatabaseSetPasswordResponse databaseSetPassword(String dbId, String password) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("database_id", dbId);
@@ -828,6 +837,15 @@ public class BeesClient extends BeesClientBase {
         String url = getRequestURL("database.setPassword", params);
         String response = executeRequest(url);
         return (DatabaseSetPasswordResponse) readResponse(response);
+    }
+
+    public DatabaseInfo databaseUpdate(String dbID, Map<String, String> parameters) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbID);
+        params.put("parameters", createParameter(parameters));
+        String url = getRequestURL("database.update", params);
+        String response = executeRequest(url);
+        return (DatabaseInfo)readResponse(response);
     }
 
     public DatabaseSnapshotListResponse databaseSnapshotList(String dbId) throws Exception {
@@ -865,6 +883,40 @@ public class BeesClient extends BeesClientBase {
         String url = getRequestURL("database.snapshot.create", params);
         String response = executeRequest(url);
         return (DatabaseSnapshotInfo) readResponse(response);
+    }
+
+    public DatabaseBackupListResponse databaseBackupList(String dbId) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbId);
+        String url = getRequestURL("database.backup.list", params);
+        String response = executeRequest(url);
+        return (DatabaseBackupListResponse) readResponse(response);
+    }
+
+    public DatabaseBackupResponse databaseBackupCreate(String dbId) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbId);
+        String url = getRequestURL("database.backup.create", params);
+        String response = executeRequest(url);
+        return (DatabaseBackupResponse) readResponse(response);
+    }
+
+    public DatabaseBackupResponse databaseBackupRestore(String dbId, String backupId) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbId);
+        params.put("backup_id", backupId);
+        String url = getRequestURL("database.backup.restore", params);
+        String response = executeRequest(url);
+        return (DatabaseBackupResponse) readResponse(response);
+    }
+
+    public DatabaseBackupResponse databaseBackupDelete(String dbId, String backupId) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("database_id", dbId);
+        params.put("backup_id", backupId);
+        String url = getRequestURL("database.backup.delete", params);
+        String response = executeRequest(url);
+        return (DatabaseBackupResponse) readResponse(response);
     }
 
     public AccountKeysResponse accountKeys(String domain, String user, String password) throws Exception {
@@ -1719,6 +1771,9 @@ public class BeesClient extends BeesClientBase {
         xstream.processAnnotations(ServiceSubscriptionInvokeResponse.class);
         xstream.processAnnotations(ParameterSettings.class);
         xstream.processAnnotations(ResourceSettings.class);
+        xstream.processAnnotations(DatabaseBackupInfo.class);
+        xstream.processAnnotations(DatabaseBackupListResponse.class);
+        xstream.processAnnotations(DatabaseBackupResponse.class);
 
         // Hack to fix backward compatibility
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);
