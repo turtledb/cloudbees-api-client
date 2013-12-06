@@ -3,8 +3,6 @@ package com.cloudbees.api.oauth;
 import com.cloudbees.api.OAuthObject;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.List;
-
 /**
  * Common part between {@link OauthToken} and {@link OauthTokenDetail}
  *
@@ -29,6 +27,12 @@ public class AbstractOauthToken extends OAuthObject {
      */
     @JsonProperty("email")
     public String email;
+
+    /**
+     * User's account management role, for example "admin" or "user"
+     */
+    @JsonProperty("user_account_role")
+    public String userAccountRole;
 
     /**
      * Deletes this token.
