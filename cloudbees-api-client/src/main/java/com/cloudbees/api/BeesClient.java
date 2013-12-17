@@ -919,6 +919,14 @@ public class BeesClient extends BeesClientBase {
         return (DatabaseBackupResponse) readResponse(response);
     }
 
+    public DatabaseClusterListResponse databaseClusterList(String account) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("account", account);
+        String url = getRequestURL("database.cluster.list", params);
+        String response = executeRequest(url);
+        return (DatabaseClusterListResponse) readResponse(response);
+    }
+
     public AccountKeysResponse accountKeys(String domain, String user, String password) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("user", user);
@@ -1774,6 +1782,8 @@ public class BeesClient extends BeesClientBase {
         xstream.processAnnotations(DatabaseBackupInfo.class);
         xstream.processAnnotations(DatabaseBackupListResponse.class);
         xstream.processAnnotations(DatabaseBackupResponse.class);
+        xstream.processAnnotations(DatabaseClusterInfo.class);
+        xstream.processAnnotations(DatabaseClusterListResponse.class);
 
         // Hack to fix backward compatibility
         xstream.alias("net.stax.api.ApplicationStatusResponse", ApplicationStatusResponse.class);
