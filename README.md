@@ -7,7 +7,7 @@ To use this library, add the following dependency to your Maven POM:
     <dependency>
       <groupId>com.cloudbees</groupId>
       <artifactId>cloudbees-api-client</artifactId>
-      <version>1.5.3</version>
+      <version>1.5.6</version>
     </dependency>
 
 The entry point of this library is the `BeesClient` class, which you can instantiate like this:
