@@ -64,6 +64,7 @@ Generate access_token using API key and secret
 
 
 Generate access_token using OAuth app's clientId and clientSecret
+
     BeesClient bc = new BeesClient(clientId, clientSecret);
     TokenRequest tokenRequest = new TokenRequest().withScopes("https://api.cloudbees.com/v2/users/user");
     OauthToken token = oac.createOAuthClientToken(tokenRequest);
