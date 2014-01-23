@@ -73,4 +73,4 @@ Generate access_token using OAuth app's clientId and clientSecret
     tokenRequest.withGenerateRequestToken(true)
 
 
-See [the javadoc](/cloudbees/cloudbees-api-client/blob/master/cloudbees-api-client/src/main/java/com/cloudbees/api/oauth/OauthClient.java) of `OauthClient` for more about all the operations that are exposed.
+See [the javadoc](cloudbees-api-client/blob/master/cloudbees-api-client/src/main/java/com/cloudbees/api/oauth/OauthClient.java) of `OauthClient` for more about all the operations that are exposed.
