@@ -151,4 +151,11 @@ public interface OauthClient {
      * Overloaded version of {@link #createOAuthClientToken(Collection)}
      */
     OauthToken createOAuthClientToken(String... scopes) throws OauthClientException;
+
+    /**
+     * Overloaded version of {@link #createOAuthClientToken(Collection)}
+     *
+     */
+    OauthToken createOAuthClientToken(TokenRequest tokenRequest) throws OauthClientException;
+
 }

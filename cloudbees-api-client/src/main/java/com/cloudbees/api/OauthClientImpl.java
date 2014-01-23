@@ -15,9 +15,9 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -236,7 +236,7 @@ public class OauthClientImpl implements OauthClient {
             params.put("grant_type", singletonList("refresh_token"));
             params.put("refresh_token", singletonList(refreshToken));
             if (scopes!=null)
-                params.put("scope", singletonList(join(Arrays.asList(scopes),",")));
+                params.put("scope", singletonList(join(Arrays.asList(scopes)," ")));
 
             OauthToken resp = bees.formUrlEncoded(gcUrl+"/oauth/token", null, params).bind(OauthToken.class,bees);
             return resp;
@@ -249,7 +249,7 @@ public class OauthClientImpl implements OauthClient {
         try {
             Map<String,List<String>> params = new HashMap<String, List<String>>();
             params.put("grant_type", singletonList("client_credentials"));
-            params.put("scope", new ArrayList<String>(scopes));
+            params.put("scope", singletonList(join(scopes, " ")));
 
             return bees.formUrlEncoded(gcUrl+"/oauth/token", null, params).bind(OauthToken.class,bees);
         } catch (IOException e) {
@@ -259,6 +259,21 @@ public class OauthClientImpl implements OauthClient {
 
     public OauthToken createOAuthClientToken(String... scopes) throws OauthClientException {
         return createOAuthClientToken(Arrays.asList(scopes));
+    }
+
+    public OauthToken createOAuthClientToken(TokenRequest tokenRequest) throws OauthClientException {
+        try {
+            Map<String,List<String>> params = new HashMap<String, List<String>>();
+
+            //access_type 'offline' generates a refresh_token as well
+            params.put("access_type", Collections.singletonList(tokenRequest.getAccessType()));
+            params.put("scope", singletonList(join(tokenRequest.getScopes(), " ")));
+            params.put("grant_type", singletonList("client_credentials"));
+
+            return bees.formUrlEncoded(gcUrl+"/oauth/token", null, params).bind(OauthToken.class,bees);
+        } catch (IOException e) {
+            throw new OauthClientException("Failed to create OAuth token from OAuth client ID&secret",e);
+        }
     }
 
     private static final Logger logger = Logger.getLogger(OauthClientImpl.class.getName());

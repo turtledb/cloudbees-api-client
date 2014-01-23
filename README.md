@@ -53,4 +53,23 @@ This API's primary interface is `OauthClient`, and you can create one like this:
 
     OauthClient oac = client.getOauthClient();
 
+Generate access_token using API key and secret
+
+    //withNote is needed only when you are generating OAuth token using your API key and secret
+    TokenRequest tokenRequest = new TokenRequest().withNote("My monitoring app", "https://mymonitoring.example.org")
+                                                  .withAccount("acme")
+                                                  .withScopes("https://api.cloudbees.com/v2/users/user");
+
+    OauthToken token = oac.createToken(tokenRequest);
+
+
+Generate access_token using OAuth app's clientId and clientSecret
+    BeesClient bc = new BeesClient(clientId, clientSecret);
+    TokenRequest tokenRequest = new TokenRequest().withScopes("https://api.cloudbees.com/v2/users/user");
+    OauthToken token = oac.createOAuthClientToken(tokenRequest);
+
+    //This will generate refresh_token along with access_token
+    tokenRequest.withGenerateRequestToken(true)
+
+
 See [the javadoc](/cloudbees/cloudbees-api-client/blob/master/cloudbees-api-client/src/main/java/com/cloudbees/api/oauth/OauthClient.java) of `OauthClient` for more about all the operations that are exposed.
