@@ -49,8 +49,9 @@ OAuth API
 =========
 [CloudBees OAuth service](http://wiki.cloudbees.com/bin/view/RUN/OAuth) lets your app interact with CloudBees OAuth service.
 
-Create BeesClient using clientId and clientSecret
-BeesClient constructor given above create the client's instance using CloudBees account's apikey and secret. If you want to create BeesClient instance using OAuth app's clientId and secret use the code below:
+Create BeesClient instance using clientId and clientSecret
+
+BeesClient constructor given above creates instance using CloudBees account's apikey and secret. If you want to create BeesClient instance using OAuth app's clientId and secret use the code below:
 
     //Create BeesClient using your OAuth app's clientId and clientSecret
     BeesClient bees = new BeesClient(clientId, clientSecret);
