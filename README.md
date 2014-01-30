@@ -49,8 +49,15 @@ OAuth API
 =========
 [CloudBees OAuth service](http://wiki.cloudbees.com/bin/view/RUN/OAuth) lets your app interact with CloudBees OAuth service.
 
-This API's primary interface is `OauthClient`, and you can create one like this:
+Create BeesClient using clientId and clientSecret
+BeesClient constructor given above create the client's instance using CloudBees account's apikey and secret. If you want to create BeesClient instance using OAuth app's clientId and secret use the code below:
 
+    //Create BeesClient using your OAuth app's clientId and clientSecret
+    BeesClient bees = new BeesClient(clientId, clientSecret);
+
+
+This API's primary interface is `OauthClient`, and you can create one like this:
+    
     OauthClient oac = client.getOauthClient();
 
 Generate access_token using API key and secret
@@ -59,18 +66,34 @@ Generate access_token using API key and secret
     TokenRequest tokenRequest = new TokenRequest().withNote("My monitoring app", "https://mymonitoring.example.org")
                                                   .withAccount("acme")
                                                   .withScopes("https://api.cloudbees.com/v2/users/user");
-
+    
     OauthToken token = oac.createToken(tokenRequest);
 
 
 Generate access_token using OAuth app's clientId and clientSecret
 
     BeesClient bc = new BeesClient(clientId, clientSecret);
+    
     TokenRequest tokenRequest = new TokenRequest().withScopes("https://api.cloudbees.com/v2/users/user");
     OauthToken token = oac.createOAuthClientToken(tokenRequest);
-
+    
     //This will generate refresh_token along with access_token
     tokenRequest.withGenerateRequestToken(true)
+    
+Validate Token
 
+When your app receeves OAuth token, first you need to parse it and then validate it. Validation could mean checking for OAuth scope your application is expecting. You can also check to see which user or account this token was granted to by inspecting (see OauthToken class)
+
+            BeesClient bees = new BeesClient(clientId, clientSecret);
+            OauthClient oauthClient = bees.getOauthClient();
+            
+            //parse Bearer token
+            String token = oauthClient.parseAuthorizationHeader(request.getHeaderValue("Authorization"));
+
+            //Although not recommended but OAuth token is passed as request parameter as well
+            //Parse access_token query param using JAX-RS Jersey library
+            request.getQueryParameters().getFirst("access_token");
+
+            OauthToken oauthToken = oauthClient.validateToken(token, scope);
 
 See [the javadoc](cloudbees-api-client/blob/master/cloudbees-api-client/src/main/java/com/cloudbees/api/oauth/OauthClient.java) of `OauthClient` for more about all the operations that are exposed.
