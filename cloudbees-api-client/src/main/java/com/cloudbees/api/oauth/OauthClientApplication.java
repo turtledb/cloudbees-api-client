@@ -37,7 +37,7 @@ public class OauthClientApplication extends OAuthObject {
     public String account;
 
     @JsonProperty
-    public List<ScopeDefinition> scopes;
+    public List<ScopeDefinition> scopes=new ArrayList<ScopeDefinition>();
 
     /**
      * Client ID of the application.
