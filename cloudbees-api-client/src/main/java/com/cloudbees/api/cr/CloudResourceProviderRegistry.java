@@ -18,5 +18,9 @@ public class CloudResourceProviderRegistry extends CloudResourceProvider {
         getOwner().post(".", ReferencedResource.of(cr.getOwner()), null);
     }
 
+    public void delete() throws IOException {
+        getOwner().delete();
+    }
+
     public static Capability REGISTER_CAPABILITY = new Capability("https://types.cloudbees.com/resource/provider/crp/register");
 }

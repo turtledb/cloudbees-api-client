@@ -164,6 +164,18 @@ public class CloudResource {
         return retrieve(type,false);
     }
 
+    public void delete() throws IOException {
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        credential.authorizeRequest(con);
+        con.setRequestProperty("Accept", CONTENT_TYPE);
+        con.setRequestMethod("DELETE");
+        con.setRequestProperty("Accept", CONTENT_TYPE);
+        dumpRequestHeaders(con);
+        con.getInputStream().close();
+        checkError(con);
+    }
+
+
     /**
      * Makes a POST request with the specified request payload, then return the data-bound JSON object in the specified 'response' type.
      *
