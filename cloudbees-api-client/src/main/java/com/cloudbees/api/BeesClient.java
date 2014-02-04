@@ -1777,6 +1777,7 @@ public class BeesClient extends BeesClientBase {
         xstream.processAnnotations(ServiceResourceResponse.class);
         xstream.processAnnotations(ServiceResourceInvokeResponse.class);
         xstream.processAnnotations(ServiceSubscriptionInvokeResponse.class);
+        xstream.processAnnotations(ServiceListResponse.class);
         xstream.processAnnotations(ParameterSettings.class);
         xstream.processAnnotations(ResourceSettings.class);
         xstream.processAnnotations(DatabaseBackupInfo.class);
